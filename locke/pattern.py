@@ -38,18 +38,6 @@ class ExplicitPattern(Pattern):
         self.pat = pat
 
 
-class StringPattern(ExplicitPattern):
-    """
-    This is a subclass of ExplicitPattern for patterns that match
-    a single string.
-    """
-    def match(self):
-        pass
-
-    def filter(self):
-        pass
-
-
 class BytePattern(ExplicitPattern):
     """
     This is a subclass of ExplicitPattern for patterns that match a
