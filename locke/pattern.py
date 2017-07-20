@@ -14,9 +14,10 @@ class Pattern(ABC):
     def __init__(self, name, weight=1, **kwargs):
         self.name = name
         self.weight = weight
+        self.options = kwargs
 
-        for key, value in kwargs.items():
-            self.setattr(key, value)
+    def opt(self, key):
+        self.options.get(key)
 
     @abstractmethod
     def match(self):
