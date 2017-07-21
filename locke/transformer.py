@@ -127,7 +127,7 @@ def rol_left(byte, count):
     """
     if (count < 0):
         raise ValueError("count needs to be larger than 0")
-    if (!isistance(count, int)):
+    if (not isinstance(count, int)):
         raise TypeError("count needs to be an int")
 
     count = count % 8
@@ -148,7 +148,7 @@ def rol_right(byte, count):
     """
     if (count < 0):
         raise ValueError("count needs to be larger than 0")
-    if (!isistance(count, int)):
+    if (not isinstance(count, int)):
         raise TypeError("count needs to be an int")
 
     count = count % 8
