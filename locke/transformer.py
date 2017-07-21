@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import zipfile
 
 
 class TransformString(ABC):
@@ -118,6 +119,7 @@ class TransformChar(ABC):
         """
         yield None
 
+
 def rol_left(byte, count):
     """
     This method will left shift the byte left by count
@@ -138,6 +140,7 @@ def rol_left(byte, count):
     # Shift left then OR with the part that was shift out of bound
     # afterward AND with 0xFF to get only a byte
     return (byte << count | byte >> (8 - count)) & 0xFF
+
 
 def rol_right(byte, count):
     """
@@ -160,3 +163,48 @@ def rol_right(byte, count):
     # afterward AND with 0xFF to get only a byte
     return (byte >> count | byte << (8 - count)) & 0xFF
 
+
+def read_zip(filename, password=None):
+    """
+    Read a zip file and get the byte data from it. If there are multiple
+    files inside the zip, it will ask which on to evaluate (or all if 
+    desired)
+
+    Args:
+        filename: The location of the file
+        password: Defaults to None. The zip's password if applicable
+
+    Return:
+        Either a list of bytestring or a single bytestring
+    """
+    if not zipfile.is_zipfile(filename):
+        raise TypeError("\"%s\" is NOT a valid zip file! Try running a normal "
+                "scan on it" % filename)
+    zfile = zipfile.ZipFile(filename, 'r')
+    print("What file do you want to evaluate:")
+    for i in range(0, len(zfile.namelist())):
+        print("%i: %s" % (i + 1, zfile.namelist()[i]))
+    ans = int(input("1 - %i [0 = all]: " % len(zfile.namelist())))
+    if ans == 0:
+        data = []
+        for z in zfile.infolist():
+            data.append(zfile.read(z))
+    else:
+        data = zfile.read(zfile.infolist()[ans - 1], password)
+    return data
+
+
+def read_file(filename):
+    """
+    Read a file and return the bytestring
+
+    Args:
+        The location of the file
+
+    Return:
+        The bytestring of the file
+    """
+    f = open(filename, 'rb')
+    data = f.read()
+    f.close()
+    return data
