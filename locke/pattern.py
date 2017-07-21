@@ -18,7 +18,7 @@ class Pattern(ABC):
         self.options = kwargs
 
     def opt(self, key):
-        self.options.get(key)
+        return self.options.get(key)
 
     @abstractmethod
     def find_all(self, data):
@@ -35,7 +35,11 @@ class ExplicitPattern(Pattern):
     """
     def __init__(self, name, pat, **kwargs):
         super().__init__(name, **kwargs)
-        self.pat = pat
+
+        if isinstance(pat, bytes):
+            self.pat = pat
+        else:
+            self.pat = pat.encode()
 
 
 class BytePattern(ExplicitPattern):
@@ -43,13 +47,25 @@ class BytePattern(ExplicitPattern):
     This is a subclass of ExplicitPattern for patterns that match a
     single bytestring.
     """
+    def __init__(self, name, pat, **kwargs):
+        super().__init__(name, pat, **kwargs)
+
+        if self.opt("nocase"):
+            self.pat = self.pat.lower()
+
     def indices(self, data):
-        i = data.find(self.pat)
-        while i != -1:
-            yield i
-            i = data.find(self.pat, i + 1)
+        try:
+            i = data.index(self.pat)
+            while i != -1:
+                yield i
+                i = data.index(self.pat, i + 1)
+        except ValueError:
+            pass
 
     def find_all(self, data):
+        if self.opt("nocase"):
+            data = data.lower()
+
         return [(i, data[i:i + len(self.pat)]) for i in self.indices(data)]
 
 
@@ -74,5 +90,13 @@ class REPattern(ExplicitPattern):
     This is a subclass of ExplicitPattern for patterns that match a
     regular expression
     """
+    def __init__(self, name, pat, **kwargs):
+        super().__init__(name, pat, **kwargs)
+
+        if self.opt("nocase"):
+            self.pat = re.compile(self.pat, re.IGNORECASE)
+        else:
+            self.pat = re.compile(self.pat)
+
     def find_all(self, data):
         return [(m.start(), m.group(0)) for m in re.finditer(self.pat, data)]
