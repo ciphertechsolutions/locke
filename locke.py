@@ -21,9 +21,9 @@ def load_all_patterns():
         print(plugin)
         exec(open(plugin).read())
 
-def load_all_transformer():
+def load_all_transformers():
     print(TRANSFORM_PLUGIN_GLOB)
-    for (plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
+    for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
             print(plugin)
             exec(open(trans).read(), globals())
 
