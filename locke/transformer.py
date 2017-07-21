@@ -167,10 +167,9 @@ def rol_right(byte, count):
 def read_zip(filename, password):
     if not zipfile.is_zipfile(filename):
         raise TypeError("\"%s\" is NOT a valid zip file! Try running a normal "
-        "scan on it" % filename)
+                "scan on it" % filename)
     zfile = zipfile.ZipFile(filename, 'r')
     print("What file do you want to evaluate:")
-    filelist = []
     for i in range(0, len(zfile.namelist())):
         print("%i: %s" % (i + 1, zfile.namelist()[i]))
     ans = int(input("1 - %i [0 = all]: " % len(zfile.namelist())))
