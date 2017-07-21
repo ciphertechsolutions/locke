@@ -3,7 +3,6 @@ import os.path
 import glob
 from locke import *
 
-
 # Locke pattern plugins are expected to be in this directory.
 PATTERN_PLUGIN_DIR = os.path.abspath('patterns')
 PATTERN_PLUGIN_GLOB = os.path.join(PATTERN_PLUGIN_DIR, '*.py')
@@ -14,6 +13,7 @@ LOCKE_PATTERNS = []
 # Locke transformer plugins
 TRANSFORM_PLUGIN_DIR = os.path.abspath('transformers')
 TRANSFORM_PLUGIN_GLOB = os.path.join(TRANSFORM_PLUGIN_DIR, '*.py')
+LOCKE_TRANSFORMERS = []
 
 def load_all_patterns():
     for plugin in glob.glob(PATTERN_PLUGIN_GLOB):

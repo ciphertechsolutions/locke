@@ -26,6 +26,8 @@ class TransformString(ABC):
         Returns:
             A bytestring
         """
+        if not isinstance(data, str):
+            raise TypeError("Data needs to be a string type")
         return data
 
     @staticmethod
@@ -75,19 +77,21 @@ class TransformChar(ABC):
         Returns:
             A bytestring
         """
+        if not isinstance(data, str):
+            raise TypeError("Data needs to be a string type")
         self.trans_table = ''
-        for i in range(257):
-            self.trans_table += chr(self.transform_char(i))
+        for i in range(256):
+            self.trans_table += chr(self.transform_byte(i))
         return data.translate(self.trans_table)
 
     @abstractmethod
-    def transform_char(self, char):
+    def transform_byte(self, byte):
         """
         This method will transform any char (or a byte from 0 - 256)
         and return the new char (with in the range 0 - 256).
 
         Args:
-            char: The numerical version of the char. This method should
+            byte: The numerical version of the char. This method should
                 be able to handle all char from 0 - 256
 
         Returns:
@@ -133,7 +137,7 @@ def rol_left(byte, count):
     count = count % 8
     # Shift left then OR with the part that was shift out of bound
     # afterward AND with 0xFF to get only a byte
-    return (count << count | count >> (8 - count)) & 0xFF
+    return (byte << count | byte >> (8 - count)) & 0xFF
 
 def rol_right(byte, count):
     """
@@ -154,5 +158,5 @@ def rol_right(byte, count):
     count = count % 8
     # Shift right then OR with the part that was shift out of bound
     # afterward AND with 0xFF to get only a byte
-    return (count >> count | count << (8 - count)) & 0xFF
+    return (byte >> count | byte << (8 - count)) & 0xFF
 
