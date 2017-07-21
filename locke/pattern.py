@@ -24,6 +24,9 @@ class Pattern(ABC):
     def find_all(self, data):
         pass
 
+    def count(self, data):
+        return len(self.find_all(data))
+
 
 class ExplicitPattern(Pattern):
     """
