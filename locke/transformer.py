@@ -13,7 +13,7 @@ class TransformString(ABC):
         self.value = ""
 
     @abstractmethod
-    def transform_string(self, data):
+    def transform(self, data):
         """
         Needs to be overridden
         This method contains all the requires steps/calls needed
@@ -55,6 +55,10 @@ class TransformChar(ABC):
     ID: chr_trans
     """
 
+    @abstractmethod
+    def __init__(self, value):
+        self.value = value
+
     def transform(self, data):
         """
         This method contains all the requires steps/calls needed
@@ -90,3 +94,65 @@ class TransformChar(ABC):
             An int between 0 - 256
         """
         pass
+
+    @staticmethod
+    @abstractmethod
+    def all_iteration():
+        """
+        Needs to be overridden
+        This method will create a generator that lists/produces
+        all the different iteration possible that this class
+        can handle
+
+        Return:
+            A generator that produces all the different iteration
+            that this class can use to transform the string. For
+            example:
+
+            If this class transform by XOR, this method will produce
+            the value 1 - 256 (0 is the identity value for XOR).
+        """
+        yield None
+
+def rol_left(byte, count):
+    """
+    This method will left shift the byte left by count
+
+    Args:
+        count: The numerical amount to shift by. Needs to be an int
+        and greater or equal to 0
+
+    Return:
+        The byte shifted
+    """
+    if (count < 0):
+        raise ValueError("count needs to be larger than 0")
+    if (!isistance(count, int)):
+        raise TypeError("count needs to be an int")
+
+    count = count % 8
+    # Shift left then OR with the part that was shift out of bound
+    # afterward AND with 0xFF to get only a byte
+    return (count << count | count >> (8 - count)) & 0xFF
+
+def rol_right(byte, count):
+    """
+    This method will right shift the byte left by count
+
+    Args:
+        count: The numerical amount to shift by. Needs to be an int
+        and greater or equal to 0
+
+    Return:
+        The byte shifted
+    """
+    if (count < 0):
+        raise ValueError("count needs to be larger than 0")
+    if (!isistance(count, int)):
+        raise TypeError("count needs to be an int")
+
+    count = count % 8
+    # Shift right then OR with the part that was shift out of bound
+    # afterward AND with 0xFF to get only a byte
+    return (count >> count | count << (8 - count)) & 0xFF
+
