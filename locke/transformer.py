@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import zipfile
 
 
 class TransformString(ABC):
@@ -118,6 +119,7 @@ class TransformChar(ABC):
         """
         yield None
 
+
 def rol_left(byte, count):
     """
     This method will left shift the byte left by count
@@ -138,6 +140,7 @@ def rol_left(byte, count):
     # Shift left then OR with the part that was shift out of bound
     # afterward AND with 0xFF to get only a byte
     return (byte << count | byte >> (8 - count)) & 0xFF
+
 
 def rol_right(byte, count):
     """
@@ -160,3 +163,28 @@ def rol_right(byte, count):
     # afterward AND with 0xFF to get only a byte
     return (byte >> count | byte << (8 - count)) & 0xFF
 
+
+def read_zip(filename, password):
+    if not zipfile.is_zipfile(filename):
+        raise TypeError("\"%s\" is NOT a valid zip file! Try running a normal "
+        "scan on it" % filename)
+    zfile = zipfile.ZipFile(filename, 'r')
+    print("What file do you want to evaluate:")
+    filelist = []
+    for i in range(0, len(zfile.namelist())):
+        print("%i: %s" % (i + 1, zfile.namelist()[i]))
+    ans = int(input("1 - %i [0 = all]: " % len(zfile.namelist())))
+    if ans == 0:
+        data = []
+        for z in zfile.infolist():
+            data.append(zfile.read(z))
+    else:
+        data = zfile.read(zfile.infolist()[ans - 1])
+    return data
+
+
+def read_file(filename):
+    f = open(filename, 'rb')
+    data = f.read()
+    f.close()
+    return data
