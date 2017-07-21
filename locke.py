@@ -34,14 +34,15 @@ def cli(ctx, verbose):
 
 @cli.command()
 @click.option('--csv', default=False, help='output results as CSV')
-@click.argument('inputs', type=click.File('rb'), nargs=-1)
+@click.argument('files', type=click.File('rb'), nargs=-1)
 @click.pass_context
-def search(ctx, csv, inputs):
+def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
-    click.echo('Search')
-    click.echo(LOCKE_PATTERNS)
+    locke = Locke(LOCKE_PATTERNS)
+    for f in files:
+        [click.echo(ms) for (_, ms) in locke.scan(f.read())]
 
 
 @cli.command()
