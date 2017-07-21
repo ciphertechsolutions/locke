@@ -6,12 +6,14 @@ from locke import *
 
 # Locke pattern plugins are expected to be in this directory.
 PATTERN_PLUGIN_DIR = os.path.abspath('patterns')
-
 PATTERN_PLUGIN_GLOB = os.path.join(PATTERN_PLUGIN_DIR, '*.py')
 
 # Locke pattern plugins are expected to modify this array.
 LOCKE_PATTERNS = []
 
+# Locke transformer plugins
+TRANSFORM_PLUGIN_DIR = os.path.abspath('transformers')
+TRANSFORM_PLUGIN_GLOB = os.path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 
 def load_all_patterns():
     print(PATTERN_PLUGIN_GLOB)
@@ -19,6 +21,11 @@ def load_all_patterns():
         print(plugin)
         exec(open(plugin).read())
 
+def load_all_transformers():
+    print(TRANSFORM_PLUGIN_GLOB)
+    for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
+            print(plugin)
+            exec(open(trans).read(), globals())
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
