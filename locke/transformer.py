@@ -164,7 +164,19 @@ def rol_right(byte, count):
     return (byte >> count | byte << (8 - count)) & 0xFF
 
 
-def read_zip(filename, password):
+def read_zip(filename, password=None):
+    """
+    Read a zip file and get the byte data from it. If there are multiple
+    files inside the zip, it will ask which on to evaluate (or all if 
+    desired)
+
+    Args:
+        filename: The location of the file
+        password: Defaults to None. The zip's password if applicable
+
+    Return:
+        Either a list of bytestring or a single bytestring
+    """
     if not zipfile.is_zipfile(filename):
         raise TypeError("\"%s\" is NOT a valid zip file! Try running a normal "
                 "scan on it" % filename)
@@ -178,11 +190,20 @@ def read_zip(filename, password):
         for z in zfile.infolist():
             data.append(zfile.read(z))
     else:
-        data = zfile.read(zfile.infolist()[ans - 1])
+        data = zfile.read(zfile.infolist()[ans - 1], password)
     return data
 
 
 def read_file(filename):
+    """
+    Read a file and return the bytestring
+
+    Args:
+        The location of the file
+
+    Return:
+        The bytestring of the file
+    """
     f = open(filename, 'rb')
     data = f.read()
     f.close()
