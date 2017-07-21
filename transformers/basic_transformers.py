@@ -27,10 +27,10 @@ class TransformRotateLeft(TransformChar):
     ID: rLeft
     """
     def __init__(self, value):
-        self.value
+        self.value = value
 
-    def transform_char(self, char):
-        return rol_left(char, self.value)
+    def transform_byte(self, byte):
+        return rol_left(byte, self.value)
 
     @staticmethod
     def all_iteration():
@@ -45,10 +45,10 @@ class TransformRotateRight(TransformChar):
     ID: rLeft
     """
     def __init__(self, value):
-        self.value
+        self.value = value
 
-    def transform_char(self, char):
-        return rol_right(char, self.value)
+    def transform_byte(self, byte):
+        return rol_right(byte, self.value)
 
     @staticmethod
     def all_iteration():
@@ -65,8 +65,8 @@ class TransformXOR(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_char(self, char):
-        return char ^ self.value
+    def transform_byte(self, byte):
+        return byte ^ self.value
 
     @staticmethod
     def all_iteration():
@@ -83,8 +83,8 @@ class TransformAdd(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_char(self, char):
-        return (char + self.value) & 0xFF
+    def transform_byte(self, byte):
+        return (byte + self.value) & 0xFF
 
     @staticmethod
     def all_iteration():
@@ -103,8 +103,8 @@ class TransformSub(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_char(self, char):
-        result = char - self.value
+    def transform_byte(self, byte):
+        result = byte - self.value
         result = 0 if result < 0 else result
         return result & 0xFF
 
