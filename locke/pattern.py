@@ -53,6 +53,22 @@ class BytePattern(ExplicitPattern):
         return [(i, data[i:i + len(self.pat)]) for i in self.indices(data)]
 
 
+class ByteListPattern(Pattern):
+    """
+    This is a subclass of Pattern for lists of bytestrings.
+    """
+    def __init__(self, name, pats, **kwargs):
+        super().__init__(name, **kwargs)
+        self.pats = [BytePattern(name, pat, **kwargs) for pat in pats]
+
+    def find_all(self, data):
+        flat_list = []
+        for pat in self.pats:
+            for match in pat.find_all(data):
+                flat_list.append(match)
+        return flat_list
+
+
 class REPattern(ExplicitPattern):
     """
     This is a subclass of ExplicitPattern for patterns that match a
