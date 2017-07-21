@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Transform_String(ABC):
+class TransformString(ABC):
     """
     Name: Transform String
     Description: Transform the whole data string
@@ -48,7 +48,7 @@ class Transform_String(ABC):
         yield None
 
 
-class Transform_Char(ABC):
+class TransformChar(ABC):
     """
     Name: Transform Char
     Description: Transform individual char in the data (two bytes)
