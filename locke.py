@@ -16,15 +16,11 @@ TRANSFORM_PLUGIN_DIR = os.path.abspath('transformers')
 TRANSFORM_PLUGIN_GLOB = os.path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 
 def load_all_patterns():
-    print(PATTERN_PLUGIN_GLOB)
     for plugin in glob.glob(PATTERN_PLUGIN_GLOB):
-        print(plugin)
         exec(open(plugin).read())
 
 def load_all_transformers():
-    print(TRANSFORM_PLUGIN_GLOB)
     for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
-            print(plugin)
             exec(open(trans).read(), globals())
 
 @click.group()
@@ -38,8 +34,9 @@ def cli(ctx, verbose):
 
 @cli.command()
 @click.option('--csv', default=False, help='output results as CSV')
+@click.argument('inputs', type=click.File('rb'), nargs=-1)
 @click.pass_context
-def search(ctx, csv):
+def search(ctx, csv, inputs):
     """
     Search for patterns of interest in the supplied files.
     """
