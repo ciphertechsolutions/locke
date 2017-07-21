@@ -5,6 +5,7 @@ descendants.
 
 
 from abc import ABC, abstractmethod
+import re
 
 
 class Pattern(ABC):
@@ -20,11 +21,7 @@ class Pattern(ABC):
         self.options.get(key)
 
     @abstractmethod
-    def match(self):
-        pass
-
-    @abstractmethod
-    def filter(self):
+    def find_all(self, data):
         pass
 
 
@@ -43,11 +40,14 @@ class BytePattern(ExplicitPattern):
     This is a subclass of ExplicitPattern for patterns that match a
     single bytestring.
     """
-    def match(self):
-        pass
+    def indices(self, data):
+        i = data.find(self.pat)
+        while i != -1:
+            yield i
+            i = data.find(self.pat, i + 1)
 
-    def filter(self):
-        pass
+    def find_all(self, data):
+        return [(i, data[i:i + len(self.pat)]) for i in self.indices(data)]
 
 
 class REPattern(ExplicitPattern):
@@ -55,8 +55,5 @@ class REPattern(ExplicitPattern):
     This is a subclass of ExplicitPattern for patterns that match a
     regular expression
     """
-    def match(self):
-        pass
-
-    def filter(self):
-        pass
+    def find_all(self, data):
+        return [(m.start(), m.group(0)) for m in re.finditer(self.pat, data)]
