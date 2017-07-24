@@ -7,7 +7,6 @@ import inspect
 from locke import pattern, locke, transformer
 from locke.pattern import *
 from locke.transformer import *
-from locke import *
 
 
 # Locke pattern plugins are expected to be in this directory.
@@ -100,9 +99,9 @@ def crack(ctx, level, only, select, keep, save, zip, password,
     else:
         data = trans.read_file(filename)
 
-    locke = Locke(LOCKE_PATTERNS)
+    lock = locke.Locke(LOCKE_PATTERNS)
     results = trans.evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, 
-            keep, locke)
+            keep, lock)
     
     print(len(results[:save]))
     # Write the final data to disk
