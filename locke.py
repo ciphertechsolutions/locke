@@ -4,7 +4,10 @@ import glob
 import sys
 import inspect
 
+from locke import pattern, locke
+from locke.pattern import *
 from locke import *
+
 
 # Locke pattern plugins are expected to be in this directory.
 PATTERN_PLUGIN_DIR = os.path.abspath('patterns')
@@ -32,6 +35,7 @@ def load_all_transformers():
             LOCKE_TRANSFORMERS.append(clss)
 
 
+
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
 @click.pass_context
@@ -43,13 +47,15 @@ def cli(ctx, verbose):
 
 @cli.command()
 @click.option('--csv', default=False, help='output results as CSV')
+@click.argument('files', type=click.File('rb'), nargs=-1)
 @click.pass_context
-def search(ctx, csv):
+def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
-    click.echo('Search')
-    click.echo(LOCKE_PATTERNS)
+    l = locke.Locke(LOCKE_PATTERNS)
+    for f in files:
+        [click.echo(ms) for (_, ms) in l.scan(f.read())]
 
 
 @cli.command()
