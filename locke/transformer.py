@@ -164,7 +164,7 @@ def rol_right(byte, count):
     return (byte >> count | byte << (8 - count)) & 0xFF
 
 
-def read_zip(filename, password=None):
+def read_zip(filename, password=None, verbose=False):
     """
     Read a zip file and get the byte data from it. If there are multiple
     files inside the zip, it will ask which on to evaluate (or all if 
@@ -184,17 +184,15 @@ def read_zip(filename, password=None):
     print("What file do you want to evaluate:")
     for i in range(0, len(zfile.namelist())):
         print("%i: %s" % (i + 1, zfile.namelist()[i]))
-    ans = int(input("1 - %i [0 = all]: " % len(zfile.namelist())))
-    if ans == 0:
-        data = []
-        for z in zfile.infolist():
-            data.append(zfile.read(z))
-    else:
+    ans = int(input("1 - %i: " % len(zfile.namelist())))
+    if ans in range(1, len(zfile.namelist())):
         data = zfile.read(zfile.infolist()[ans - 1], password)
+    else:
+        raise IndexError("Range %i is out of bound" %ans);
     return data
 
 
-def read_file(filename):
+def read_file(filename, verbose=False):
     """
     Read a file and return the bytestring
 
