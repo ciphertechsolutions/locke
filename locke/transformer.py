@@ -9,7 +9,7 @@ class TransformString(ABC):
     ID: str_trans
     """
     @abstractproperty
-    def class_level(self):
+    def class_level():
         pass
 
     @abstractmethod
@@ -61,7 +61,7 @@ class TransformChar(ABC):
     ID: chr_trans
     """
     @abstractproperty
-    def class_level(self):
+    def class_level():
         pass
 
     @abstractmethod

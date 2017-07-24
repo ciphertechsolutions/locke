@@ -4,7 +4,7 @@ class TransformIndentity(TransformString):
     Description: Just return the default value
     ID: no_trans
     """
-    def class_level(self):
+    def class_level():
         return 1
 
     def __init__(self, value):
@@ -29,7 +29,7 @@ class TransformRotateLeft(TransformChar):
     Description: Rotate the data left by "X" amount
     ID: rLeft
     """
-    def class_level(self):
+    def class_level():
         return 1
 
     def __init__(self, value):
@@ -50,7 +50,7 @@ class TransformRotateRight(TransformChar):
     Description: Rotate the data right by "X" amount
     ID: rLeft
     """
-    def class_level(self):
+    def class_level():
         return 1
 
     def __init__(self, value):
@@ -71,7 +71,7 @@ class TransformXOR(TransformChar):
     Description: XOR each byte of the data with the value
     ID: xor_char
     """
-    def class_level(self):
+    def class_level():
         return 1
 
     def __init__(self, value):
@@ -92,7 +92,7 @@ class TransformAdd(TransformChar):
     Description: Add a value to each byte and return
     ID: add_char
     """
-    def class_level(self):
+    def class_level():
         return 1
 
     def __init__(self, value):
@@ -115,7 +115,7 @@ class TransformSub(TransformChar):
         to zero
     ID: sub_char
     """
-    def class_level(self):
+    def class_level():
         return 1
 
     def __init__(self, value):
