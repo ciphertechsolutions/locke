@@ -31,7 +31,7 @@ class TransformString(ABC):
             A bytestring
         """
         if not isinstance(data, str):
-            raise TypeError("Data needs to be a string type")
+            raise TypeError('Data needs to be a string type')
         return data
 
     @staticmethod
@@ -85,7 +85,7 @@ class TransformChar(ABC):
             A bytestring
         """
         if not isinstance(data, str):
-            raise TypeError("Data needs to be a string type")
+            raise TypeError('Data needs to be a string type')
         self.trans_table = ''
         for i in range(256):
             self.trans_table += chr(self.transform_byte(i))
@@ -138,9 +138,9 @@ def rol_left(byte, count):
         The byte shifted
     """
     if (count < 0):
-        raise ValueError("count needs to be larger than 0")
+        raise ValueError('count needs to be larger than 0')
     if (not isinstance(count, int)):
-        raise TypeError("count needs to be an int")
+        raise TypeError('count needs to be an int')
 
     count = count % 8
     # Shift left then OR with the part that was shift out of bound
@@ -160,9 +160,9 @@ def rol_right(byte, count):
         The byte shifted
     """
     if (count < 0):
-        raise ValueError("count needs to be larger than 0")
+        raise ValueError('count needs to be larger than 0')
     if (not isinstance(count, int)):
-        raise TypeError("count needs to be an int")
+        raise TypeError('count needs to be an int')
 
     count = count % 8
     # Shift right then OR with the part that was shift out of bound
@@ -184,17 +184,17 @@ def read_zip(filename, password=None, verbose=False):
         Either a list of bytestring or a single bytestring
     """
     if not zipfile.is_zipfile(filename):
-        raise TypeError("\"%s\" is NOT a valid zip file! Try running a normal "
-                "scan on it" % filename)
+        raise TypeError('\"%s\" is NOT a valid zip file! Try running a normal '
+                'scan on it' % filename)
     zfile = zipfile.ZipFile(filename, 'r')
-    print("What file do you want to evaluate:")
+    print('What file do you want to evaluate:')
     for i in range(0, len(zfile.namelist())):
-        print("%i: %s" % (i + 1, zfile.namelist()[i]))
-    ans = int(input("1 - %i: " % len(zfile.namelist())))
+        print('%i: %s' % (i + 1, zfile.namelist()[i]))
+    ans = int(input('1 - %i: ' % len(zfile.namelist())))
     if ans in range(1, len(zfile.namelist())):
         data = zfile.read(zfile.infolist()[ans - 1], password)
     else:
-        raise IndexError("Range %i is out of bound" % ans)
+        raise IndexError('Range %i is out of bound' % ans)
     return data
 
 
