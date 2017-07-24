@@ -55,7 +55,15 @@ def search(ctx, csv, files):
     """
     l = locke.Locke(LOCKE_PATTERNS)
     for f in files:
-        [click.echo(ms) for (_, ms) in l.scan(f.read())]
+        print("=" * 79)
+        print("File: %s\n" % f.name)
+        for pat, matches in l.scan(f.read()):
+            for index, match in matches:
+                mstr = match.hex()
+                if len(mstr) > 50:
+                    mstr = mstr[:24] + '...' + mstr[-23:]
+
+                print('at %08X: %s - %s' % (index, pat.name, mstr))
 
 
 @cli.command()
