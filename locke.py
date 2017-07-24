@@ -1,7 +1,8 @@
 import click
 import os.path
 import glob
-from locke import *
+from locke import pattern, locke
+from locke.pattern import *
 
 # Locke pattern plugins are expected to be in this directory.
 PATTERN_PLUGIN_DIR = os.path.abspath('patterns')
@@ -15,13 +16,16 @@ TRANSFORM_PLUGIN_DIR = os.path.abspath('transformers')
 TRANSFORM_PLUGIN_GLOB = os.path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 LOCKE_TRANSFORMERS = []
 
+
 def load_all_patterns():
     for plugin in glob.glob(PATTERN_PLUGIN_GLOB):
         exec(open(plugin).read())
 
+
 def load_all_transformers():
     for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
             exec(open(plugin).read(), globals())
+
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
@@ -40,9 +44,9 @@ def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
-    locke = Locke(LOCKE_PATTERNS)
+    l = locke.Locke(LOCKE_PATTERNS)
     for f in files:
-        [click.echo(ms) for (_, ms) in locke.scan(f.read())]
+        [click.echo(ms) for (_, ms) in l.scan(f.read())]
 
 
 @cli.command()
