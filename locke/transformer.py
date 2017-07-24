@@ -30,7 +30,7 @@ class TransformString(ABC):
         Returns:
             A bytestring
         """
-        if not isinstance(data, str):
+        if not isinstance(data, bytes):
             raise TypeError('Data needs to be a string type')
         return data
 
@@ -84,12 +84,17 @@ class TransformChar(ABC):
         Returns:
             A bytestring
         """
-        if not isinstance(data, str):
+        if not isinstance(data, bytes):
             raise TypeError('Data needs to be a string type')
+        trans_data = bytearray(data)
+        for i in range(0, len(data)):
+            trans_data[i] = self.transform_byte(data[i])
+        return trans_data
         self.trans_table = ''
-        for i in range(256):
+        for i in range(0,256):
             self.trans_table += chr(self.transform_byte(i))
-        return data.translate(self.trans_table)
+            print(len(self.trans_table.encode()))
+        return data.translate(self.trans_table.encode())
 
     @abstractmethod
     def transform_byte(self, byte):
@@ -186,7 +191,7 @@ def read_zip(filename, password=None, verbose=False):
     if not zipfile.is_zipfile(filename):
         raise TypeError('\"%s\" is NOT a valid zip file! Try running a normal '
                 'scan on it' % filename)
-    zfile = zipfile.ZipFile(filename, 'r')
+        zfile = zipfile.ZipFile(filename, 'r')
     print('What file do you want to evaluate:')
     for i in range(0, len(zfile.namelist())):
         print('%i: %s' % (i + 1, zfile.namelist()[i]))
@@ -238,16 +243,40 @@ def select_transformers(trans_list, name=None, level=None, only=None):
             raise LookupError("There are no such level as %i" % only)
     else:
         if level == 1:
-            trans_class = trans_list[1]
+            trans_class = trans_list[0]
         elif level == 2:
-            trans_class = trans_list[1] + trans_list[2]
-        elif level == 3 || level == None
-            trans_class = trans_list[1] + trans_list[2] + trans_list[3]
+            trans_class = trans_list[0] + trans_list[1]
+        elif level == 3 or level == None:
+            trans_class = trans_list[0] + trans_list[1] + trans_list[2]
         else:
             raise LookupError("There are no such level as %i" % only)
     return trans_class
 
 
-def evaluate_data(data, trans_list, level, only, name, keep, save, verbose=False):
+def evaluate_data(data, trans_list, level, only, name, keep, 
+        save, locke, verbose=False):
     transformers = select_transformers(trans_list, name, level, only)
 
+    results = []
+    best_score = 0
+
+    for trans in transformers:
+        for value in trans[1].all_iteration():
+            transform = trans[1](value)
+            trans_data = transform.transform(data)
+            score = 0
+            for pattern, matches in locke.scan(trans_data):
+                score += len(matches) * pattern.weight
+            print('Transform: %s | Stage: 1 | Score: %i | Value: %s           \r' 
+                    % (trans[0], score, value), end='')
+            if score > best_score:
+                best_score = score
+                print('Best Score: %i | Stage: 1 | Transformer: %s              '
+                        % (best_score, trans[0]))
+            results.append((transform, score))
+
+    print("")
+    return
+
+    for t, s in results:
+        print("Trans: %s | Score: %s" % (t, s))

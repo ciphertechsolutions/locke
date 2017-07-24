@@ -92,14 +92,15 @@ def crack(ctx, level, only, select, keep, save, zip, password,
     Use patterns of interest to crack the supplied files.
     """
     load_all_transformers()
-    print (level)
 
     if zip:
         data = read_zip(filename, password, verbose)
     else:
         data = read_file(filename, verbose)
 
-    evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, keep, save, verbose)
+    locke = Locke(LOCKE_PATTERNS)
+    evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, keep, 
+            save, locke, verbose)
 
 
 @cli.command()
