@@ -19,7 +19,8 @@ LOCKE_PATTERNS = []
 # Locke transformer plugins
 TRANSFORM_PLUGIN_DIR = os.path.abspath('transformers')
 TRANSFORM_PLUGIN_GLOB = os.path.join(TRANSFORM_PLUGIN_DIR, '*.py')
-LOCKE_TRANSFORMERS = []
+# Nest array. One for each level
+LOCKE_TRANSFORMERS = [[], [], []]
 
 
 def load_all_patterns():
@@ -32,8 +33,14 @@ def load_all_transformers():
             exec(open(plugin).read(), globals())
     for clss in inspect.getmembers(sys.modules[__name__], inspect.isclass):
         if "Transform" in clss[0]:
-            LOCKE_TRANSFORMERS.append(clss)
-
+            if "locke" in clss[1].__module__:
+                continue
+            if clss[1].class_level() == 1:
+                LOCKE_TRANSFORMERS[0].append(clss)
+            elif clss[1].class_level() == 2:
+                LOCKE_TRANSFORMERS[1].append(clss)
+            elif clss[1].class_level() == 3:
+                LOCKE_TRANSFORMERS[2].append(clss)
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
@@ -92,29 +99,24 @@ def search(ctx, csv, files):
 @click.option('-z', '--zip', is_flag=True, help="Mark this file"
               "as a zip file. Use --password to enter zip's password")
 @click.option('--password', nargs=1, help="Only works if -z is "
-              "set. Allows input of password for zip file")
-@click.option('-d', '--display', is_flag=True, help="Display all available "
-              "transformers")
+        "set. Allows input of password for zip file")
 @click.option('-p', '--profiling', is_flag=True)
 @click.option('-v', '--verbose', is_flag=True)
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
-def crack(ctx, level, inclevel, keep, save, zip, password, display,
-          profiling, filename, verbose):
+def crack(ctx, level, inclevel, keep, save, zip, password,
+        profiling, filename, verbose):
     """
     Use patterns of interest to crack the supplied files.
     """
     load_all_transformers()
 
-    if display:
-        for trans in LOCKE_TRANSFORMERS:
-            click.echo(trans[0])
-    elif zip:
+    if zip:
         data = read_zip(filename, password, verbose)
     else:
         data = read_file(filename, verbose)
 
-    print(data)
+    evuluate_data(data, LOCKE_TRANSFORMERS, level, inclevel, keep, save, verbose)
 
 
 @cli.command()
@@ -133,8 +135,10 @@ def transforms(ctx):
     List all transformations known by Locke.
     """
     load_all_transformers()
-    for trans in LOCKE_TRANSFORMERS:
-        click.echo(trans[0])
+    for transList in LOCKE_TRANSFORMERS:
+        for trans in transList:
+            print('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
+            print(trans[1].__doc__)
 
 
 if __name__ == '__main__':
