@@ -18,13 +18,25 @@ class Pattern(ABC):
         self.options = kwargs
 
     def opt(self, key):
+        """
+        This method retrieves the requested option, defaulting
+        to None if the option is not set.
+        """
         return self.options.get(key)
 
     @abstractmethod
     def find_all(self, data):
+        """
+        This method returns a list of (index, match) tuples,
+        one for each match of the pattern in the specified data.
+        """
         pass
 
     def count(self, data):
+        """
+        This method returns the total number of matches found
+        in the specified data.
+        """
         return len(self.find_all(data))
 
 

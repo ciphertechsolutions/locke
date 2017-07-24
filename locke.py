@@ -72,7 +72,7 @@ def search(ctx, csv, files):
         print("File: %s\n" % f.name)
         for pat, matches in l.scan(f.read()):
             for index, match in matches:
-                mstr = utils.prettyhex2(match)
+                mstr = utils.prettyhex(match)
                 if len(mstr) > 50:
                     mstr = mstr[:24] + '...' + mstr[-23:]
 
