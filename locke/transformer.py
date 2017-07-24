@@ -213,5 +213,5 @@ def read_file(filename, verbose=False):
     f.close()
     return data
 
-def evuluate_data(data, trans_list, level, inclevel, keep, save, verbose=False):
+# def evuluate_data(data, trans_list, level, inclevel, keep, save, verbose=False):
 
