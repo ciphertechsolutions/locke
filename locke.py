@@ -21,7 +21,7 @@ def load_all_patterns():
 
 def load_all_transformers():
     for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
-            exec(open(trans).read(), globals())
+            exec(open(plugin).read(), globals())
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
