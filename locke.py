@@ -78,7 +78,6 @@ def crack(ctx, level, inclevel, keep, save, zip, password, display,
     """
     load_all_transformers()
 
-    print(zip)
     if display:
         for trans in LOCKE_TRANSFORMERS:
             click.echo(trans[0])
@@ -105,7 +104,9 @@ def transforms(ctx):
     """
     List all transformations known by Locke.
     """
-    click.echo('List of Transforms')
+    load_all_transformers()
+    for trans in LOCKE_TRANSFORMERS:
+        click.echo(trans[0])
 
 
 if __name__ == '__main__':
