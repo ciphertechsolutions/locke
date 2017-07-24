@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
+import time
 import zipfile
 
 
@@ -254,12 +255,15 @@ def select_transformers(trans_list, name=None, level=None, only=None):
 
 
 def evaluate_data(data, trans_list, level, only, name, keep, 
-        save, locke, verbose=False):
+        locke, verbose=False):
     transformers = select_transformers(trans_list, name, level, only)
 
     results = []
     best_score = 0
 
+    # Stage 1 pattern searching
+
+    start_time = time.clock()
     for trans in transformers:
         for value in trans[1].all_iteration():
             transform = trans[1](value)
@@ -274,9 +278,33 @@ def evaluate_data(data, trans_list, level, only, name, keep,
                 print('Best Score: %i | Stage: 1 | Transformer: %s              '
                         % (best_score, trans[0]))
             results.append((transform, score))
+    print("\n")
 
-    print("")
-    return
-
+    end_time = time.clock() - start_time
+    print("Ran through %i transforms in %f seconds - %f trans/sec" 
+            % (len (results), end_time , len(results)/end_time))
+    # Sort the array and keep only the high scoring result
+    results = sorted(results, key=lambda r:r[1], reverse=True)
+    results = results[:keep]
     for t, s in results:
-        print("Trans: %s | Score: %s" % (t, s))
+        print("%s (%s) \t| Score: %s" % (t.__class__.__name__, t.value, s))
+
+    # Time for stage 2 pattern searching
+    final_result = []
+    print("")
+    for transform, tran_score in results:
+        trans_data = transform.transform(data)
+        score = 0
+        print("")
+        for pattern, matches in locke.scan(trans_data):
+            score += len(matches) * pattern.weight
+            print("-- Pattern: %s | Matches: %i | Weight: %i" 
+                    % (pattern.name, len(matches), pattern.weight))
+        print("Transform: %s | Score: %i" % (transform.__class__.__name__, score))
+        final_result.append((transform, score, trans_data))
+
+    return sorted(final_result, key=lambda r:r[1], reverse=True)
+
+
+
+# This was coded while listening to Nightcore

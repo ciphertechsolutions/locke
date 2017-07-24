@@ -99,8 +99,18 @@ def crack(ctx, level, only, select, keep, save, zip, password,
         data = read_file(filename, verbose)
 
     locke = Locke(LOCKE_PATTERNS)
-    evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, keep, 
-            save, locke, verbose)
+    results = evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, 
+            keep, locke, verbose)
+    
+    print(len(results[:save]))
+    # Write the final data to disk
+    for transform, score, data in results[:save]:
+        if score > 0:
+            print("Tran: %s | Score %i" % (transform.__class__.__name__, score))
+            base, ext = os.path.splitext(filename)
+            t_filename = base + '_' + transform.__class__.__name__ + ext
+            print("Saving to file %s" % t_filename)
+            open(t_filename, "wb").write(data)
 
 
 @cli.command()
