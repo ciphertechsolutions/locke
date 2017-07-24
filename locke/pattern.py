@@ -24,13 +24,16 @@ class Pattern(ABC):
         """
         return self.options.get(key)
 
-    @abstractmethod
-    def find_all(self, data):
+    def scan(self, data):
         """
-        This method returns a list of (index, match) tuples,
-        one for each match of the pattern in the specified data.
+        This method returns of list of (index, match) tuples,
+        one for each match of the pattern in the specfied data
+        that *also* passes the filter function, if one is supplied.
         """
-        pass
+        if self.opt("filter"):
+            return ((i, m) for (i, m) in self.find_all(data) if self.opt("filter")(i, m))
+        else:
+            return self.find_all(data)
 
     def count(self, data):
         """
@@ -38,6 +41,17 @@ class Pattern(ABC):
         in the specified data.
         """
         return len(self.find_all(data))
+
+    @abstractmethod
+    def find_all(self, data):
+        """
+        This method returns a list of (index, match) tuples,
+        one for each match of the pattern in the specified data.
+
+        It does not perform any filtering, even if the user provides
+        a filter function. For that, use scan().
+        """
+        pass
 
 
 class ExplicitPattern(Pattern):

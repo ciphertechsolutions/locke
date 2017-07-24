@@ -14,7 +14,7 @@ class Locke(object):
 
     def scan(self, data):
         for pat in self.patterns:
-            matches = pat.find_all(data)
+            matches = pat.scan(data)
             yield pat, matches
 
     def count(self, data):
