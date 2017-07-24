@@ -1,3 +1,11 @@
+def remove_zm(index, match):
+    """
+    This is an example filter function, doing no actual
+    filtering.
+    """
+    return True
+
+
 LOCKE_PATTERNS += [
     BytePattern('PE DOS message',
                 'This program cannot be run in DOS mode'),
@@ -6,7 +14,8 @@ LOCKE_PATTERNS += [
                 'PE'),
 
     ByteListPattern('EXE MZ headers',
-                    ['MZ', 'ZM']),
+                    ['MZ', 'ZM'],
+                    filter=remove_zm),
 
     ByteListPattern('PE section names',
                     ['.text', '.data', '.rdata', '.rsrc'],

@@ -1,6 +1,10 @@
 def prettyhex(bstr):
-    return ''.join('\\x{:02x}'.format(b) for b in bstr)
+    """
+    This returns a "pretty" hexdecimal representation of
+    a bytes object.
 
-
-def prettyhex2(bstr):
+    In particular, it encodes the ASCII range and leaves
+    non-ASCII range bytes in \\xNN format, surrounding
+    the entire thing in quotes.
+    """
     return repr(bstr)[1:]

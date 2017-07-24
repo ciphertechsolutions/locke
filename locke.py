@@ -61,7 +61,7 @@ def search(ctx, csv, files):
     Search for patterns of interest in the supplied files.
     """
     if csv:
-        print('Writing CSV results to %s' % csv)
+        click.echo('Writing CSV results to %s' % csv)
         csvfile = open(csv, 'w')
         csv_writer = csvlib.writer(csvfile)
         csv_writer.writerow(['Filename', 'Index', 'Pattern name', 'Match',
@@ -69,20 +69,20 @@ def search(ctx, csv, files):
 
     l = locke.Locke(LOCKE_PATTERNS)
     for f in files:
-        print("=" * 79)
-        print("File: %s\n" % f.name)
+        click.echo("=" * 79)
+        click.echo("File: %s\n" % f.name)
         for pat, matches in l.scan(f.read()):
             for index, match in matches:
-                mstr = utils.prettyhex2(match)
+                mstr = utils.prettyhex(match)
                 if len(mstr) > 50:
                     mstr = mstr[:24] + '...' + mstr[-23:]
 
-                print('at %08X: %s - %s' % (index, pat.name, mstr))
+                click.echo('at %08X: %s - %s' % (index, pat.name, mstr))
 
                 if csv:
                     csv_writer.writerow([f.name, '0x%08X' % index, pat.name,
                                          mstr, len(match)])
-        print()
+        click.echo()
 
     if csv:
         csvfile.close()
@@ -143,7 +143,8 @@ def patterns(ctx):
     """
     List all patterns known by Locke.
     """
-    click.echo('Patterns')
+    for pat in LOCKE_PATTERNS:
+        click.echo('%s (%s)' % (pat.name, pat.weight))
 
 
 @cli.command()
@@ -155,8 +156,8 @@ def transforms(ctx):
     load_all_transformers()
     for transList in LOCKE_TRANSFORMERS:
         for trans in transList:
-            print('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
-            print(trans[1].__doc__)
+            click.echo('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
+            click.echo(trans[1].__doc__)
 
 
 if __name__ == '__main__':
