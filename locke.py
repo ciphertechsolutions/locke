@@ -1,6 +1,7 @@
 import click
 import os.path
 import glob
+import sys, inspect
 from locke import *
 
 # Locke pattern plugins are expected to be in this directory.
@@ -15,17 +16,19 @@ TRANSFORM_PLUGIN_DIR = os.path.abspath('transformers')
 TRANSFORM_PLUGIN_GLOB = os.path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 LOCKE_TRANSFORMERS = []
 
+
 def load_all_patterns():
-    print("Pattern Path: ", PATTERN_PLUGIN_GLOB)
     for plugin in glob.glob(PATTERN_PLUGIN_GLOB):
-        print(plugin)
         exec(open(plugin).read())
 
+
 def load_all_transformers():
-    print("Transformer Path: ", TRANSFORM_PLUGIN_GLOB)
     for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
-            print(plugin)
             exec(open(plugin).read(), globals())
+    for clss in inspect.getmembers(sys.modules[__name__], inspect.isclass):
+        if "Transform" in clss[0]:
+            LOCKE_TRANSFORMERS.append(clss)
+
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
@@ -48,18 +51,39 @@ def search(ctx, csv):
 
 
 @cli.command()
-@click.option('-l', '--level', default=2)
-@click.option('-i', '--inclevel', type=int)
-@click.option('-k', '--keep', default=20)
-@click.option('-s', '--save', default=10)
-@click.option('-t', '--transform')
+@click.option('-l', '--level', default=2, help="Select transformers with"
+        "level 1, 2, or 3 and below")
+@click.option('-i', '--inclevel', type=int, help="Select transformers with"
+        "level 1, 2, or 3 and above")
+@click.option('-k', '--keep', default=20, help="How many transforms to save"
+        "after stage 1")
+@click.option('-s', '--save', default=10, help="How many transforms to save"
+        "after stage 2")
+@click.option('-z', '--zip', is_flag=True, help="Mark this file"
+        "as a zip file. Use -p to enter zip's password")
+@click.option('--password', nargs=1, help="Only works if -z is "
+        "set. Allows input of password for zip file")
+@click.option('-d', '--display', is_flag=True, help="Display all available "
+        "transformers")
 @click.option('-p', '--profiling', is_flag=True)
+@click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
-def crack(ctx, level, inclevel, keep, save, transform, profiling):
+def crack(ctx, level, inclevel, keep, save, zip, password, display, profiling, filename):
     """
     Use patterns of interest to crack the supplied files.
     """
-    click.echo('Crack')
+    load_all_transformers()
+
+    print(zip)
+    if display:
+        for trans in LOCKE_TRANSFORMERS:
+            click.echo(trans[0])
+    elif zip:
+        data = read_zip(filename, password)
+    else:
+        data = read_file(filename)
+
+    print(data)
 
 
 @cli.command()
@@ -77,7 +101,7 @@ def transforms(ctx):
     """
     List all transformations known by Locke.
     """
-    click.echo('Transforms')
+    click.echo('List of Transforms')
 
 
 if __name__ == '__main__':
