@@ -62,7 +62,7 @@ def search(ctx, csv):
 @click.option('-s', '--save', default=10, help="How many transforms to save"
         "after stage 2")
 @click.option('-z', '--zip', is_flag=True, help="Mark this file"
-        "as a zip file. Use -p to enter zip's password")
+        "as a zip file. Use --password to enter zip's password")
 @click.option('--password', nargs=1, help="Only works if -z is "
         "set. Allows input of password for zip file")
 @click.option('-d', '--display', is_flag=True, help="Display all available "
