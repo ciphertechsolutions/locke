@@ -3,8 +3,9 @@ import os.path
 import glob
 import sys
 import inspect
+import csv as csvlib
 
-from locke import pattern, locke
+from locke import pattern, locke, utils
 from locke.pattern import *
 
 
@@ -44,13 +45,20 @@ def cli(ctx, verbose):
 
 
 @cli.command()
-@click.option('--csv', default=False, help='output results as CSV')
+@click.option('--csv', default=None, help='output results as CSV')
 @click.argument('files', type=click.File('rb'), nargs=-1)
 @click.pass_context
 def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
+    if csv:
+        print('Writing CSV results to %s' % csv)
+        csvfile = open(csv, 'w')
+        csv_writer = csvlib.writer(csvfile)
+        csv_writer.writerow(['Filename', 'Index', 'Pattern name', 'Match',
+                             'Length'])
+
     l = locke.Locke(LOCKE_PATTERNS)
     for f in files:
         print("=" * 79)
@@ -62,6 +70,13 @@ def search(ctx, csv, files):
                     mstr = mstr[:24] + '...' + mstr[-23:]
 
                 print('at %08X: %s - %s' % (index, pat.name, mstr))
+
+                if csv:
+                    csv_writer.writerow([f.name, '0x%08X' % index, pat.name,
+                                         mstr, len(match)])
+
+    if csv:
+        csvfile.close()
 
 
 @cli.command()

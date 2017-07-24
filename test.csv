@@ -1,0 +1,8 @@
+Filename,Index,Pattern name,Match,Length
+/home/wwoodruff/Downloads/md5sum.exe,0x0000004E,PE DOS message,b'This program cannot be run in DOS mode',38
+/home/wwoodruff/Downloads/md5sum.exe,0x000000D0,PE header,b'PE',2
+/home/wwoodruff/Downloads/md5sum.exe,0x00000000,EXE MZ headers,b'MZ',2
+/home/wwoodruff/Downloads/md5sum.exe,0x000001C8,PE section names,b'.text',5
+/home/wwoodruff/Downloads/md5sum.exe,0x00000218,PE section names,b'.data',5
+/home/wwoodruff/Downloads/md5sum.exe,0x000001F0,PE section names,b'.rdata',6
+/home/wwoodruff/Downloads/md5sum.exe,0x00000000,EXE MZ followed by PE,b'MZ\x90\x00\x03\x00\x00...\x00\x00\x00PE\x00\x00',212
