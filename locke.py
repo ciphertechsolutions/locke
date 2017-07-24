@@ -66,10 +66,14 @@ def search(ctx, csv, files):
 
 
 @cli.command()
-@click.option('-l', '--level', default=2, help="Select transformers with"
-        "level 1, 2, or 3 and below")
-@click.option('-i', '--inclevel', type=int, help="Select transformers with"
-        "level 1, 2, or 3 and above")
+@click.option('-l', '--level', type=int, default=None, 
+        help="Select transformers with level 1, 2, or 3 and below")
+@click.option('-o', '--only', type=int, default=None, 
+        help="Only use transformers on that "
+        "specific level")
+@click.option('--select', nargs=1, default=None,
+        help="A list of transformers' class name to use in quotes and "
+        "is commas separated")
 @click.option('-k', '--keep', default=20, help="How many transforms to save"
         "after stage 1")
 @click.option('-s', '--save', default=10, help="How many transforms to save"
@@ -82,19 +86,20 @@ def search(ctx, csv, files):
 @click.option('-v', '--verbose', is_flag=True)
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
-def crack(ctx, level, inclevel, keep, save, zip, password,
+def crack(ctx, level, only, select, keep, save, zip, password,
         profiling, filename, verbose):
     """
     Use patterns of interest to crack the supplied files.
     """
     load_all_transformers()
+    print (level)
 
     if zip:
         data = read_zip(filename, password, verbose)
     else:
         data = read_file(filename, verbose)
 
-    evuluate_data(data, LOCKE_TRANSFORMERS, level, inclevel, keep, save, verbose)
+    evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, keep, save, verbose)
 
 
 @cli.command()

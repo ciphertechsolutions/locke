@@ -213,5 +213,41 @@ def read_file(filename, verbose=False):
     f.close()
     return data
 
-def evuluate_data(data, trans_list, level, inclevel, keep, save, verbose=False):
+def select_transformers(trans_list, name=None, level=None, only=None):
+    """
+    There is an order of precedent. If the names are provided, we will only
+    use names, else the levels, else the only requested. Only one field will
+    be used to find the list of transformers to be used
+    """
+    trans_class = []
+    if name is not None:
+        for name in name.split(','):
+            for trans_level in trans_list:
+                for trans in trans_level:
+                    if name == trans[0]:
+                        trans_class.append(trans)
+        exitsys.exit('No transformation found using \n%s' % trans_list)
+    elif only is not None:
+        if only == 1:
+            trans_class = trans_list[1]
+        elif only == 2:
+            trans_class = trans_list[2]
+        elif only == 3:
+            trans_class = trans_list[3]
+        else:
+            raise LookupError("There are no such level as %i" % only)
+    else:
+        if level == 1:
+            trans_class = trans_list[1]
+        elif level == 2:
+            trans_class = trans_list[1] + trans_list[2]
+        elif level == 3 || level == None
+            trans_class = trans_list[1] + trans_list[2] + trans_list[3]
+        else:
+            raise LookupError("There are no such level as %i" % only)
+    return trans_class
+
+
+def evaluate_data(data, trans_list, level, only, name, keep, save, verbose=False):
+    transformers = select_transformers(trans_list, name, level, only)
 
