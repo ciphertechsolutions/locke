@@ -114,9 +114,6 @@ def transforms(ctx):
     List all transformations known by Locke.
     """
     load_all_transformers()
-    list_transformers()
-
-def list_transformers():
     for transList in LOCKE_TRANSFORMERS:
         for trans in transList:
             print('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
