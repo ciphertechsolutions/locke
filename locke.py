@@ -4,8 +4,9 @@ import glob
 import sys
 import inspect
 
-from locke import pattern, locke
+from locke import pattern, locke, transformer
 from locke.pattern import *
+from locke.transformer import *
 from locke import *
 
 
@@ -92,15 +93,16 @@ def crack(ctx, level, only, select, keep, save, zip, password,
     Use patterns of interest to crack the supplied files.
     """
     load_all_transformers()
+    trans = Transfomer(verbose)
 
     if zip:
-        data = read_zip(filename, password, verbose)
+        data = trans.read_zip(filename, password)
     else:
-        data = read_file(filename, verbose)
+        data = trans.read_file(filename)
 
     locke = Locke(LOCKE_PATTERNS)
-    results = evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, 
-            keep, locke, verbose)
+    results = trans.evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, 
+            keep, locke)
     
     print(len(results[:save]))
     # Write the final data to disk
