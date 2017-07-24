@@ -34,7 +34,6 @@ def load_all_transformers():
             LOCKE_TRANSFORMERS.append(clss)
 
 
-
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
 @click.pass_context
