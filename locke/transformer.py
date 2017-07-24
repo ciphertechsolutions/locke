@@ -8,6 +8,9 @@ class TransformString(ABC):
     Description: Transform the whole data string
     ID: str_trans
     """
+    @abstractproperty
+    def class_level(self):
+        pass
 
     @abstractmethod
     def __init__(self, value):
@@ -57,6 +60,8 @@ class TransformChar(ABC):
     Description: Transform individual char in the data (two bytes)
     ID: chr_trans
     """
+
+    class_level = -1
 
     @abstractmethod
     def __init__(self, value):
