@@ -74,6 +74,7 @@ def search(ctx, csv, files):
                 if csv:
                     csv_writer.writerow([f.name, '0x%08X' % index, pat.name,
                                          mstr, len(match)])
+        print()
 
     if csv:
         csvfile.close()
