@@ -125,7 +125,8 @@ def patterns(ctx):
     """
     List all patterns known by Locke.
     """
-    click.echo('Patterns')
+    for pat in LOCKE_PATTERNS:
+        click.echo('%s (%s)' % (pat.name, pat.weight))
 
 
 @cli.command()
