@@ -1,7 +1,9 @@
 import click
 import os.path
 import glob
-import sys, inspect
+import sys
+import inspect
+
 from locke import *
 
 # Locke pattern plugins are expected to be in this directory.
@@ -66,9 +68,11 @@ def search(ctx, csv):
 @click.option('-d', '--display', is_flag=True, help="Display all available "
         "transformers")
 @click.option('-p', '--profiling', is_flag=True)
+@click.option('-v', '--verbose', is_flag=True)
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
-def crack(ctx, level, inclevel, keep, save, zip, password, display, profiling, filename):
+def crack(ctx, level, inclevel, keep, save, zip, password, display,
+        profiling, filename, verbose):
     """
     Use patterns of interest to crack the supplied files.
     """
@@ -79,9 +83,9 @@ def crack(ctx, level, inclevel, keep, save, zip, password, display, profiling, f
         for trans in LOCKE_TRANSFORMERS:
             click.echo(trans[0])
     elif zip:
-        data = read_zip(filename, password)
+        data = read_zip(filename, password, verbose)
     else:
-        data = read_file(filename)
+        data = read_file(filename, verbose)
 
     print(data)
 
