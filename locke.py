@@ -20,7 +20,7 @@ LOCKE_PATTERNS = []
 TRANSFORM_PLUGIN_DIR = os.path.abspath('transformers')
 TRANSFORM_PLUGIN_GLOB = os.path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 # Nest array. One for each level
-LOCKE_TRANSFORMERS = [[],[],[]]
+LOCKE_TRANSFORMERS = [[], [], []]
 
 
 def load_all_patterns():
@@ -41,7 +41,6 @@ def load_all_transformers():
                 LOCKE_TRANSFORMERS[1].append(clss)
             elif clss[1].class_level() == 3:
                 LOCKE_TRANSFORMERS[2].append(clss)
-
 
 
 @click.group()
@@ -95,7 +94,7 @@ def crack(ctx, level, inclevel, keep, save, zip, password,
     else:
         data = read_file(filename, verbose)
 
-    print(data)
+    evuluate_data(data, LOCKE_TRANSFORMERS, level, inclevel, keep, save, verbose)
 
 
 @cli.command()
@@ -118,6 +117,7 @@ def transforms(ctx):
         for trans in transList:
             print('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
             print(trans[1].__doc__)
+
 
 if __name__ == '__main__':
     cli(obj={})

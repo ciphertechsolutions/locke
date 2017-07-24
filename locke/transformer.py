@@ -212,3 +212,6 @@ def read_file(filename, verbose=False):
     data = f.read()
     f.close()
     return data
+
+def evuluate_data(data, trans_list, level, inclevel, keep, save, verbose=False):
+
