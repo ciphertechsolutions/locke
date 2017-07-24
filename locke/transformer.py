@@ -229,6 +229,15 @@ class Transfomer(object):
         There is an order of precedent. If the names are provided, we will only
         use names, else the levels, else the only requested. Only one field
         will be used to find the list of transformers to be used
+
+        Args:
+            trans_list: A list of transformer to choose form
+            name_list: A list of names to find
+            level: The highest level allow for transformer
+            only: The only level allowed to use
+
+        Return: 
+            A list of transformer to use
         """
         if self.verbose: print("\tSelecting transformer to use")
 
@@ -268,6 +277,24 @@ class Transfomer(object):
         return trans_class
 
     def evaluate_data(self, data, trans_list, level, only, name, keep, locke):
+        """
+        This method will transform the data it received and scan the data using
+        its pattern database. Each pattern will have a weight that will help 
+        determine the score of each transformation on the data. The top highest
+        score will be saved to disk
+
+        Args:
+            data: A bytestring to evaluate
+            trans_list: The list of transformer to use
+            level: A restriction on the highest level of transformer to use
+            only: A restriction to only allows transformer of a level to be use
+            name: A list of transformers' name to use
+            keep: How many transformation to keep to stage 2
+            locke: The pattern class to use
+
+        Return: 
+            A list of tuples (transformer, score, data)
+        """
         if self.verbose: print("Evaluating Data\n")
 
         transformers = self.select_transformers(trans_list, name, level, only)
