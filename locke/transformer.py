@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 import zipfile
 
 
@@ -60,8 +60,9 @@ class TransformChar(ABC):
     Description: Transform individual char in the data (two bytes)
     ID: chr_trans
     """
-
-    class_level = -1
+    @abstractproperty
+    def class_level(self):
+        pass
 
     @abstractmethod
     def __init__(self, value):
@@ -172,7 +173,7 @@ def rol_right(byte, count):
 def read_zip(filename, password=None, verbose=False):
     """
     Read a zip file and get the byte data from it. If there are multiple
-    files inside the zip, it will ask which on to evaluate (or all if 
+    files inside the zip, it will ask which on to evaluate (or all if
     desired)
 
     Args:
@@ -193,7 +194,7 @@ def read_zip(filename, password=None, verbose=False):
     if ans in range(1, len(zfile.namelist())):
         data = zfile.read(zfile.infolist()[ans - 1], password)
     else:
-        raise IndexError("Range %i is out of bound" %ans);
+        raise IndexError("Range %i is out of bound" % ans)
     return data
 
 
