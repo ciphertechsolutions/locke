@@ -6,7 +6,6 @@ import inspect
 
 from locke import pattern, locke
 from locke.pattern import *
-from locke import *
 
 
 # Locke pattern plugins are expected to be in this directory.
