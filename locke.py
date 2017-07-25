@@ -88,18 +88,18 @@ def search(ctx, csv, files):
 
 
 @cli.command()
-@click.option('-l', '--level', default=2, help="Select transformers with"
-              "level 1, 2, or 3 and below")
-@click.option('-i', '--inclevel', type=int, help="Select transformers with"
-              "level 1, 2, or 3 and above")
-@click.option('-k', '--keep', default=20, help="How many transforms to save"
-              "after stage 1")
-@click.option('-s', '--save', default=10, help="How many transforms to save"
-              "after stage 2")
-@click.option('-z', '--zip', is_flag=True, help="Mark this file"
-              "as a zip file. Use --password to enter zip's password")
-@click.option('--password', nargs=1, help="Only works if -z is "
-        "set. Allows input of password for zip file")
+@click.option('-l', '--level', default=2, help='Select transformers with'
+              'level 1, 2, or 3 and below')
+@click.option('-i', '--inclevel', type=int, help='Select transformers with'
+              'level 1, 2, or 3 and above')
+@click.option('-k', '--keep', default=20, help='How many transforms to save'
+              'after stage 1')
+@click.option('-s', '--save', default=10, help='How many transforms to save'
+              'after stage 2')
+@click.option('-z', '--zip', is_flag=True, help='Mark this file'
+              'as a zip file. Use --password to enter zip password')
+@click.option('--password', nargs=1, help='Only works if -z is '
+              'set. Allows input of password for zip file')
 @click.option('-p', '--profiling', is_flag=True)
 @click.option('-v', '--verbose', is_flag=True)
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
