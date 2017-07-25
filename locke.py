@@ -5,7 +5,7 @@ import sys
 import inspect
 import csv as csvlib
 
-from locke import pattern, locke, transformer
+from locke import pattern, locke, transformer, utils
 from locke.pattern import *
 from locke.transformer import *
 

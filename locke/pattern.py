@@ -41,7 +41,7 @@ class Pattern(ABC):
         This method returns the total number of matches found
         in the specified data.
         """
-        return len(self.find_all(data))
+        return len(self.scan(data))
 
     @abstractmethod
     def find_all(self, data):
