@@ -42,7 +42,6 @@ class Pattern(ABC):
         in the specified data.
         """
         var = self.scan(data)
-        print(type(var), self.__class__.__name__)
         return len(self.scan(data))
 
     @abstractmethod
