@@ -41,7 +41,6 @@ class Pattern(ABC):
         This method returns the total number of matches found
         in the specified data.
         """
-        var = self.scan(data)
         return len(self.scan(data))
 
     @abstractmethod
