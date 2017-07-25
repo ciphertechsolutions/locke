@@ -5,8 +5,9 @@ import sys
 import inspect
 import csv as csvlib
 
-from locke import pattern, locke, utils
+from locke import pattern, locke, transformer
 from locke.pattern import *
+from locke.transformer import *
 
 
 # Locke pattern plugins are expected to be in this directory.
@@ -88,35 +89,52 @@ def search(ctx, csv, files):
 
 
 @cli.command()
-@click.option('-l', '--level', default=2, help='Select transformers with'
-              'level 1, 2, or 3 and below')
-@click.option('-i', '--inclevel', type=int, help='Select transformers with'
-              'level 1, 2, or 3 and above')
-@click.option('-k', '--keep', default=20, help='How many transforms to save'
-              'after stage 1')
-@click.option('-s', '--save', default=10, help='How many transforms to save'
-              'after stage 2')
-@click.option('-z', '--zip', is_flag=True, help='Mark this file'
-              'as a zip file. Use --password to enter zip password')
-@click.option('--password', nargs=1, help='Only works if -z is '
-              'set. Allows input of password for zip file')
+@click.option('-l', '--level', type=int, default=None, 
+        help="Select transformers with level 1, 2, or 3 and below")
+@click.option('-o', '--only', type=int, default=None, 
+        help="Only use transformers on that "
+        "specific level")
+@click.option('--select', nargs=1, default=None,
+        help="A list of transformers' class name to use in quotes and "
+        "is commas separated")
+@click.option('-k', '--keep', default=20, help="How many transforms to save"
+              "after stage 1")
+@click.option('-s', '--save', default=10, help="How many transforms to save"
+              "after stage 2")
+@click.option('-z', '--zip', is_flag=True, help="Mark this file"
+              "as a zip file. Use --password to enter zip's password")
+@click.option('--password', nargs=1, help="Only works if -z is "
+        "set. Allows input of password for zip file")
 @click.option('-p', '--profiling', is_flag=True)
 @click.option('-v', '--verbose', is_flag=True)
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
-def crack(ctx, level, inclevel, keep, save, zip, password,
+def crack(ctx, level, only, select, keep, save, zip, password,
         profiling, filename, verbose):
     """
     Use patterns of interest to crack the supplied files.
     """
     load_all_transformers()
+    trans = Transfomer(verbose)
 
     if zip:
-        data = read_zip(filename, password, verbose)
+        data = trans.read_zip(filename, password)
     else:
-        data = read_file(filename, verbose)
+        data = trans.read_file(filename)
 
-    evuluate_data(data, LOCKE_TRANSFORMERS, level, inclevel, keep, save, verbose)
+    lock = locke.Locke(LOCKE_PATTERNS)
+    results = trans.evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, 
+            keep, lock)
+    
+    print(len(results[:save]))
+    # Write the final data to disk
+    for transform, score, data in results[:save]:
+        if score > 0:
+            print("Tran: %s | Score %i" % (transform.__class__.__name__, score))
+            base, ext = os.path.splitext(filename)
+            t_filename = base + '_' + transform.__class__.__name__ + ext
+            print("Saving to file %s" % t_filename)
+            open(t_filename, "wb").write(data)
 
 
 @cli.command()
