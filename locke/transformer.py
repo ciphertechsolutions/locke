@@ -410,8 +410,7 @@ class Transfomer(object):
 
     def write_file(self, filename, results, data):
         # Write the final data to disk
-        # we want the highest ranking to overwrite any lower ranking
-        # transformation of the same kind
+        # Lowest to Highest
         for i in range(len(results) - 1, -1, -1):
             transform, score = results[i]
             # due to multiprocessing, we have to re-transform the data
