@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod, abstractproperty
-from multiprocessing import Process, Value, Array, Lock
+from multiprocessing import Process, Value, Array, Lock, Queue
+import multiprocessing
 import ctypes, math
 import time, sys, os
 import zipfile
@@ -99,11 +100,9 @@ class TransformChar(ABC):
 		"""
 		This method will transform any char (or a byte from 0 - 256)
 		and return the new char (with in the range 0 - 256).
-
 		Args:
 			byte: The numerical version of the char. This method should
 			be able to handle all char from 0 - 256
-
 		Returns:
 			An int between 0 - 256
 		"""
@@ -117,7 +116,6 @@ class TransformChar(ABC):
 		This method will create a generator that lists/produces
 		all the different iteration possible that this class
 		can handle
-
 		Return:
 			A generator that produces all the different iteration
 			that this class can use to transform the string. For
@@ -132,11 +130,9 @@ class TransformChar(ABC):
 def rol_left(byte, count):
 	"""
 	This method will left shift the byte left by count
-
 	Args:
 		count: The numerical amount to shift by. Needs to be an int
 		and greater or equal to 0
-
 	Return:
 		The byte shifted
 	"""
@@ -154,7 +150,6 @@ def rol_left(byte, count):
 def rol_right(byte, count):
 	"""
 	This method will right shift the byte left by count
-
 	Args:
 		count: The numerical amount to shift by. Needs to be an int
 		and greater or equal to 0
@@ -182,9 +177,9 @@ class Transfomer(object):
 		self.verbose = verbose
 
 		# Read the data
+		global data 
 		data = (self.read_file(filename) if not zip else
 				self.read_zip(filename, password))
-		data = Value(ctypes.c_char_p, data)
 
 		transformer_list = self.select_transformers(transformers,
 				name_list, select, level)
@@ -198,22 +193,21 @@ class Transfomer(object):
 		for i in range(0, len(transformer_list)):
 			# TODO
 			# Use QUEUE
-			result = Value(ctypes.c_wchar_p, "")
+			result = Queue()
 
 			p = Process(target=self.evaluate_data, name="Eval %i" % i, 
-					args=(data, transformer_list[i], keep, patterns, result))
+					args=(transformer_list[i], keep, patterns, result))
 			process_pool.append((p, result))
 			p.start()
 
 		for i in process_pool:
 			i[0].join()
 
+		results = []
 		for i in process_pool:
-			print(len(i[1].value))
-			print(i[1].value)
+			print("Getting data from %s" % i[0].name)
+			results += i[1].get()
 
-		return
-		results = self.evaluate_data(data, transformer_list, keep, patterns)
 		self.write_file(filename, results, save)
 
 	def read_zip(self, filename, password=None):
@@ -221,11 +215,9 @@ class Transfomer(object):
 		Read a zip file and get the byte data from it. If there are multiple
 		files inside the zip, it will ask which on to evaluate (or all if
 		desired)
-
 		Args:
 			filename: The location of the file
 			password: Defaults to None. The zip's password if applicable
-
 		Return:
 			Either a list of bytestring or a single bytestring
 		"""
@@ -257,6 +249,7 @@ class Transfomer(object):
 		f = open(filename, 'rb')
 		data = f.read()
 		f.close()
+		print("Done Reading %s" %filename)
 		return data
 
 	def select_transformers(self, trans_list, name_list, select, level):
@@ -264,18 +257,14 @@ class Transfomer(object):
 		There is an order of precedent. If the names are provided, we will only
 		use names, else the levels, else the only requested. Only one field
 		will be used to find the list of transformers to be used
-
 		Args:
 			trans_list: A list of transformer to choose form
 			name_list: A list of names to find
 			level: The highest level allow for transformer
 			only: The only level allowed to use
-
 		Return:
 			A list of transformer to use
 		"""
-		if self.verbose: print("\tSelecting transformer to use")
-	
 		trans_class = []
 		if name_list is not None:
 			for name in name_list.split(','):
@@ -311,33 +300,35 @@ class Transfomer(object):
 					trans[1].class_level()))
 		return trans_class
 
-	def evaluate_data(self, data, trans_list, keep, patterns, result):
+	def evaluate_data(self, trans_list, keep, patterns, result):
 		"""
 		This method will transform the data it received and scan the data using
 		its pattern database. Each pattern will have a weight that will help
 		determine the score of each transformation on the data. The top highest
 		score will be saved to disk. 
-
 		Args:
 			data: A bytestring to evaluate
 			trans_list: The list of transformer to use
 			keep: How many transformation to keep to stage 2
 			patterns: The pattern class to use
 			result: a c_char_p byte string to store the result
-
 		Return:
 			A list of tuples (transformer, score, data)
 		"""
+		name = multiprocessing.current_process().name
+		print("%s Started" % name)
+
 		results = []
 		best_score = 0
 	
 		# Stage 1 pattern searching
 		start_time = time.clock()
 		for trans in trans_list:
+			print("%s Working on Transformer: %s" % (name, trans[0]))
 			for value in trans[1].all_iteration():
 				# Create transformer and transform data
 				transform = trans[1](value)
-				trans_data = transform.transform(data.value)
+				trans_data = transform.transform(data)
 				# Pattern search the transformed data
 				score = 0
 				for pat, matches in patterns.scan(trans_data):
@@ -349,25 +340,26 @@ class Transfomer(object):
 				#	print('Best Score: %i | Stage: 1 | Transformer: %s' 
 				#			% (best_score, trans[0]))
 				results.append((transform, score))
-
-		print("")
 		elapse = time.clock() - start_time
-		#print("Ran through %i transforms in %f seconds - %f trans/sec"
-		#		% (len(results), elapse, len(results)/elapse))
+		print("%s ran through %i transforms in %f seconds - %f trans/sec"
+				% (name, len(results), elapse, len(results)/elapse))
 		# Sort the array and keep only the high scoring result
 		results = sorted(results, key=lambda r: r[1], reverse=True)
 		results = results[:keep]
 		#for t, s in results:
 		#	print("%s (%s) \t| Score: %s" % (t.__class__.__name__, t.value, s))
 	
+		print("%s Started on Stage 2" % name)
 		#print("Stage 2 Scan")
 		# Time for stage 2 pattern searching
-		final_result = ""
+		final_result = []
 		start_time = time.clock()
 		for i in range(0, len(results)):
 			# Re transform the data
 			transform, trans_score = results[i]
-			trans_data = transform.transform(data.value)
+			print("%s Working on Transformer: %s" 
+					% (name, transform.__class__.__name__))
+			trans_data = transform.transform(data)
 			# Search through the data with a more specific pattern
 			score = 0
 			for pat, matches in patterns.scan(trans_data):
@@ -378,25 +370,25 @@ class Transfomer(object):
 			#		% (transform.__class__.__name__, score))
 
 			#final_result.append((transform, score, trans_data))
-			# string will be parse later
-			final_result += '%i%i' % (i, score)
+			final_result.append((transform, score))
 	
 		elapse = time.clock() - start_time
-		#print("Ran through %i transforms in %f seconds - %f trans/sec"
-		#		% (i, elapse, i/elapse))
+		print("%s ran through %i transforms in %f seconds - %f trans/sec"
+				% (name, i, elapse, i/elapse))
 		# no returns as we are multiprocessing. result will be shared
 		# to the parent process
+		result.put(final_result)
+		print("%s Finished" % name)
 
 	def write_file(self, filename, results, save):
-		print(len(results[:save]))
 		# Write the final data to disk
-		for transform, score, data in results[:save]:
+		for transform, score in results[:save]:
 			if score > 0:
 				print("Tran: %s | Score %i" % (transform.__class__.__name__,
 					score))
 				base, ext = os.path.splitext(filename)
 			t_filename = base + '_' + transform.__class__.__name__ + ext
 			print("Saving to file %s" % t_filename)
-			open(t_filename, "wb").write(data)
+			#open(t_filename, "wb").write(data)
 
 # This was coded while listening to Nightcore
