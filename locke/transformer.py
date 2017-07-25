@@ -189,6 +189,11 @@ class Transfomer(object):
 		transformer_list = [transformer_list[i:i+group] 
 				for i in range(0, len(transformer_list), group)]
 
+		for i in range(0, len(transformer_list)):
+			print("Eval %i: " % i)
+			for t in transformer_list[i]:
+				print("\t- %s" % t[0])
+
 		# create multiple process
 		for i in range(0, len(transformer_list)):
 			# TODO
@@ -316,8 +321,6 @@ class Transfomer(object):
 			A list of tuples (transformer, score, data)
 		"""
 		name = multiprocessing.current_process().name
-		print("%s Started" % name)
-
 		results = []
 		best_score = 0
 	
@@ -329,12 +332,13 @@ class Transfomer(object):
 				# Create transformer and transform data
 				transform = trans[1](value)
 				trans_data = transform.transform(data)
+				print("- %s finish transforming data" % name)
 				# Pattern search the transformed data
 				score = 0
 				for pat, matches in patterns.scan(trans_data):
 					score += len(matches) * pat.weight
-				#print('%s | Stage: 1 | Score: %i | Value: %s'
-				#		% (trans[0], score, value), end='')
+				print('- - %s -- %s | Stage: 1 | Score: %i | Value: %s'
+						% (name, trans[0], score, value))
 				#if score > best_score:
 				#	best_score = score
 				#	print('Best Score: %i | Stage: 1 | Transformer: %s' 
@@ -357,17 +361,17 @@ class Transfomer(object):
 		for i in range(0, len(results)):
 			# Re transform the data
 			transform, trans_score = results[i]
-			print("%s Working on Transformer: %s" 
+			print(" %s Working on Transformer: %s" 
 					% (name, transform.__class__.__name__))
 			trans_data = transform.transform(data)
 			# Search through the data with a more specific pattern
 			score = 0
 			for pat, matches in patterns.scan(trans_data):
 				score += len(matches) * pat.weight
-				#print("-- Pattern: %s | Matches: %i | Weight: %i"
-				#		% (pat.name, len(matches), pat.weight))
-			#print("Transform: %s | Score: %i"
-			#		% (transform.__class__.__name__, score))
+				#print("%s -- Pattern: %s | Matches: %i | Weight: %i"
+				#		% (name, pat.name, len(matches), pat.weight))
+			print("- %s -- Transform: %s | Score: %i"
+					% (name, transform.__class__.__name__, score))
 
 			#final_result.append((transform, score, trans_data))
 			final_result.append((transform, score))
