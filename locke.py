@@ -89,12 +89,12 @@ def search(ctx, csv, files):
 
 
 @cli.command()
-@click.option('-l', '--level', type=int, default=None, 
+@click.option('-l', '--level', type=int, default=None,
         help="Select transformers with level 1, 2, or 3 and below")
-@click.option('-o', '--only', type=int, default=None, 
+@click.option('-o', '--only', type=int, default=None,
         help="Only use transformers on that "
         "specific level")
-@click.option('--select', nargs=1, default=None,
+@click.option('-n', '--name', nargs=1, default=None,
         help="A list of transformers' class name to use in quotes and "
         "is commas separated")
 @click.option('-k', '--keep', default=20, help="How many transforms to save"
@@ -103,38 +103,27 @@ def search(ctx, csv, files):
               "after stage 2")
 @click.option('-z', '--zip', is_flag=True, help="Mark this file"
               "as a zip file. Use --password to enter zip's password")
-@click.option('--password', nargs=1, help="Only works if -z is "
+@click.option('--password', nargs=1, default=None, help="Only works if -z is "
         "set. Allows input of password for zip file")
 @click.option('-p', '--profiling', is_flag=True)
 @click.option('-v', '--verbose', is_flag=True)
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
-def crack(ctx, level, only, select, keep, save, zip, password,
+def crack(ctx, level, only, name, keep, save, zip, password,
         profiling, filename, verbose):
     """
     Use patterns of interest to crack the supplied files.
     """
     load_all_transformers()
-    trans = Transfomer(verbose)
 
-    if zip:
-        data = trans.read_zip(filename, password)
-    else:
-        data = trans.read_file(filename)
+    if not zip and password is not None:
+        raise ValueError("Password field is set without zip enable")
 
     lock = locke.Locke(LOCKE_PATTERNS)
-    results = trans.evaluate_data(data, LOCKE_TRANSFORMERS, level, only, select, 
-            keep, lock)
-    
-    print(len(results[:save]))
-    # Write the final data to disk
-    for transform, score, data in results[:save]:
-        if score > 0:
-            print("Tran: %s | Score %i" % (transform.__class__.__name__, score))
-            base, ext = os.path.splitext(filename)
-            t_filename = base + '_' + transform.__class__.__name__ + ext
-            print("Saving to file %s" % t_filename)
-            open(t_filename, "wb").write(data)
+    trans = Transfomer(filename, password,
+            LOCKE_TRANSFORMERS, lock, zip,
+            level, only, name, keep, save,
+            verbose)
 
 
 @cli.command()
