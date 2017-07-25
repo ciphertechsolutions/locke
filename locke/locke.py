@@ -6,9 +6,13 @@ from queue import Queue
 from threading import Thread
 
 
-class PatternThread(Thread):
+class PatternScanThread(Thread):
+    """
+    The PatternScanThread class is used to scan a bytestring
+    against an individual pattern, in a separate thread.
+    """
     def __init__(self, queue, pattern, data):
-        super(PatternThread, self).__init__()
+        super(PatternScanThread, self).__init__()
         self.queue = queue
         self.pattern = pattern
         self.data = data
@@ -28,7 +32,7 @@ class Locke(object):
         self.results = Queue()
 
     def scan(self, data):
-        threads = [PatternThread(self.results, pat, data)
+        threads = [PatternScanThread(self.results, pat, data)
                    for pat in self.patterns]
 
         for thread in threads:
