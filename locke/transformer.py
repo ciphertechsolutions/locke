@@ -366,8 +366,8 @@ class Transfomer(object):
                 print("- %s finish transforming data" % name)
                 # Pattern search the transformed data
                 score = 0
-                for pat, matches in patterns.scan(trans_data):
-                    score += len(matches) * pat.weight
+                for pat, count in patterns.count(trans_data):
+                    score += count * pat.weight
                 print('- - %s -- %s | Stage: 1 | Score: %i | Value: %s'
                         % (name, trans[0], score, value))
                 results.append((transform, score))
@@ -391,8 +391,8 @@ class Transfomer(object):
             trans_data = transform.transform(data)
             # Search through the data with a more specific pattern
             score = 0
-            for pat, matches in patterns.scan(trans_data):
-                score += len(matches) * pat.weight
+            for pat, count in patterns.count(trans_data):
+                score += count * pat.weight
                 #print("%s -- Pattern: %s | Matches: %i | Weight: %i"
                 #		% (name, pat.name, len(matches), pat.weight))
             print("- %s -- Transform: %s | Score: %i"
@@ -416,12 +416,14 @@ class Transfomer(object):
             # due to multiprocessing, we have to re-transform the data
             # once more
             final_data = transform.transform(data)
+            print("Rank %i -- Tran: %s | Score %i" 
+                    % (i, transform.__class__.__name__, score))
             if score > 0:
-                print("Rank %i -- Tran: %s | Score %i" 
-                        % (i, transform.__class__.__name__, score))
                 base, ext = os.path.splitext(filename)
-            t_filename = base + '_%i - ' % i + transform.__class__.__name__ + ext
-            print("Saving to file %s" % t_filename)
-            open(t_filename, "wb").write(final_data)
+                t_filename = base + '_%i - ' % i + transform.__class__.__name__ + ext
+                print("Saving to file %s" % t_filename)
+                open(t_filename, "wb").write(final_data)
+            else:
+                print("Score of 0, skipping write")
 
 # This was coded while listening to Nightcore
