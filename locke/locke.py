@@ -38,12 +38,12 @@ class Locke(object):
         for thread in threads:
             thread.start()
 
+        for thread in threads:
+            thread.join()
+
         while not self.results.empty():
             pat, matches = self.results.get()
             yield pat, matches
-
-        for thread in threads:
-            thread.join()
 
     def count(self, data):
         for pat in self.patterns:
