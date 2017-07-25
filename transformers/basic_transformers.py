@@ -1,3 +1,19 @@
+""" 
+These are all Level 1 Transformers
+
+String Transformers
+    TransformIndentity
+   
+Char Transformers
+    TransformRotateLeft
+    TransformRotateRight
+    TransformXOR
+    TransformAdd
+    TransformSub
+    TransFormXORRRoll
+    TransFormXORLRoll
+    TransFormRollAdd
+"""
 class TransformIndentity(TransformString):
     """
     Name: Identity Transformer
@@ -40,7 +56,7 @@ class TransformRotateLeft(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(0, 8):
+        for val in range(1, 8):
             yield val
 
 
@@ -61,7 +77,7 @@ class TransformRotateRight(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(0, 8):
+        for val in range(1, 8):
             yield val
 
 

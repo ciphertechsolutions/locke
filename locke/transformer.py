@@ -133,6 +133,21 @@ class TransformChar(ABC):
         yield None
 
 
+def to_bytes(value):
+    """
+    Convert int to a byte
+    Args:
+        The int to convert
+    Return:
+        The byte value
+    Exception:
+        If value is not a byte
+    """
+    if not isinstance(value, int):
+        raise TypeError('Value is type %s, but needs to be an int' % type(value))
+    return bytes([value])
+
+
 def rol_left(byte, count):
     """
     This method will left shift the byte left by count
@@ -358,21 +373,20 @@ class Transfomer(object):
         # Stage 1 pattern searching
         start_time = time.clock()
         for trans in trans_list:
-            print("%s Working on Transformer: %s" % (name, trans[0]))
+            print("\t- %s Working on Transformer: %s" % (name, trans[0]))
             for value in trans[1].all_iteration():
                 # Create transformer and transform data
                 transform = trans[1](value)
                 trans_data = transform.transform(data)
-                print("- %s finish transforming data" % name)
                 # Pattern search the transformed data
                 score = 0
                 for pat, count in patterns.count(trans_data):
                     score += count * pat.weight
-                print('- - %s -- %s | Stage: 1 | Score: %i | Value: %s'
-                        % (name, trans[0], score, value))
+                #print('- - %s -- %s | Stage: 1 | Score: %i | Value: %s'
+                #        % (name, trans[0], score, value))
                 results.append((transform, score))
         elapse = time.clock() - start_time
-        print("%s ran through %i transforms in %f seconds - %f trans/sec"
+        print("\t - - %s ran through %i transforms in %f seconds - %f trans/sec"
                 % (name, len(results), elapse, len(results)/elapse))
         # Sort the array and keep only the high scoring result
         results = sorted(results, key=lambda r: r[1], reverse=True)
@@ -386,7 +400,7 @@ class Transfomer(object):
         for i in range(0, len(results)):
             # Re transform the data
             transform, trans_score = results[i]
-            print(" %s Working on Transformer: %s"
+            print("\t - %s Working on Transformer: %s"
                     % (name, transform.__class__.__name__))
             trans_data = transform.transform(data)
             # Search through the data with a more specific pattern
@@ -395,13 +409,13 @@ class Transfomer(object):
                 score += count * pat.weight
                 #print("%s -- Pattern: %s | Matches: %i | Weight: %i"
                 #		% (name, pat.name, len(matches), pat.weight))
-            print("- %s -- Transform: %s | Score: %i"
-                    % (name, transform.__class__.__name__, score))
+            #print("- %s -- Transform: %s | Score: %i"
+            #        % (name, transform.__class__.__name__, score))
 
             final_result.append((transform, score))
 
         elapse = time.clock() - start_time
-        print("%s ran through %i transforms in %f seconds - %f trans/sec"
+        print("\t - - %s ran through %i transforms in %f seconds - %f trans/sec"
                 % (name, i, elapse, i/elapse))
         # no returns as we are multiprocessing. Result will be shared
         # to the parent process
@@ -421,7 +435,7 @@ class Transfomer(object):
             if score > 0:
                 base, ext = os.path.splitext(filename)
                 t_filename = base + '_%i - ' % i + transform.__class__.__name__ + ext
-                print("Saving to file %s" % t_filename)
+                print("\t- Saving to file %s" % t_filename)
                 open(t_filename, "wb").write(final_data)
             else:
                 print("Score of 0, skipping write")
