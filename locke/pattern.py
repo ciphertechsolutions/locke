@@ -31,8 +31,8 @@ class Pattern(ABC):
         that *also* passes the filter function, if one is supplied.
         """
         if self.opt("filter"):
-            return ((i, m) for (i, m) in self.find_all(data)
-                    if self.opt("filter")(i, m))
+            return [(i, m) for (i, m) in self.find_all(data)
+                    if self.opt("filter")(i, m)]
         else:
             return self.find_all(data)
 
@@ -41,6 +41,8 @@ class Pattern(ABC):
         This method returns the total number of matches found
         in the specified data.
         """
+        var = self.scan(data)
+        print(type(var), self.__class__.__name__)
         return len(self.scan(data))
 
     @abstractmethod
