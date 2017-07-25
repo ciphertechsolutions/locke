@@ -90,10 +90,10 @@ class TransformChar(ABC):
 		"""
 		if not isinstance(data, bytes):
 			raise TypeError('Data (%s) needs to be a bytestring type' % type(data))
-		trans_data = bytearray(data)
-		for i in range(0, len(data)):
-			trans_data[i] = self.transform_byte(data[i])
-		return trans_data
+		trans_table = b''
+		for i in range(0, 256):
+			trans_table += bytes([self.transform_byte(i)])
+		return data.translate(trans_table)
 
 	@abstractmethod
 	def transform_byte(self, byte):
