@@ -242,7 +242,10 @@ class Transfomer(object):
             print("Getting data from %s" % i[0].name)
             results += i[1].get()
 
-        self.write_file(filename, results, save)
+        results = sorted(results, key=lambda r: r[1], reverse=True)
+
+        # limit to top X results
+        self.write_file(filename, results[:save], data)
 
     def read_zip(self, filename, password=None):
         """
@@ -405,15 +408,21 @@ class Transfomer(object):
         result.put(final_result)
         print("%s Finished" % name)
 
-    def write_file(self, filename, results, save):
+    def write_file(self, filename, results, data):
         # Write the final data to disk
-        for transform, score in results[:save]:
+        # we want the highest ranking to overwrite any lower ranking
+        # transformation of the same kind
+        for i in range(len(results) - 1, -1, -1):
+            transform, score = results[i]
+            # due to multiprocessing, we have to re-transform the data
+            # once more
+            final_data = transform.transform(data)
             if score > 0:
-                print("Tran: %s | Score %i" % (transform.__class__.__name__,
-                    score))
+                print("Rank %i -- Tran: %s | Score %i" 
+                        % (i, transform.__class__.__name__, score))
                 base, ext = os.path.splitext(filename)
-            t_filename = base + '_' + transform.__class__.__name__ + ext
+            t_filename = base + '_%i - ' % i + transform.__class__.__name__ + ext
             print("Saving to file %s" % t_filename)
-            #open(t_filename, "wb").write(data)
+            open(t_filename, "wb").write(final_data)
 
 # This was coded while listening to Nightcore
