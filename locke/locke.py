@@ -12,7 +12,7 @@ class PatternScanThread(Thread):
     against an individual pattern, in a separate thread.
     """
     def __init__(self, queue, pattern, data):
-        super(PatternScanThread, self).__init__()
+        super().__init__()
         self.queue = queue
         self.pattern = pattern
         self.data = data
@@ -24,6 +24,7 @@ class PatternScanThread(Thread):
 
 class PatternCountThread(Thread):
     def __init__(self, queue, pattern, data):
+        super().__init__()
         self.queue = queue
         self.pattern = pattern
         self.data = data
