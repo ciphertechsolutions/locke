@@ -18,14 +18,41 @@ class Pattern(ABC):
         self.options = kwargs
 
     def opt(self, key):
+        """
+        This method retrieves the requested option, defaulting
+        to None if the option is not set.
+        """
         return self.options.get(key)
+
+    def scan(self, data):
+        """
+        This method returns of list of (index, match) tuples,
+        one for each match of the pattern in the specfied data
+        that *also* passes the filter function, if one is supplied.
+        """
+        if self.opt("filter"):
+            return ((i, m) for (i, m) in self.find_all(data)
+                    if self.opt("filter")(i, m))
+        else:
+            return self.find_all(data)
+
+    def count(self, data):
+        """
+        This method returns the total number of matches found
+        in the specified data.
+        """
+        return len(self.find_all(data))
 
     @abstractmethod
     def find_all(self, data):
-        pass
+        """
+        This method returns a list of (index, match) tuples,
+        one for each match of the pattern in the specified data.
 
-    def count(self, data):
-        return len(self.find_all(data))
+        It does not perform any filtering, even if the user provides
+        a filter function. For that, use scan().
+        """
+        pass
 
 
 class ExplicitPattern(Pattern):
