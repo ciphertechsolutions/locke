@@ -10,7 +10,7 @@ class TransformIndentity(TransformString):
     def __init__(self, value):
         self.value = value
 
-    def transform(self, data):
+    def transform_string(self, data):
         return data
 
     @staticmethod

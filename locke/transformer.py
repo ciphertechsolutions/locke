@@ -20,8 +20,14 @@ class TransformString(ABC):
 	def __init__(self, value):
 		self.value = ""
 
-	@abstractmethod
 	def transform(self, data):
+		if not isinstance(data, bytes):
+			raise TypeError('Data (%s) needs to be a bytestring type' % type(data))
+
+		return self.transform_string(data)
+
+	@abstractmethod
+	def transform_string(self, data):
 		"""
 		Needs to be overridden
 		This method contains all the requires steps/calls needed
@@ -34,9 +40,8 @@ class TransformString(ABC):
 		Returns:
 			A bytestring
 		"""
-		if not isinstance(data, bytes):
-			raise TypeError('Data (%s) needs to be a bytestring type' % type(data))
-		return data
+		pass
+
 
 	@staticmethod
 	@abstractmethod
@@ -53,7 +58,7 @@ class TransformString(ABC):
 			example:
 
 			If this class transform by XOR, this method will produce
-			the value 1 - 256 (0 is the identity value for XOR).
+			the value 1 - 255 (0 is the identity value for XOR).
 		"""
 		yield None
 
@@ -79,7 +84,7 @@ class TransformChar(ABC):
 		should NOT be overridden.
 
 		The way this method works is that it sends over all possible
-		char values (0 - 256) to transform_char and then using string
+		char values (0 - 255) to transform_char and then using string
 		translation, it will modify the data as needed
 
 		Args:
@@ -98,13 +103,13 @@ class TransformChar(ABC):
 	@abstractmethod
 	def transform_byte(self, byte):
 		"""
-		This method will transform any char (or a byte from 0 - 256)
-		and return the new char (with in the range 0 - 256).
+		This method will transform any char (byte from 0 - 255)
+		and return the new char (with in the range 0 - 255).
 		Args:
-			byte: The numerical version of the char. This method should
-			be able to handle all char from 0 - 256
+			byte: The numerical version of \x00 - \xff. This method should
+			be able to handle all char from 0 - 255
 		Returns:
-			An int between 0 - 256
+			An int between 0 - 255
 		"""
 		pass
 
@@ -122,7 +127,7 @@ class TransformChar(ABC):
 			example:
 
 			If this class transform by XOR, this method will produce
-			the value 1 - 256 (0 is the identity value for XOR).
+			the value 1 - 255 (0 is the identity value for XOR).
 		"""
 		yield None
 
