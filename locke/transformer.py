@@ -15,10 +15,18 @@ class TransformString(ABC):
     @abstractproperty
     def class_level():
         pass
+    @abstractproperty
+    def name(self):
+        pass
+    @abstractproperty
+    def shortname(self):
+        pass
 
     @abstractmethod
     def __init__(self, value):
         self.value = ""
+        self.name = ""
+        self.shortname = ""
 
     def transform(self, data):
         if not isinstance(data, bytes):
@@ -72,10 +80,18 @@ class TransformChar(ABC):
     @abstractproperty
     def class_level():
         pass
+    @abstractproperty
+    def name(self):
+        pass
+    @abstractproperty
+    def shortname(self):
+        pass
 
     @abstractmethod
     def __init__(self, value):
-        self.value = value
+        self.value = ""
+        self.name = ""
+        self.shortname = ""
 
     def transform(self, data):
         """
@@ -401,7 +417,7 @@ class Transfomer(object):
             # Re transform the data
             transform, trans_score = results[i]
             print("\t - %s Working on Transformer: %s"
-                    % (name, transform.__class__.__name__))
+                    % (name, transform.name))
             trans_data = transform.transform(data)
             # Search through the data with a more specific pattern
             score = 0
@@ -431,10 +447,10 @@ class Transfomer(object):
             # once more
             final_data = transform.transform(data)
             print("Rank %i -- Tran: %s | Score %i" 
-                    % (i, transform.__class__.__name__, score))
+                    % (i, transform.name, score))
             if score > 0:
                 base, ext = os.path.splitext(filename)
-                t_filename = base + '_%i - ' % i + transform.__class__.__name__ + ext
+                t_filename = base + '_%i - ' % i + transform.shortname + ext
                 print("\t- Saving to file %s" % t_filename)
                 open(t_filename, "wb").write(final_data)
             else:
