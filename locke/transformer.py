@@ -335,10 +335,10 @@ class Transfomer(object):
                 print("Getting data from %s" % i[0].name)
                 results += i[1].get()
 
-        results = sorted(results, key=lambda r: r[1], reverse=True)
+        results = sorted(results, key=lambda r: r[1], reverse=True)[:save]
 
         # limit to top X results
-        self.write_file(filename, results[:save], data)
+        self.write_file(filename, results, data)
 
     def read_zip(self, filename, password=None):
         """
@@ -442,7 +442,7 @@ class Transfomer(object):
 
             elapse = time.clock() - start_time
             print("\t - - %s ran through %i transforms in %f seconds - %f trans/sec"
-                    % (name, i, elapse, i/elapse))
+                    % (name, len(results), elapse, len(results)/elapse))
             # no returns as we are multiprocessing. 
             # result will be shared to the parent process
             result.put(final_result)

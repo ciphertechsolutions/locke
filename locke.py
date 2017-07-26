@@ -42,8 +42,12 @@ def load_all_transformers():
                 LOCKE_TRANSFORMERS[1].append(clss)
             elif clss[1].class_level() == 3:
                 LOCKE_TRANSFORMERS[2].append(clss)
+            elif clss[1].class_level() == -1:
+                print("!! %s is disable" % clss[0])
             else:
-                print("SPP")
+                print("%s has an invalid class level (1 - 3 | -1 > disable)" 
+                        % clss[0])
+    print("")
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')

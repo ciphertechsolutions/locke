@@ -175,7 +175,7 @@ class TransformXORAdd(TransformChar):
     ID: xor_add
     """
     def class_level():
-        return 2
+        return -1
 
     def name(self):
         return "XOR %02X Add %i" % self.value
@@ -203,7 +203,7 @@ class TransformAddXOR(TransformChar):
     ID: add_xor
     """
     def class_level():
-        return 2
+        return -1
 
     def name(self):
         return "Add %i XOR %02X" % self.value
@@ -215,7 +215,7 @@ class TransformAddXOR(TransformChar):
         self.value = value
 
     def transform_byte(self, byte):
-        return ((byte + self.value[1]) & 0xFF) ^ self.value[0]
+        return ((byte + self.value[0]) & 0xFF) ^ self.value[1]
 
     @staticmethod
     def all_iteration():

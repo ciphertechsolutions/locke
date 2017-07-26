@@ -19,6 +19,7 @@ LOCKE_PATTERNS += [
 
     ByteListPattern('PE section names',
                     ['.text', '.data', '.rdata', '.rsrc'],
+                    weight=1000,
                     nocase=True),
 
     REPattern('EXE MZ followed by PE',
