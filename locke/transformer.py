@@ -456,6 +456,7 @@ class Transfomer(object):
     
 
     def write_file(self, filename, results, data):
+        score_log = []
         # Write the final data to disk
         # Lowest to Highest
         for i in range(0, len(results)):
@@ -463,14 +464,16 @@ class Transfomer(object):
             # due to multiprocessing, we have to re-transform the data
             # once more
             final_data = transform.transform(data)
-            print("Rank %i -- Tran: %s | Score %i"
+            score_log.append("Rank %i -- Tran: %s | Score %i"
                     % (i, transform.name(), score))
             if score > 0:
                 base, ext = os.path.splitext(filename)
                 t_filename = base + '_%i - ' % i + transform.shortname() + ext
-                print("\t- Saving to file %s" % t_filename)
+                score_log.append("\t- Saved to file %s" % t_filename)
                 open(t_filename, "wb").write(final_data)
             else:
-                print("Score of 0, skipping write")
+                score_log.append("Score of 0, skipping write")
+        print('\n'.join(score_log))
+        open(filename_.cracklog, 'w').write('\n'.join(score_log))
 
 # This was coded while listening to Nightcore
