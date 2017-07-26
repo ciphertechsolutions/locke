@@ -1,25 +1,27 @@
 import click
-import os.path
 import glob
 import sys
 import inspect
 import csv as csvlib
+from os import path
 
 from locke import pattern, locke, transformer, utils
 from locke.pattern import *
 from locke.transformer import *
 
 
+SCRIPT_DIR = path.dirname(path.abspath(__file__))
+
 # Locke pattern plugins are expected to be in this directory.
-PATTERN_PLUGIN_DIR = os.path.abspath('patterns')
-PATTERN_PLUGIN_GLOB = os.path.join(PATTERN_PLUGIN_DIR, '*.py')
+PATTERN_PLUGIN_DIR = path.join(SCRIPT_DIR,  'patterns')
+PATTERN_PLUGIN_GLOB = path.join(PATTERN_PLUGIN_DIR, '*.py')
 
 # Locke pattern plugins are expected to modify this array.
 LOCKE_PATTERNS = []
 
 # Locke transformer plugins
-TRANSFORM_PLUGIN_DIR = os.path.abspath('transformers')
-TRANSFORM_PLUGIN_GLOB = os.path.join(TRANSFORM_PLUGIN_DIR, '*.py')
+TRANSFORM_PLUGIN_DIR = path.join(SCRIPT_DIR, 'transformers')
+TRANSFORM_PLUGIN_GLOB = path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 # Nest array. One for each level
 LOCKE_TRANSFORMERS = [[], [], []]
 
