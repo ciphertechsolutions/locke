@@ -1,4 +1,4 @@
-""" 
+"""
 These are all Level 3 Transformers
 
     TransformXORIncRRol
@@ -6,10 +6,11 @@ These are all Level 3 Transformers
     TransformXORRChainedAll
 """
 
+
 class TransformXORIncRRol(TransformString):
     """
     Name: Transform Xor Increment R Rol
-    Description: XOR with 8 bits A, increment after each 
+    Description: XOR with 8 bits A, increment after each
         char then right roll
     ID: xor_inc_rrol
     """
@@ -21,23 +22,23 @@ class TransformXORIncRRol(TransformString):
 
     def transform_string(self, data):
         xor_key, roll = self.params
-        result = b''
+        result = bytearray()
         for i in range(0, len(data)):
             key = (xor_key + i) & 0xFF
-            result += to_bytes(rol_right(ord(data[i]) ^ key, roll))
-        return result
+            result.append(rol_right(ord(data[i]) ^ key, roll))
+        return bytes(result)
 
     @staticmethod
     def all_iteration():
         for x in range(0, 256):
-            for r in range(1,8):
+            for r in range(1, 8):
                 yield x, r
 
 
 class TransformXORIncLRol(TransformString):
     """
     Name: Transform Xor Increment L Rol
-    Description: XOR with 8 bits A, increment after each 
+    Description: XOR with 8 bits A, increment after each
         char then left roll
     ID: xor_inc_lrol
     """
@@ -49,14 +50,14 @@ class TransformXORIncLRol(TransformString):
 
     def transform_string(self, data):
         xor_key, roll = self.params
-        result = b''
+        result = bytearray()
         for i in range(0, len(data)):
             key = (xor_key + i) & 0xFF
-            result += to_bytes(rol_left(ord(data[i]) ^ key, roll))
-        return result
+            result.append(rol_left(ord(data[i]) ^ key, roll))
+        return bytes(result)
 
     @staticmethod
     def all_iteration():
         for x in range(0, 256):
-            for r in range(1,8):
+            for r in range(1, 8):
                 yield x, r

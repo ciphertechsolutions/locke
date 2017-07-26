@@ -1,9 +1,9 @@
-""" 
+"""
 These are all Level 1 Transformers
 
 String Transformers
     TransformIndentity
-   
+
 Char Transformers
     TransformRotateLeft
     TransformRotateRight
@@ -14,6 +14,8 @@ Char Transformers
     TransFormXORLRoll
     TransFormRollAdd
 """
+
+
 class TransformIndentity(TransformString):
     """
     Name: Identity Transformer
