@@ -320,7 +320,7 @@ class Transfomer(object):
         print("Done Reading %s" % filename)
         return data
 
-    def select_transformers(self, trans_list, name_list, select, level):
+    def select_transformers(trans_list, name_list, select, level):
         """
         There is an order of precedent. If the names are provided, we will only
         use names, else the levels, else the only requested. Only one field
@@ -344,11 +344,11 @@ class Transfomer(object):
                     sys.exit('No transformation found using \n%s' % name_list)
         elif select is not None:
             if select == 1:
-                trans_class = trans_list[1]
+                trans_class = trans_list[0]
             elif select == 2:
-                trans_class = trans_list[2]
+                trans_class = trans_list[1]
             elif select == 3:
-                trans_class = trans_list[3]
+                trans_class = trans_list[2]
             else:
                 raise LookupError("There are no such level as %i" % select)
         else:
@@ -360,12 +360,6 @@ class Transfomer(object):
                 trans_class = trans_list[0] + trans_list[1] + trans_list[2]
             else:
                 raise LookupError("There are no such level as %i" % level)
-
-        if self.verbose:
-            print("\t- Transformer to Use:")
-            for trans in trans_class:
-                print('\t\t- Class: %s | Level: %i' % (trans[0],
-                    trans[1].class_level()))
         return trans_class
 
     def evaluate_data(self, trans_list, keep, patterns, result):
