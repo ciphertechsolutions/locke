@@ -149,7 +149,7 @@ def transforms(ctx, level, only, name):
     List all transformations known by Locke.
     """
     load_all_transformers()
-    trans_list = Transfomer.select_transformers(LOCKE_TRANSFORMERS, name, only, level)
+    trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
     for trans in trans_list:
         click.echo('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
         click.echo(trans[1].__doc__)

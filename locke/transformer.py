@@ -204,6 +204,62 @@ def rol_right(byte, count):
     # afterward AND with 0xFF to get only a byte
     return (byte >> count | byte << (8 - count)) & 0xFF
 
+def select_transformers(trans_list, name_list, select, level):
+    """
+    There is an order of precedent. If the names are provided, we will only
+    use names, else the levels, else the only requested. Only one field
+    will be used to find the list of transformers to be used
+    Args:
+        trans_list: A list of transformer to choose form
+        name_list: A list of names to find
+        level: The highest level allow for transformer
+        only: The only level allowed to use
+    Return:
+        A list of transformer to use
+    """
+    trans_class = []
+    if name_list is not None:
+        not_found = []
+        for name in name_list.split(','):
+            not_found.append(name.strip().lower())
+            for trans_level in trans_list:
+                found = False
+                for trans in trans_level:
+                    if not_found[-1] == trans[0].lower():
+                        found = True
+                        trans_class.append(trans)
+                        break 
+                if found:
+                    not_found.pop()
+                    break
+
+        if len(not_found) != 0:
+            print("No transformation found for:\n%s" % not_found)
+            if len(trans_class) == 0:
+                sys.exit('No transformation(s) found exiting...')
+            ans = input("Do you wish to continue? ")
+            if ans.strip().lower() == 'n':
+                sys.exit()
+            print("---------------------------")
+    elif select is not None:
+        if select == 1:
+            trans_class = trans_list[0]
+        elif select == 2:
+            trans_class = trans_list[1]
+        elif select == 3:
+            trans_class = trans_list[2]
+        else:
+            sys.exit("There are no such level as %i" % select)
+    else:
+        if level == 1:
+            trans_class = trans_list[0]
+        elif level == 2:
+            trans_class = trans_list[0] + trans_list[1]
+        elif level == 3 or level is None:
+            trans_class = trans_list[0] + trans_list[1] + trans_list[2]
+        else:
+            sys.exit("There are no such level as %i" % level)
+    return trans_class
 
 class Transfomer(object):
 
@@ -231,8 +287,6 @@ class Transfomer(object):
         Return:
             Nothing
         """
-
-
         process_pool = []
         self.verbose = verbose
 
@@ -241,7 +295,7 @@ class Transfomer(object):
         data = (self.read_file(filename) if not zip else
                 self.read_zip(filename, password))
 
-        transformer_list = self.select_transformers(transformers,
+        transformer_list = select_transformers(transformers,
                 name_list, select, level)
 
         # divide the transformer list
@@ -306,6 +360,7 @@ class Transfomer(object):
             raise IndexError('Range %i is out of bound' % ans)
         return data
 
+
     def read_file(self, filename):
         """
         Read a file and return the bytestring
@@ -317,50 +372,8 @@ class Transfomer(object):
         f = open(filename, 'rb')
         data = f.read()
         f.close()
-        print("Done Reading %s" % filename)
         return data
 
-    def select_transformers(trans_list, name_list, select, level):
-        """
-        There is an order of precedent. If the names are provided, we will only
-        use names, else the levels, else the only requested. Only one field
-        will be used to find the list of transformers to be used
-        Args:
-            trans_list: A list of transformer to choose form
-            name_list: A list of names to find
-            level: The highest level allow for transformer
-            only: The only level allowed to use
-        Return:
-            A list of transformer to use
-        """
-        trans_class = []
-        if name_list is not None:
-            for name in name_list.split(','):
-                for trans_level in trans_list:
-                    for trans in trans_level:
-                        if name.strip().lower() == trans[0].lower():
-                            trans_class.append(trans)
-                if len(trans_class) == 0:
-                    sys.exit('No transformation found using \n%s' % name_list)
-        elif select is not None:
-            if select == 1:
-                trans_class = trans_list[0]
-            elif select == 2:
-                trans_class = trans_list[1]
-            elif select == 3:
-                trans_class = trans_list[2]
-            else:
-                raise LookupError("There are no such level as %i" % select)
-        else:
-            if level == 1:
-                trans_class = trans_list[0]
-            elif level == 2:
-                trans_class = trans_list[0] + trans_list[1]
-            elif level == 3 or level is None:
-                trans_class = trans_list[0] + trans_list[1] + trans_list[2]
-            else:
-                raise LookupError("There are no such level as %i" % level)
-        return trans_class
 
     def evaluate_data(self, trans_list, keep, patterns, result):
         """
