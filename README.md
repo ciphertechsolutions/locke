@@ -5,8 +5,85 @@ Locke is a refactoring and remodeling of [Balbuzard](https://github.com/decalage
 
 ### Installation
 
-TBA
+Requires Python3 + 
+
+Requires Time. A lot of time. Or a Super Computer (prefer a Quantum Computer)
 
 ### Usage
 
-TBA
+Locke is simple to use. Just run
+``` bash
+python locke.py --help
+```
+After each command, you can run ``--help`` to get more information about the command.
+
+Some basic commands are:
+```
+Usage: locke.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -v, --verbose  be verbose
+  --help         Show this message and exit.
+
+Commands:
+  crack       Use patterns of interest to crack the...
+  patterns    List all patterns known by Locke.
+  search      Search for patterns of interest in the...
+  transforms  List all transformations known by Locke.
+```
+
+For a basic search just run 
+```
+python locke.py search <filename>
+```
+You can add in `` --csv <outputName>`` to save the result as a csv
+
+Decoding a file have some parameters that may be of interest:
+```
+Usage: locke.py crack [OPTIONS] FILENAME
+
+  Use patterns of interest to crack the supplied files.
+
+Options:
+  -l, --level INTEGER  Select transformers with level 1, 2, or 3 and below
+  -o, --only INTEGER   Only use transformers on that specific level
+  -n, --name TEXT      A list of transformer classes to use in quotes and is
+                       commas separated
+  -k, --keep INTEGER   How many transforms to saveafter stage 1
+  -s, --save INTEGER   How many transforms to saveafter stage 2
+  -z, --zip            Mark this fileas a zip file. Use --password to enter
+                       zip password
+  --password TEXT      Only works if -z is set. Allows input of password for
+                       zip file
+  -p, --profiling
+  -v, --verbose
+  --help               Show this message and exit.
+```
+
+To start a basic start with all the transformers (from level 1 - 3), run ``python locke.py crack <filename>``
+This will decode the files, search each decoded instance and save the top 10 scoring instance to disk
+
+To adjust how many files to keep/save, enter a number after ``-k`` or ``-s``. The lower the number to keep
+and save, the fast the program will run, but you will be limiting your results.
+
+To select what transformation to run, use either ``-l``, ``-o``, or ``-n`` command. There is an order of
+precedence. Only one of the value will be used to filter the transformers list. The order is as follow:
+``Name > Only > Select``
+
+For example if you run the script with `` -n transformxor -l 2 -o 1``, only the Transformer TransformXOR will
+be applied to the file as name is the highest precedence; the level and only option will be disregarded. 
+Likewise, if you run `` -l 2 -o 1``, only Transformers on level 1 will be run as only have a higher precedence 
+than level.
+
+To select more than one Transformer by name, wrap the list in quotes and seperate each Transformers by a comma.
+EX: ``--name "transformxor, transformadd, transformsub"``
+
+This program also support decoding files inside a zip. Run with ``-z`` to mark the file as a zip. If the zip is
+password encrypted, you can supply the password by using the ``--password <password>`` option. The script
+will attempt to read the zip and list the files avaiable and ask which files do you want to decode (if there are
+more than one files).
+
+
+For a list of all available Transformers, run ``python locke.py transforms``.
+
+For a list of all available Patterns, run ``python locke.py patterns``.
