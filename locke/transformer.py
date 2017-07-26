@@ -271,7 +271,7 @@ class Transfomer(object):
     multiple processes to speed up the transformation
     """
     def __init__(self, filename, password, transformers, patterns, zip,
-            level, select, name_list, keep, save, verbose, process=4):
+            level, select, name_list, keep, save, verbose):
         """
         Set up the Transformer class. Read the file data and create a list
         of transformers based on user request. Afterward, divide the list
@@ -306,6 +306,7 @@ class Transfomer(object):
                 name_list, select, level)
 
         # divide the transformer list
+        process = multiprocessing.cpu_count()
         group = math.ceil(len(transformer_list) / process)
         transformer_list = [transformer_list[i:i+group]
                 for i in range(0, len(transformer_list), group)]
@@ -314,6 +315,7 @@ class Transfomer(object):
             print("Eval %i: " % i)
             for t in transformer_list[i]:
                 print("\t- %s" % t[0])
+        print("")
 
         # create multiple process
         for i in range(0, len(transformer_list)):
@@ -368,7 +370,7 @@ class Transfomer(object):
 
     def read_file(self, filename):
         """
-        Read a file and return the bytestring
+        ReAD a file and return the bytestring
         Args:
             The location of the file
         Return:
@@ -396,8 +398,9 @@ class Transfomer(object):
         """
         try:
             name = multiprocessing.current_process().name
-            results = []
             transform = None
+            results = []
+
             # Stage 1 pattern searching
             start_time = time.clock()
             for trans in trans_list:
@@ -410,50 +413,47 @@ class Transfomer(object):
                     score = 0
                     for pat, count in patterns.count(trans_data):
                         score += count * pat.weight
-                    #print('- - %s -- %s | Stage: 1 | Score: %i | Value: %s'
-                    #        % (name, trans[0], score, value))
                     results.append((transform, score))
+
             elapse = time.clock() - start_time
             print("\t - - %s ran through %i transforms in %f seconds - %f trans/sec"
                     % (name, len(results), elapse, len(results)/elapse))
             # Sort the array and keep only the high scoring result
-            results = sorted(results, key=lambda r: r[1], reverse=True)
-            results = results[:keep]
+            results = sorted(results, key=lambda r: r[1], reverse=True)[:keep]
 
             print("%s Started on Stage 2" % name)
             #print("Stage 2 Scan")
             # Time for stage 2 pattern searching
+            # Search through the data with a more specific pattern
             final_result = []
             start_time = time.clock()
-            for i in range(0, len(results)):
-                # Re transform the data
-                transform, trans_score = results[i]
+            for transform, trans_score in results:
                 print("\t - %s Working on Transformer: %s"
                         % (name, transform.name()))
+                # Re transform the data
                 trans_data = transform.transform(data)
-                # Search through the data with a more specific pattern
                 score = 0
+                # XXX
+                # count does not provide any information about the actual
+                # matches and scan makes a generator
                 for pat, count in patterns.count(trans_data):
                     score += count * pat.weight
-                    #print("%s -- Pattern: %s | Matches: %i | Weight: %i"
-                    #		% (name, pat.name, len(matches), pat.weight))
-                #print("- %s -- Transform: %s | Score: %i"
-                #        % (name, transform.__class__.__name__, score))
-
                 final_result.append((transform, score))
 
             elapse = time.clock() - start_time
             print("\t - - %s ran through %i transforms in %f seconds - %f trans/sec"
                     % (name, i, elapse, i/elapse))
-            # no returns as we are multiprocessing. Result will be shared
-            # to the parent process
+            # no returns as we are multiprocessing. 
+            # result will be shared to the parent process
             result.put(final_result)
             print("%s Finished" % name)
         except Exception:
-            print("%s ran into an error" % name)
+            error = "*** %s ran into an error" % name
             if transform is not None:
-                print("!**^^^**! %s " % transform.__class__.__name__)
+                error += "\n*** %s " % transform.__class__.__name__
+            print(error)
             raise
+    
 
     def write_file(self, filename, results, data):
         # Write the final data to disk
