@@ -28,7 +28,10 @@ class TransformIndentity(TransformString):
     """
     def class_level():
         return 1
-    def name(self): return "Indentity"
+
+    def name(self):
+        return "Indentity"
+
     def shortname(self):
         return "no_trans"
 
@@ -56,8 +59,10 @@ class TransformRotateLeft(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "Rot L %i" % self.value
+
     def shortname(self):
         return "rLeft_%i" % self.value
 
@@ -81,8 +86,10 @@ class TransformRotateRight(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "Rot R %i" % self.value
+
     def shortname(self):
         return "rRight_%i" % self.value
 
@@ -106,8 +113,10 @@ class TransformXOR(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "XOR %i" % self.value
+
     def shortname(self):
         return "xor_%02X" % self.value
 
@@ -131,8 +140,10 @@ class TransformAdd(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "Add %i" % self.value
+
     def shortname(self):
         return "add_%i" % self.value
 
@@ -158,8 +169,10 @@ class TransformSub(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "Subtract %i" % self.value
+
     def shortname(self):
         return "sub_%i" % self.value
 
@@ -174,9 +187,7 @@ class TransformSub(TransformChar):
     @staticmethod
     def all_iteration():
         for val in range(1, 256):
-            for rol in range(1, 8):
-                yield (val, rol)
-
+            yield val
 
 class TransformXORRRoll(TransformChar):
     """
@@ -186,8 +197,10 @@ class TransformXORRRoll(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "XOR %02X then R Rol %i" % self.value
+
     def shortname(self):
         return "xor%02X_rrol%i" % self.value
 
@@ -203,6 +216,7 @@ class TransformXORRRoll(TransformChar):
             for rol in range(1, 8):
                 yield (val, rol)
 
+
 class TransformXORLRoll(TransformChar):
     """
     Name: Transform XOR Left Roll Char
@@ -211,8 +225,10 @@ class TransformXORLRoll(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "XOR %02X then L Rol %i" % self.value
+
     def shortname(self):
         return "xor%02X_lrol%i" % self.value
 
@@ -225,7 +241,8 @@ class TransformXORLRoll(TransformChar):
     @staticmethod
     def all_iteration():
         for val in range(1, 256):
-            yield val
+            for roll in range(1, 8):
+                yield val, roll
 
 
 class TransformAddRRoll(TransformChar):
@@ -236,8 +253,10 @@ class TransformAddRRoll(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "Add %i then R Rol %i" % self.value
+
     def shortname(self):
         return "add%i_rrol%i" % self.value
 
@@ -262,8 +281,10 @@ class TransformAddLRoll(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "Add %i then L Rol %i" % self.value
+
     def shortname(self):
         return "add%i_lrol%i" % self.value
 
@@ -288,8 +309,10 @@ class TransformRRolAdd(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "R Roll %i then Add %i" % self.value
+
     def shortname(self):
         return "rrol%i_add%i" % self.value
 
@@ -314,8 +337,10 @@ class TransformLRolAdd(TransformChar):
     """
     def class_level():
         return 1
+
     def name(self):
         return "L Roll %i then Add %i" % self.value
+
     def shortname(self):
         return "lrol%i_add%i" % self.value
 
@@ -330,4 +355,3 @@ class TransformLRolAdd(TransformChar):
         for val in range(1, 8):
             for rol in range(1, 256):
                 yield (val, rol)
-

@@ -42,6 +42,8 @@ def load_all_transformers():
                 LOCKE_TRANSFORMERS[1].append(clss)
             elif clss[1].class_level() == 3:
                 LOCKE_TRANSFORMERS[2].append(clss)
+            else:
+                print("SPP")
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')

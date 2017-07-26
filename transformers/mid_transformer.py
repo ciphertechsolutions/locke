@@ -21,8 +21,10 @@ class TransformXORInc(TransformString):
     """
     def class_level():
         return 2
+
     def name(self):
         return "Xor %i Increment" % self.value
+
     def shortname(self):
         return "xor%02X_inc" % self.value
 
@@ -32,8 +34,8 @@ class TransformXORInc(TransformString):
     def transform_string(self, data):
         result = bytearray()
         for i in range(0, len(data)):
-            xor_key = (self.params + i) & 0xFF
-            result.append(ord(data[i]) ^ xor_key)
+            xor_key = (self.value + i) & 0xFF
+            result.append(data[i] ^ xor_key)
         return bytes(result)
 
     @staticmethod
@@ -50,8 +52,10 @@ class TransformXORDec(TransformString):
     """
     def class_level():
         return 2
+
     def name(self):
         return "Xor %i Decrement" % self.value
+
     def shortname(self):
         return "xor%02X_dec" % self.value
 
@@ -61,8 +65,8 @@ class TransformXORDec(TransformString):
     def transform_string(self, data):
         result = bytearray()
         for i in range(0, len(data)):
-            xor_key = (self.params + 0xFF - i) & 0xFF
-            result.append(ord(data[i]) ^ xor_key)
+            xor_key = (self.value + 0xFF - i) & 0xFF
+            result.append(data[i] ^ xor_key)
         return bytes(result)
 
     @staticmethod
@@ -79,8 +83,10 @@ class TransformSubInc(TransformString):
     """
     def class_level():
         return 2
+
     def name(self):
         return "Subtract %i Increment" % self.value
+
     def shortname(self):
         return "sub%02X_inc" % self.value
 
@@ -91,7 +97,7 @@ class TransformSubInc(TransformString):
         result = bytearray()
         for i in range(0, len(data)):
             key = (self.value + i) & 0xFF
-            result.append((ord(data[i]) - key) & 0xFF)
+            result.append((data[i] - key) & 0xFF)
         return bytes(result)
 
     @staticmethod
@@ -108,8 +114,10 @@ class TransformXORChained(TransformString):
     """
     def class_level():
         return 2
+
     def name(self):
         return "XOR %02X Chained" % self.value
+
     def shortname(self):
         return "xor%02X_chained" % self.value
 
@@ -118,9 +126,9 @@ class TransformXORChained(TransformString):
 
     def transform_string(self, data):
         result = bytearray()
-        result.append(ord(data[0]) ^ self.value)
+        result.append(data[0] ^ self.value)
         for i in range(1, len(data)):
-            result.append(ord(data[i]) ^ self.value ^ ord(data[i-1]))
+            result.append(data[i] ^ self.value ^ data[i-1])
         return bytes(result)
 
     @staticmethod
@@ -137,8 +145,10 @@ class TransformXORRChained(TransformString):
     """
     def class_level():
         return 2
+
     def name(self):
         return "XOR %02X RChained" % self.value
+
     def shortname(self):
         return "xor%02X_rchained" % self.value
 
@@ -148,8 +158,8 @@ class TransformXORRChained(TransformString):
     def transform_string(self, data):
         result = bytearray()
         for i in range(0, len(data) - 1):
-            result.append(ord(data[i]) ^ self.value ^ ord(data[i+1]))
-        result.append(ord(data[-1]) ^ self.value)
+            result.append(data[i] ^ self.value ^ data[i+1])
+        result.append(data[-1] ^ self.value)
         return bytes(result)
 
     @staticmethod
@@ -166,15 +176,17 @@ class TransformXORAdd(TransformChar):
     """
     def class_level():
         return 2
+
     def name(self):
         return "XOR %02X Add %i" % self.value
+
     def shortname(self):
         return "xor%02X_add%i" % self.value
 
     def __init__(self, value):
         self.value = value
 
-    def transform_char(self, byte):
+    def transform_byte(self, byte):
         return ((byte ^ self.value[0]) + self.value[1]) & 0xFF
 
     @staticmethod
@@ -192,15 +204,17 @@ class TransformAddXOR(TransformChar):
     """
     def class_level():
         return 2
+
     def name(self):
         return "Add %i XOR %02X" % self.value
+
     def shortname(self):
         return "add%i_xor%02X" % self.value
 
     def __init__(self, value):
         self.value = value
 
-    def transform_char(self, byte):
+    def transform_byte(self, byte):
         return ((byte + self.value[1]) & 0xFF) ^ self.value[0]
 
     @staticmethod

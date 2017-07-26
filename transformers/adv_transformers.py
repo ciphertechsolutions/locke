@@ -16,8 +16,10 @@ class TransformXORIncRRol(TransformString):
     """
     def class_level():
         return 3
+
     def name(self):
         return "XOR %02X Inc then R Roll %i" % self.value
+
     def shortname(self):
         return "xor%02X_inc_rrol%i" % self.value
 
@@ -25,11 +27,11 @@ class TransformXORIncRRol(TransformString):
         self.value = value
 
     def transform_string(self, data):
-        xor_key, roll = self.params
+        xor_key, roll = self.value
         result = bytearray()
         for i in range(0, len(data)):
             key = (xor_key + i) & 0xFF
-            result.append(rol_right(ord(data[i]) ^ key, roll))
+            result.append(rol_right(data[i] ^ key, roll))
         return bytes(result)
 
     @staticmethod
@@ -48,8 +50,10 @@ class TransformXORIncLRol(TransformString):
     """
     def class_level():
         return 3
+
     def name(self):
         return "XOR %02X Inc then L Roll %i" % self.value
+
     def shortname(self):
         return "xor%02X_inc_lrol%i" % self.value
 
@@ -57,11 +61,11 @@ class TransformXORIncLRol(TransformString):
         self.value = value
 
     def transform_string(self, data):
-        xor_key, roll = self.params
+        xor_key, roll = self.value
         result = bytearray()
         for i in range(0, len(data)):
             key = (xor_key + i) & 0xFF
-            result.append(rol_left(ord(data[i]) ^ key, roll))
+            result.append(rol_left(data[i] ^ key, roll))
         return bytes(result)
 
     @staticmethod
@@ -71,16 +75,18 @@ class TransformXORIncLRol(TransformString):
                 yield x, r
 
 
-class TransforXORRChainedAll(TransformString):
+class TransformXORRChainedAll(TransformString):
     """
     Name: Transform XOR R Chained with All Bytes
     Description: XOR byte with all the bytes from the right of it
     ID: xor_rchain_all
     """
     def class_level():
-            return 3
+        return 3
+
     def name(self):
         return "XOR %02X RChained All" % self.value
+
     def shortname(self):
         return "xor%02X_rchained_all" % self.value
 
@@ -96,5 +102,5 @@ class TransforXORRChainedAll(TransformString):
 
     @staticmethod
     def all_iteration():
-            for i in range(0, 256):
-                yield i
+        for i in range(0, 256):
+            yield i
