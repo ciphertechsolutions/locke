@@ -160,7 +160,8 @@ def to_bytes(value):
         If value is not a byte
     """
     if not isinstance(value, int):
-        raise TypeError('Value is type %s, but needs to be an int' % type(value))
+        raise TypeError('Value is type %s, but needs to be an int' 
+                % type(value))
     return bytes([value])
 
 
@@ -183,6 +184,7 @@ def rol_left(byte, count):
     # afterward AND with 0xFF to get only a byte
     return (byte << count | byte >> (8 - count)) & 0xFF
 
+
 def rol_right(byte, count):
     """
     This method will right shift the byte left by count
@@ -202,6 +204,7 @@ def rol_right(byte, count):
     # Shift right then OR with the part that was shift out of bound
     # afterward AND with 0xFF to get only a byte
     return (byte >> count | byte << (8 - count)) & 0xFF
+
 
 def select_transformers(trans_list, name_list, select, level):
     """
@@ -227,7 +230,7 @@ def select_transformers(trans_list, name_list, select, level):
                     if not_found[-1] == trans[0].lower():
                         found = True
                         trans_class.append(trans)
-                        break 
+                        break
                 if found:
                     not_found.pop()
                     break
@@ -260,9 +263,10 @@ def select_transformers(trans_list, name_list, select, level):
             sys.exit("There are no such level as %i" % level)
     return trans_class
 
+
 class Transfomer(object):
     """
-    This class initialize the variables required to start 
+    This class initialize the variables required to start
     transforming and analyzing the data. It will try to run
     multiple processes to speed up the transformation
     """
@@ -281,7 +285,7 @@ class Transfomer(object):
             patterns: The Pattern searching instance to use
             zip: Flag the file as a zip or not
             level: The transformer max level to use
-            select: The one and only transformer level to use 
+            select: The one and only transformer level to use
             name_list: The list of transformers name to use
             keep: The number of initial result to keep
             save: The number of final result to save to disk
@@ -362,7 +366,6 @@ class Transfomer(object):
             raise IndexError('Range %i is out of bound' % ans)
         return data
 
-
     def read_file(self, filename):
         """
         Read a file and return the bytestring
@@ -375,7 +378,6 @@ class Transfomer(object):
         data = f.read()
         f.close()
         return data
-
 
     def evaluate_data(self, trans_list, keep, patterns, result):
         """
@@ -461,7 +463,7 @@ class Transfomer(object):
             # due to multiprocessing, we have to re-transform the data
             # once more
             final_data = transform.transform(data)
-            print("Rank %i -- Tran: %s | Score %i" 
+            print("Rank %i -- Tran: %s | Score %i"
                     % (i, transform.name(), score))
             if score > 0:
                 base, ext = os.path.splitext(filename)

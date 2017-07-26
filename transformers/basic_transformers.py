@@ -331,7 +331,7 @@ class TransformRRolAdd(TransformChar):
 
 class TransformLRolAdd(TransformChar):
     """
-    Name: Transform Left Roll Add
+    Name: Transform Left Roll Add    
     Description: L Roll byte then Add
     ID: lrol_add
     """
