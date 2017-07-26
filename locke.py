@@ -42,6 +42,12 @@ def load_all_transformers():
                 LOCKE_TRANSFORMERS[1].append(clss)
             elif clss[1].class_level() == 3:
                 LOCKE_TRANSFORMERS[2].append(clss)
+            elif clss[1].class_level() == -1:
+                print("!! %s is disable" % clss[0])
+            else:
+                print("%s has an invalid class level (1 - 3 | -1 > disable)" 
+                        % clss[0])
+    print("")
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
@@ -136,16 +142,23 @@ def patterns(ctx):
 
 
 @cli.command()
+@click.option('-l', '--level', type=int, default=None,
+              help='Select transformers with level 1, 2, or 3 and below')
+@click.option('-o', '--only', type=int, default=None,
+              help='Only use transformers on that specific level')
+@click.option('-n', '--name', nargs=1, default=None,
+              help='A list of transformer classes to use in quotes and '
+              'is commas separated')
 @click.pass_context
-def transforms(ctx):
+def transforms(ctx, level, only, name):
     """
     List all transformations known by Locke.
     """
     load_all_transformers()
-    for transList in LOCKE_TRANSFORMERS:
-        for trans in transList:
-            click.echo('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
-            click.echo(trans[1].__doc__)
+    trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
+    for trans in trans_list:
+        click.echo('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
+        click.echo(trans[1].__doc__)
 
 
 if __name__ == '__main__':
