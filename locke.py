@@ -10,7 +10,7 @@ from locke.pattern import *
 from locke.transformer import *
 
 
-SCRIPT_DIR = path.dirname(path.realpath(__file__))
+SCRIPT_DIR = path.dirname(path.abspath(__file__))
 
 # Locke pattern plugins are expected to be in this directory.
 PATTERN_PLUGIN_DIR = path.join(SCRIPT_DIR,  'patterns')
