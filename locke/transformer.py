@@ -425,6 +425,7 @@ class Transfomer(object):
             vprint("### %s Started on Stage 1" % name)
             # Stage 1 pattern searching
             start_time = time.clock()
+            append = results.append
             for trans in trans_list:
                 vprint("\t--- %s Working on Transformer: %s" % (name, trans[0]), 1)
                 for value in trans[1].all_iteration():
@@ -435,7 +436,7 @@ class Transfomer(object):
                     score = 0
                     for pat, count in patterns.count(trans_data):
                         score += count * pat.weight
-                    results.append((transform, score))
+                    append((transform, score))
                     vprint("%s's Score: %i" % (transform.shortname(), score), 2)
 
             elapse = time.clock() - start_time

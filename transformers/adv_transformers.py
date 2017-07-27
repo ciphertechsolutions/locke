@@ -29,9 +29,10 @@ class TransformXORIncRRol(TransformString):
     def transform_string(self, data):
         xor_key, roll = self.value
         result = bytearray()
+        append = result.append
         for i in range(0, len(data)):
             key = (xor_key + i) & 0xFF
-            result.append(rol_right(data[i] ^ key, roll))
+            append(rol_right(data[i] ^ key, roll))
         return bytes(result)
 
     @staticmethod
@@ -63,9 +64,10 @@ class TransformXORIncLRol(TransformString):
     def transform_string(self, data):
         xor_key, roll = self.value
         result = bytearray()
+        append = result.append
         for i in range(0, len(data)):
             key = (xor_key + i) & 0xFF
-            result.append(rol_left(data[i] ^ key, roll))
+            append(rol_left(data[i] ^ key, roll))
         return bytes(result)
 
     @staticmethod
