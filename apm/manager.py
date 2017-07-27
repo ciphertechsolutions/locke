@@ -3,8 +3,17 @@ from multiprocessing import Pool
 
 from .pattern_plugin import PatternPlugin
 
+"""
+These global variables contain the normal and lowercased data currently
+being processed.
+
+They're global to avoid excessive allocation, as most platforms will
+be clever enough to avoid duolicating them across multiple subprocess
+address spaces.
+"""
 data = None
 data_lower = None
+
 
 class Manager(object):
     """
@@ -27,9 +36,20 @@ class Manager(object):
         data_lower = data.lower()
 
     def run_pattern(self, pat):
+        """
+        Runs a single pattern against the data.
+
+        This method is private.
+        """
         return pat, pat.scan(self)
 
     def run_all(self):
+        """
+        This method runs all patterns against the data, utilizing
+        a process pool to distribute the work.
+
+        It returns a list of (PatternPlugin, List(Match)) tuples.
+        """
         tups = []
         with Pool(self.nproc) as pool:
             for ms in pool.map(self.run_pattern, self.pats):
