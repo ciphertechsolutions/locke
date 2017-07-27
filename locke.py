@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 import click
 import glob
 import sys
