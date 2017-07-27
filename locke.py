@@ -1,3 +1,5 @@
+#!/usr/bin/python3.5
+
 import click
 import glob
 import sys
@@ -97,7 +99,7 @@ def search(ctx, csv, files):
 
 
 @cli.command()
-@click.option('-l', '--level', type=int, default=None,
+@click.option('-l', '--level', type=int, default=3,
               help='Select transformers with level 1, 2, or 3 and below')
 @click.option('-o', '--only', type=int, default=None,
               help='Only use transformers on that specific level')
@@ -112,12 +114,15 @@ def search(ctx, csv, files):
               'as a zip file. Use --password to enter zip password')
 @click.option('--password', nargs=1, default=None, help='Only works if -z is '
               'set. Allows input of password for zip file')
+@click.option('--no-save', is_flag=True, help="Don't save result to disk")
 @click.option('-p', '--profiling', is_flag=True)
-@click.option('-v', '--verbose', is_flag=True)
+@click.option('-v', '--verbose', type=int, default=0, help='Set the verbose level '
+        'Valid inputs are 0 - 2 (lowest output to highest). Note that -v 2 is not '
+        'human friendly')
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
 def crack(ctx, level, only, name, keep, save, zip, password,
-        profiling, filename, verbose):
+        no_save, profiling, verbose, filename):
     """
     Use patterns of interest to crack the supplied files.
     """
@@ -130,7 +135,7 @@ def crack(ctx, level, only, name, keep, save, zip, password,
     trans = Transfomer(filename, password,
             LOCKE_TRANSFORMERS, lock, zip,
             level, only, name, keep, save,
-            verbose)
+            no_save, verbose)
 
 
 @cli.command()
@@ -144,7 +149,7 @@ def patterns(ctx):
 
 
 @cli.command()
-@click.option('-l', '--level', type=int, default=None,
+@click.option('-l', '--level', type=int, default=3,
               help='Select transformers with level 1, 2, or 3 and below')
 @click.option('-o', '--only', type=int, default=None,
               help='Only use transformers on that specific level')

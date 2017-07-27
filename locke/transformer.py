@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod, abstractproperty
 from multiprocessing import Process, Queue
+from locke.utils import vprint
 import multiprocessing
 import math
 import time, sys, os
@@ -206,7 +207,7 @@ def rol_right(byte, count):
     return (byte >> count | byte << (8 - count)) & 0xFF
 
 
-def select_transformers(trans_list, name_list, select, level):
+def select_transformers(trans_list, name_list, select, level = 3):
     """
     There is an order of precedent. If the names are provided, we will only
     use names, else the levels, else the only requested. Only one field
@@ -221,6 +222,7 @@ def select_transformers(trans_list, name_list, select, level):
     """
     trans_class = []
     if name_list is not None:
+        vprint("Selecting transformer from a name list", 1)
         not_found = []
         for name in name_list.split(','):
             not_found.append(name.strip().lower())
@@ -228,12 +230,14 @@ def select_transformers(trans_list, name_list, select, level):
                 found = False
                 for trans in trans_level:
                     if not_found[-1] == trans[0].lower():
+                        vprint("%s transformer found!" % not_found[-1], 2)
                         found = True
                         trans_class.append(trans)
                         break
                 if found:
                     not_found.pop()
                     break
+                vprint("%s transformer NOT found!" % not_found[-1], 2)
 
         if len(not_found) != 0:
             print("No transformation found for:\n%s" % not_found)
@@ -244,6 +248,7 @@ def select_transformers(trans_list, name_list, select, level):
                 sys.exit()
             print("---------------------------")
     elif select is not None:
+        vprint("Selecting transform from specified level %i" % select, 1)
         if select == 1:
             trans_class = trans_list[0]
         elif select == 2:
@@ -253,6 +258,7 @@ def select_transformers(trans_list, name_list, select, level):
         else:
             sys.exit("There are no such level as %i" % select)
     else:
+        vprint("Defaulting back to level %i and below" % level, 1)
         if level == 1:
             trans_class = trans_list[0]
         elif level == 2:
@@ -271,7 +277,7 @@ class Transfomer(object):
     multiple processes to speed up the transformation
     """
     def __init__(self, filename, password, transformers, patterns, zip,
-            level, select, name_list, keep, save, verbose):
+            level, select, name_list, keep, save, no_save, verbose):
         """
         Set up the Transformer class. Read the file data and create a list
         of transformers based on user request. Afterward, divide the list
@@ -295,27 +301,35 @@ class Transfomer(object):
             Nothing
         """
         process_pool = []
-        self.verbose = verbose
+        process = multiprocessing.cpu_count()
+        vprint(verbose=verbose)
+        # To ensure that stage two will have at minimal the save amount
+        # in case one transformation have a bunch of extremely hih 
+        # ranking results
+        keep = math.ceil(keep/process) if keep/process >= save else save
 
         # Read the data
+        vprint("Reading data from %s" % filename, 2)
         global data
         data = (self.read_file(filename) if not zip else
                 self.read_zip(filename, password))
 
+        vprint("Selecting transformers", 2)
         transformer_list = select_transformers(transformers,
                 name_list, select, level)
 
         # divide the transformer list
-        process = multiprocessing.cpu_count()
+        vprint("Dividing transformers into groups of %i" % process, 2)
         group = math.ceil(len(transformer_list) / process)
         transformer_list = [transformer_list[i:i+group]
                 for i in range(0, len(transformer_list), group)]
-
-        for i in range(0, len(transformer_list)):
-            print("Eval %i: " % i)
-            for t in transformer_list[i]:
-                print("\t- %s" % t[0])
-        print("")
+        
+        if verbose == 1:
+            for i in range(0, len(transformer_list)):
+                print("Eval %i: " % i)
+                for t in transformer_list[i]:
+                    print("\t- %s" % t[0])
+            print("")
 
         # create multiple process
         for i in range(0, len(transformer_list)):
@@ -324,21 +338,23 @@ class Transfomer(object):
             p = Process(target=self.evaluate_data, name="Eval %i" % i,
                     args=(transformer_list[i], keep, patterns, result))
             process_pool.append((p, result))
+            vprint("Process %i created and starting" % i, 2)
             p.start()
 
         for i in process_pool:
+            vprint("Waiting for %s to finish" % i[0].name, 2)
             i[0].join()
 
         results = []
         for i in process_pool:
             if not i[1].empty():
-                print("Getting data from %s" % i[0].name)
+                vprint("Getting data from %s" % i[0].name, 1)
                 results += i[1].get()
 
         results = sorted(results, key=lambda r: r[1], reverse=True)[:save]
-
+        vprint("Writing top %i results to list" % save, 2)
         # limit to top X results
-        self.write_file(filename, results, data)
+        self.write_file(filename, results, data, no_save)
 
     def read_zip(self, filename, password=None):
         """
@@ -362,10 +378,14 @@ class Transfomer(object):
             print('%i: %s' % (i + 1, zfile.namelist()[i]))
         ans = int(input('1 - %i: ' % len(zfile.namelist())))
 
+        vprint("User select file number %i" % ans, 2)
         if ans in range(1, len(zfile.namelist())):
+            vprint("Reading file %s with password %s" 
+                    % (zfile.infolist()[ans - 1], password), 2)
             data = zfile.read(zfile.infolist()[ans - 1], password)
         else:
             raise IndexError('Range %i is out of bound' % ans)
+        vprint("Done reading data from %s" % filename, 1)
         return data
 
     def read_file(self, filename):
@@ -379,6 +399,7 @@ class Transfomer(object):
         f = open(filename, 'rb')
         data = f.read()
         f.close()
+        vprint("Done reading data from %s" % filename, 1)
         return data
 
     def evaluate_data(self, trans_list, keep, patterns, result):
@@ -401,10 +422,11 @@ class Transfomer(object):
             transform = None
             results = []
 
+            vprint("### %s Started on Stage 1" % name)
             # Stage 1 pattern searching
             start_time = time.clock()
             for trans in trans_list:
-                print("\t--- %s Working on Transformer: %s" % (name, trans[0]))
+                vprint("\t--- %s Working on Transformer: %s" % (name, trans[0]), 1)
                 for value in trans[1].all_iteration():
                     # Create transformer and transform data
                     transform = trans[1](value)
@@ -414,22 +436,23 @@ class Transfomer(object):
                     for pat, count in patterns.count(trans_data):
                         score += count * pat.weight
                     results.append((transform, score))
+                    vprint("%s's Score: %i" % (transform.shortname(), score), 2)
 
             elapse = time.clock() - start_time
-            print("\t**** %s ran through %i transforms in %f seconds - %f trans/sec"
+            vprint("\t**** %s ran through %i transforms in %f seconds - %f trans/sec"
                     % (name, len(results), elapse, len(results)/elapse))
             # Sort the array and keep only the high scoring result
             results = sorted(results, key=lambda r: r[1], reverse=True)[:keep]
 
-            print("### %s Started on Stage 2" % name)
+            vprint("### %s Started on Stage 2" % name)
             #print("Stage 2 Scan")
             # Time for stage 2 pattern searching
             # Search through the data with a more specific pattern
             final_result = []
             start_time = time.clock()
             for transform, trans_score in results:
-                print("\t--- %s Working on Transformer: %s"
-                        % (name, transform.name()))
+                vprint("\t--- %s Working on Transformer: %s"
+                        % (name, transform.name()), 1)
                 # Re transform the data
                 trans_data = transform.transform(data)
                 score = 0
@@ -439,23 +462,26 @@ class Transfomer(object):
                 for pat, count in patterns.count(trans_data):
                     score += count * pat.weight
                 final_result.append((transform, score))
+                vprint("%s's Score: %i" % (transform.shortname(), score), 2)
+
 
             elapse = time.clock() - start_time
-            print("\t**** %s ran through %i transforms in %f seconds - %f trans/sec"
+            vprint("\t**** %s ran through %i transforms in %f seconds - %f trans/sec"
                     % (name, len(results), elapse, len(results)/elapse))
             # no returns as we are multiprocessing. 
             # result will be shared to the parent process
             result.put(final_result)
-            print("%s Finished" % name)
+            vprint("%s Finished" % name)
         except Exception:
             error = "!!! %s ran into an error" % name
             if transform is not None:
                 error += "\n!!! %s " % transform.__class__.__name__
-            print(error)
+            vprint(error)
             raise
     
 
-    def write_file(self, filename, results, data):
+    def write_file(self, filename, results, data, no_save):
+        score_log = []
         # Write the final data to disk
         # Lowest to Highest
         for i in range(0, len(results)):
@@ -463,14 +489,16 @@ class Transfomer(object):
             # due to multiprocessing, we have to re-transform the data
             # once more
             final_data = transform.transform(data)
-            print("Rank %i -- Tran: %s | Score %i"
+            score_log.append("Rank %i -- Tran: %s | Score %i"
                     % (i, transform.name(), score))
-            if score > 0:
+            if score > 0 and not no_save:
                 base, ext = os.path.splitext(filename)
                 t_filename = base + '_%i - ' % i + transform.shortname() + ext
-                print("\t- Saving to file %s" % t_filename)
+                score_log.append("\t- Saved to file %s" % t_filename)
                 open(t_filename, "wb").write(final_data)
             else:
-                print("Score of 0, skipping write")
+                score_log.append("Skipping write")
+        print('\n'.join(score_log))
+        open("%s.cracklog" % filename, 'w').write('\n'.join(score_log))
 
 # This was coded while listening to Nightcore
