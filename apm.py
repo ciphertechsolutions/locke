@@ -23,6 +23,10 @@ def cli(ctx, verbose):
 @click.argument('files', type=click.Path(exists=True), nargs=-1)
 @click.pass_context
 def match(ctx, files):
+    """
+    Run all patterns against each supplied file, printing all matches
+    in each file.
+    """
     for file in files:
         click.echo('=' * 79)
         click.echo('File: %s\n' % file)
@@ -43,6 +47,10 @@ def match(ctx, files):
 @click.argument('files', type=click.Path(exists=True), nargs=-1)
 @click.pass_context
 def weight(ctx, files):
+    """
+    Run all patterns against each supplied file, printing out a digest
+    of each file's weight.
+    """
     pass
 
 
