@@ -99,7 +99,7 @@ def search(ctx, csv, files):
 
 
 @cli.command()
-@click.option('-l', '--level', type=int, default=None,
+@click.option('-l', '--level', type=int, default=3,
               help='Select transformers with level 1, 2, or 3 and below')
 @click.option('-o', '--only', type=int, default=None,
               help='Only use transformers on that specific level')
@@ -116,7 +116,9 @@ def search(ctx, csv, files):
               'set. Allows input of password for zip file')
 @click.option('--no-save', is_flag=True, help="Don't save result to disk")
 @click.option('-p', '--profiling', is_flag=True)
-@click.option('-v', '--verbose', is_flag=True)
+@click.option('-v', '--verbose', type=int, default=0, help='Set the verbose level '
+        'Valid inputs are 0 - 2 (lowest output to highest). Note that -v 2 is not '
+        'human friendly')
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
 def crack(ctx, level, only, name, keep, save, zip, password,
@@ -147,7 +149,7 @@ def patterns(ctx):
 
 
 @cli.command()
-@click.option('-l', '--level', type=int, default=None,
+@click.option('-l', '--level', type=int, default=3,
               help='Select transformers with level 1, 2, or 3 and below')
 @click.option('-o', '--only', type=int, default=None,
               help='Only use transformers on that specific level')
