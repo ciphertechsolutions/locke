@@ -9,16 +9,17 @@ def prettyhex(bstr):
     """
     return repr(bstr)[1:]
 
+
 def static_var(var, val):
     def decorate(func):
         setattr(func, var, val)
         return func
     return decorate
 
+
 @static_var("verbose", 0)
-def vprint(mesg = '', level = 0, end = '\n', verbose = None):
+def vprint(mesg='', level=0, end='\n', verbose=None):
     if isinstance(verbose, int):
         vprint.verbose = verbose
     if level <= vprint.verbose:
         print(mesg, end=end)
-
