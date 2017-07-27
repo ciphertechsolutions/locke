@@ -497,7 +497,7 @@ class Transfomer(object):
                 score_log.append("\t- Saved to file %s" % t_filename)
                 open(t_filename, "wb").write(final_data)
             else:
-                score_log.append("Score of 0, skipping write")
+                score_log.append("Skipping write")
         print('\n'.join(score_log))
         open("%s.cracklog" % filename, 'w').write('\n'.join(score_log))
 
