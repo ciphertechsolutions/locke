@@ -271,7 +271,7 @@ class Transfomer(object):
     multiple processes to speed up the transformation
     """
     def __init__(self, filename, password, transformers, patterns, zip,
-            level, select, name_list, keep, save, verbose):
+            level, select, name_list, keep, save, no_save, verbose):
         """
         Set up the Transformer class. Read the file data and create a list
         of transformers based on user request. Afterward, divide the list
@@ -338,7 +338,7 @@ class Transfomer(object):
         results = sorted(results, key=lambda r: r[1], reverse=True)[:save]
 
         # limit to top X results
-        self.write_file(filename, results, data)
+        self.write_file(filename, results, data, no_save)
 
     def read_zip(self, filename, password=None):
         """
@@ -455,7 +455,7 @@ class Transfomer(object):
             raise
     
 
-    def write_file(self, filename, results, data):
+    def write_file(self, filename, results, data, no_save):
         score_log = []
         # Write the final data to disk
         # Lowest to Highest
@@ -466,7 +466,7 @@ class Transfomer(object):
             final_data = transform.transform(data)
             score_log.append("Rank %i -- Tran: %s | Score %i"
                     % (i, transform.name(), score))
-            if score > 0:
+            if score > 0 and not no_save:
                 base, ext = os.path.splitext(filename)
                 t_filename = base + '_%i - ' % i + transform.shortname() + ext
                 score_log.append("\t- Saved to file %s" % t_filename)
