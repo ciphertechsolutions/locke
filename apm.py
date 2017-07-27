@@ -41,6 +41,7 @@ def match(ctx, files):
                 click.echo('\tat %08X: %s' % (match.offset, abbr(match.data)))
 
         click.echo()
+    click.echo('=' * 79)
 
 
 @cli.command()
@@ -51,7 +52,20 @@ def weight(ctx, files):
     Run all patterns against each supplied file, printing out a digest
     of each file's weight.
     """
-    pass
+    for file in files:
+        click.echo('=' * 79)
+        click.echo('File: %s\n' % file)
+        mgr = apm.Manager(file)
+        tups = mgr.run_all()
+        weight = 0
+        for pat, matches in tups:
+            if not matches:
+                continue
+            else:
+                weight += pat.Weight * len(matches)
+        click.echo('Weight: %d' % weight)
+        click.echo()
+    click.echo('=' * 79)
 
 
 if __name__ == '__main__':
