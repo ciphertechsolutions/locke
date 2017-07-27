@@ -35,9 +35,11 @@ def load_all_patterns():
 
 def load_all_transformers():
     for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
-            exec(open(plugin).read(), globals())
+            f = open(plugin)
+            exec(f.read(), globals())
+            f.close()
     for clss in inspect.getmembers(sys.modules[__name__], inspect.isclass):
-        if "Transform" in clss[0]:
+        if clss[0].startswith("Transform"):
             if "locke" in clss[1].__module__:
                 continue
             if clss[1].class_level() == 1:
@@ -49,9 +51,13 @@ def load_all_transformers():
             elif clss[1].class_level() == -1:
                 print("!! %s is disable" % clss[0])
             else:
-                print("%s has an invalid class level (1 - 3 | -1 > disable)" 
+                print("%s has an invalid class level (1 - 3 | -1 > disable)"
                         % clss[0])
-    print("")
+    print("Loaded: %i lvl 1, %i lvl 2, %i lvl 3\n\n" % (
+        len(LOCKE_TRANSFORMERS[0]),
+        len(LOCKE_TRANSFORMERS[1]),
+        len(LOCKE_TRANSFORMERS[2])))
+
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
