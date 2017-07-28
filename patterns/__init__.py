@@ -1,4 +1,1 @@
-from .exe_patterns import *
-from .file_parts import *
-from .network import *
-from .blobs import *
+from patterns import exe_patterns, file_parts, network, blobs
