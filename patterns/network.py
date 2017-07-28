@@ -1,7 +1,7 @@
-from apm.pattern_plugin import BytesPatternPlugin, BytesListPatternPlugin
+from apm.pattern_plugin import BytesListPatternPlugin, REPatternPlugin
 
 
-class IPv4Address(BytesPatternPlugin):
+class IPv4Address(REPatternPlugin):
     """
     A pattern describing IPv4 addresses.
 
@@ -13,7 +13,7 @@ class IPv4Address(BytesPatternPlugin):
     Weight = 100
 
 
-class EmailAddress(BytesPatternPlugin):
+class EmailAddress(REPatternPlugin):
     """
     A pattern describing email addresses.
 
@@ -22,11 +22,11 @@ class EmailAddress(BytesPatternPlugin):
     """
     Description = 'Email address'
     Pattern = r'(?i)\b[A-Z0-9._%+-]+@(?:[A-Z0-9-]+\.)+' \
-              '(?:[A-Z]{2,12}|XN--[A-Z0-9]{4,18})\b'
+              r'(?:[A-Z]{2,12}|XN--[A-Z0-9]{4,18})\b'
     Weight = 10
 
 
-class CommonURLs(BytesPatternPlugin):
+class CommonURLs(REPatternPlugin):
     """
     A pattern describing URLs with common protocols (namely HTTP,
     HTTPS, and FTP).
@@ -36,8 +36,8 @@ class CommonURLs(BytesPatternPlugin):
     """
     Description = 'Common URL (http/https/ftp)'
     Pattern = r'(http|https|ftp)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}' \
-              '(:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])' \
-              '*[^\.\,\)\(\s]'
+              r'(:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])' \
+              r'*[^\.\,\)\(\s]'
     Weight = 10000
 
 
