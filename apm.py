@@ -41,7 +41,7 @@ def match(ctx, files):
     for file in files:
         click.echo('=' * 79)
         click.echo('File: %s\n' % file)
-        mgr = apm.Manager(file)
+        mgr = apm.Manager(file=file)
         for pat, matches in mgr.run():
             if not matches:
                 continue
@@ -65,7 +65,7 @@ def weight(ctx, files):
     for file in files:
         click.echo('=' * 79)
         click.echo('File: %s\n' % file)
-        mgr = apm.Manager(file)
+        mgr = apm.Manager(file=file)
         weight = 0
         for pat, matches in mgr.run():
             if not matches:
