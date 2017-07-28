@@ -6,6 +6,7 @@ class DOSMessage(BytesPatternPlugin):
     """
     The DOS message normally seen in a PE's compatibility header.
     """
+    Description = 'DOS compatibility message'
     Pattern = 'This program cannot be run in DOS mode'
     Weight = 100
 
