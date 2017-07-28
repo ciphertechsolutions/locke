@@ -1,4 +1,4 @@
-from apm.pattern_plugin import *
+from apm.pattern_plugin import BytesPatternPlugin, BytesListPatternPlugin, REPatternPlugin
 
 
 class DOSMessage(BytesPatternPlugin):

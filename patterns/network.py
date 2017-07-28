@@ -1,4 +1,4 @@
-from apm.pattern_plugin import *
+from apm.pattern_plugin import BytesPatternPlugin, BytesListPatternPlugin
 
 
 class IPv4Address(BytesPatternPlugin):

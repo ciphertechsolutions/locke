@@ -1,4 +1,5 @@
-from apm.pattern_plugin import *
+from apm.pattern_plugin import BytesPatternPlugin
+
 
 class HexBlob(BytesPatternPlugin):
     """
