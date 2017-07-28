@@ -29,16 +29,21 @@ class Manager(object):
     of patterns in parallel.
     """
 
-    def __init__(self, file: str, nproc=os.cpu_count()):
-        super(Manager, self).__init__()
+    def __init__(self, file: str = None, raw: bytes = None,
+                 nproc=os.cpu_count()):
         global data
         global data_lower
         self.file = file
         self.pats = [pat() for pat in PatternPlugin.plugins()]
         self.nproc = nproc
 
-        with open(file, 'rb') as f:
-            data = f.read()
+        if file:
+            with open(file, 'rb') as f:
+                data = f.read()
+        elif raw:
+            data = raw
+        else:
+            raise ValueError('expected either a filename or raw input')
 
         # might as well memoize this
         data_lower = data.lower()
