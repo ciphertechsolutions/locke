@@ -1,2 +1,1 @@
-from . import manager
-from .manager import Manager
+from apm.manager import Manager
