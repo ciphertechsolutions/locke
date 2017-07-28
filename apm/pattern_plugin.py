@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import re
+from typing import List
 
 from apm import manager
 from apm.match import Match
@@ -10,7 +11,7 @@ class Utils(object):
     Utility functions for pattern plugins.
     """
     @staticmethod
-    def find_all(pat, data):
+    def find_all(pat, data: bytes) -> List[Match]:
         """
         This method finds all instances of pat (a bytes object)
         inside data (a larger bytes object), returning them
@@ -48,7 +49,7 @@ class PatternPlugin(ABC):
     NoCase = False
 
     @classmethod
-    def plugins(cls):
+    def plugins(cls) -> List[type]:
         """
         This method provides a list of all concrete plugin classes.
         """
@@ -61,7 +62,7 @@ class PatternPlugin(ABC):
         super().__init__()
         self.validate()
 
-    def filter(self, _match):
+    def filter(self, _match: Match) -> bool:
         """
         This method should be overridden by pattern plugins for
         more complex pattern matching (e.g., to filter out
@@ -71,7 +72,7 @@ class PatternPlugin(ABC):
         """
         return True
 
-    def scan(self):
+    def scan(self) -> List[Match]:
         """
         This method finds all matches for the pattern, then filters
         them down based on the filter method.
@@ -79,7 +80,7 @@ class PatternPlugin(ABC):
         return [m for m in self.find_all() if self.filter(m)]
 
     @abstractmethod
-    def validate(self):
+    def validate(self) -> None:
         """
         This method is called during plugin initialization to
         allow for some basic sanity checking and normalization of fields.
@@ -87,7 +88,7 @@ class PatternPlugin(ABC):
         pass
 
     @abstractmethod
-    def find_all(self):
+    def find_all(self) -> List[Match]:
         """
         This method, when overridden, should return a list of all
         Match instances for the pattern.
@@ -105,7 +106,7 @@ class BytesPatternPlugin(PatternPlugin):
     """
     Pattern = None
 
-    def validate(self):
+    def validate(self) -> None:
         """
         For a BytesPatternPlugin, the validate method just normalizes the
         Pattern field into a bytes object. If it can't do this, a
@@ -116,7 +117,7 @@ class BytesPatternPlugin(PatternPlugin):
         elif not isinstance(self.Pattern, bytes):
             raise ValueError('unable to coerce pattern to bytes')
 
-    def find_all(self):
+    def find_all(self) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
@@ -136,7 +137,7 @@ class BytesListPatternPlugin(PatternPlugin):
     """
     Patterns = None
 
-    def validate(self):
+    def validate(self) -> None:
         """
         For a BytesListPatternPlugin, the validate method
         normalizes each element in the Patterns field into
@@ -152,7 +153,7 @@ class BytesListPatternPlugin(PatternPlugin):
         if self.NoCase:
             self.Patterns = [p.lower() for p in self.Patterns]
 
-    def find_all(self):
+    def find_all(self) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
@@ -175,7 +176,7 @@ class REPatternPlugin(PatternPlugin):
     """
     Pattern = None
 
-    def validate(self):
+    def validate(self) -> None:
         """
         For a REPatternPlugin, the validate method normalizes the
         Pattern field into a bytes object. If this can't be done,
@@ -186,7 +187,7 @@ class REPatternPlugin(PatternPlugin):
         elif not isinstance(self.Pattern, bytes):
             raise ValueError('unable to coerce pattern to bytes')
 
-    def find_all(self):
+    def find_all(self) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
