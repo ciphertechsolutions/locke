@@ -41,7 +41,7 @@ class Manager(object):
 
         This method is private.
         """
-        return pat, pat.scan(self)
+        return pat, pat.scan()
 
     def run(self):
         """

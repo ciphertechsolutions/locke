@@ -71,12 +71,12 @@ class PatternPlugin(ABC):
         """
         return True
 
-    def scan(self, mgr):
+    def scan(self):
         """
         This method finds all matches for the pattern, then filters
         them down based on the filter method.
         """
-        return [m for m in self.find_all(mgr) if self.filter(m)]
+        return [m for m in self.find_all() if self.filter(m)]
 
     @abstractmethod
     def validate(self):
@@ -87,7 +87,7 @@ class PatternPlugin(ABC):
         pass
 
     @abstractmethod
-    def find_all(self, _mgr):
+    def find_all(self):
         """
         This method, when overridden, should return a list of all
         Match instances for the pattern.
@@ -116,7 +116,7 @@ class BytesPatternPlugin(PatternPlugin):
         elif not isinstance(self.Pattern, bytes):
             raise ValueError('unable to coerce pattern to bytes')
 
-    def find_all(self, mgr):
+    def find_all(self):
         """
         See PatternPlugin.find_all.
         """
@@ -152,7 +152,7 @@ class BytesListPatternPlugin(PatternPlugin):
         if self.NoCase:
             self.Patterns = [p.lower() for p in self.Patterns]
 
-    def find_all(self, mgr):
+    def find_all(self):
         """
         See PatternPlugin.find_all.
         """
@@ -186,7 +186,7 @@ class REPatternPlugin(PatternPlugin):
         elif not isinstance(self.Pattern, bytes):
             raise ValueError('unable to coerce pattern to bytes')
 
-    def find_all(self, mgr):
+    def find_all(self):
         """
         See PatternPlugin.find_all.
         """
