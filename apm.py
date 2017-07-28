@@ -3,7 +3,7 @@
 import click
 
 import apm
-import patterns
+import patterns as pats
 
 
 def abbr(bytes_):
@@ -18,6 +18,16 @@ def abbr(bytes_):
 @click.pass_context
 def cli(ctx, verbose):
     ctx.obj['verbose'] = verbose
+
+
+@cli.command()
+@click.pass_context
+def patterns(ctx):
+    for cls in apm.PatternPlugin.plugins():
+        click.echo('%s: %s' % (cls.__name__, cls.Description))
+
+        if ctx.obj['verbose']:
+            click.echo('\tWeight: %d, NoCase: %s' % (cls.Weight, cls.NoCase))
 
 
 @cli.command()
