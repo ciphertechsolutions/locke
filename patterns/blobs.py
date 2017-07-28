@@ -15,4 +15,5 @@ class Base64Blob(BytesPatternPlugin):
     A pattern describing base64 strings.
     """
     Description = 'Base64 string blob'
-    Pattern = r'(?:[A-Za-z0-9+/]{4}){2,}(?:[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=|[A-Za-z0-9+/][AQgw]==)'
+    Pattern = r'(?:[A-Za-z0-9+/]{4}){2,}(?:[A-Za-z0-9+/]{2}' \
+              '[AEIMQUYcgkosw048]=|[A-Za-z0-9+/][AQgw]==)'

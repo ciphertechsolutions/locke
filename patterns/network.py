@@ -21,7 +21,8 @@ class EmailAddress(BytesPatternPlugin):
     tweaking and/or a filter function.
     """
     Description = 'Email address'
-    Pattern = r'(?i)\b[A-Z0-9._%+-]+@(?:[A-Z0-9-]+\.)+(?:[A-Z]{2,12}|XN--[A-Z0-9]{4,18})\b'
+    Pattern = r'(?i)\b[A-Z0-9._%+-]+@(?:[A-Z0-9-]+\.)+' \
+              '(?:[A-Z]{2,12}|XN--[A-Z0-9]{4,18})\b'
     Weight = 10
 
 
@@ -34,7 +35,9 @@ class CommonURLs(BytesPatternPlugin):
     tweaking and/or a filter function.
     """
     Description = 'Common URL (http/https/ftp)'
-    Pattern = r'(http|https|ftp)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])*[^\.\,\)\(\s]'
+    Pattern = r'(http|https|ftp)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}' \
+              '(:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])' \
+              '*[^\.\,\)\(\s]'
     Weight = 10000
 
 
