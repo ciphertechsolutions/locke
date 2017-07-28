@@ -1,7 +1,7 @@
 import os
 from multiprocessing import Pool
 
-from .pattern_plugin import PatternPlugin
+from apm.pattern_plugin import PatternPlugin
 
 """
 These global variables contain the normal and lowercased data currently
@@ -50,8 +50,6 @@ class Manager(object):
 
         It returns a list of (PatternPlugin, List(Match)) tuples.
         """
-        tups = []
         with Pool(self.nproc) as pool:
             for ms in pool.map(self.run_pattern, self.pats):
-                tups.append(ms)
-        return tups
+                yield ms

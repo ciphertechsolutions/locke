@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 import re
 
-from . import manager
-from .match import Match
+from apm import manager
+from apm.match import Match
 
 
 class Utils(object):
