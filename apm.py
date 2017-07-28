@@ -5,6 +5,7 @@ import click
 import apm
 import patterns
 
+
 def abbr(bytes_):
     pretty = repr(bytes_)[1:]
     if len(pretty) > 50:
