@@ -43,7 +43,7 @@ class Manager(object):
         """
         return pat, pat.scan(self)
 
-    def run_all(self):
+    def run(self):
         """
         This method runs all patterns against the data, utilizing
         a process pool to distribute the work.
