@@ -77,7 +77,8 @@ class PatternPlugin(ABC):
         This method finds all matches for the pattern, then filters
         them down based on the filter method.
         """
-        return [m for m in self.find_all() if self.filter(m)]
+        data = manager.data_lower if self.NoCase else manager.data
+        return [m for m in self.find_all(data) if self.filter(m)]
 
     @abstractmethod
     def validate(self) -> None:
@@ -88,7 +89,7 @@ class PatternPlugin(ABC):
         pass
 
     @abstractmethod
-    def find_all(self) -> List[Match]:
+    def find_all(self, data) -> List[Match]:
         """
         This method, when overridden, should return a list of all
         Match instances for the pattern.
@@ -117,11 +118,10 @@ class BytesPatternPlugin(PatternPlugin):
         elif not isinstance(self.Pattern, bytes):
             raise ValueError('unable to coerce pattern to bytes')
 
-    def find_all(self) -> List[Match]:
+    def find_all(self, data) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
-        data = manager.data_lower if self.NoCase else manager.data
         pat = self.Pattern.lower() if self.NoCase else self.Pattern
 
         return Utils.find_all(pat, data)
@@ -153,11 +153,10 @@ class BytesListPatternPlugin(PatternPlugin):
         if self.NoCase:
             self.Patterns = [p.lower() for p in self.Patterns]
 
-    def find_all(self) -> List[Match]:
+    def find_all(self, data) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
-        data = manager.data_lower if self.NoCase else manager.data
         matches = []
 
         for pat in self.Patterns:
@@ -187,13 +186,13 @@ class REPatternPlugin(PatternPlugin):
         elif not isinstance(self.Pattern, bytes):
             raise ValueError('unable to coerce pattern to bytes')
 
-    def find_all(self) -> List[Match]:
+    def find_all(self, data) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
         flags = re.IGNORECASE if self.NoCase else 0
         matches = []
 
-        for md in re.finditer(self.Pattern, manager.data, flags):
+        for md in re.finditer(self.Pattern, data, flags):
             matches.append(Match(md.start(), md.group(0)))
         return matches
