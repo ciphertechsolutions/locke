@@ -8,6 +8,49 @@ import sys
 import os
 import zipfile
 
+import apm
+
+
+class _Transform(ABC):
+	@abstractproperty
+	def class_level():
+		pass
+
+	@abstractproperty
+	def name(self):
+		pass
+
+	@abstractproperty
+	def shortname(self):
+		pass
+
+	@abstractmethod
+	def __init__(self, value):
+		self.value = value
+
+	@abstractmethod
+	def transform(self, data):
+		pass
+
+	@staticmethod
+	@abstractmethod
+	def all_iteration():
+		"""
+		Needs to be overridden
+		This method will create a generator that lists/produces
+		all the different iteration possible that this class
+		can handle
+
+		Return:
+			A generator that produces all the different iteration
+			that this class can use to transform the string. For
+			example:
+
+			If this class transform by XOR, this method will produce
+			the value 1 - 255 (0 is the identity value for XOR).
+		"""
+		yield None
+
 
 class _Transform(ABC):
 	@abstractproperty
@@ -251,7 +294,6 @@ def select_transformers(trans_list, name_list, select, level = 3):
 			sys.exit("There are no such level as %i" % level)
 	return trans_class
 
-
 def read_zip(filename, password=None):
 	"""
 	Read a zip file and get the byte data from it. If there are multiple
@@ -340,6 +382,6 @@ def run_transformations(trans_list, filename,
 	result = pool.map_async(transform, trans_list,
 			error_callback=error_raise)
 	print(result.get())
-
-
 	sys.exit("check")
+
+# This was coded while listening to Nightcore

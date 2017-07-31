@@ -14,12 +14,14 @@ from locke.transformer import (TransformString, TransformChar, select_transforme
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
 
-# Locke pattern plugins are expected to be in this directory.
-PATTERN_PLUGIN_DIR = path.join(SCRIPT_DIR,  'patterns')
-PATTERN_PLUGIN_GLOB = path.join(PATTERN_PLUGIN_DIR, '*.py')
+APM_PATH = path.join(SCRIPT_DIR, 'apm')
 
-# Locke pattern plugins are expected to modify this array.
-LOCKE_PATTERNS = []
+if APM_PATH not in sys.path:
+    sys.path.append(APM_PATH)
+
+print(sys.path)
+import apm
+import patterns
 
 # Locke transformer plugins
 TRANSFORM_PLUGIN_DIR = path.join(SCRIPT_DIR, 'transformers')
@@ -51,15 +53,14 @@ def load_all_transformers():
 			else:
 				print("%s has an invalid class level (1 - 3 | -1 > disable)" 
 						% clss[0])
-				print("")
+	print("")
+
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
 @click.pass_context
 def cli(ctx, verbose):
-	load_all_patterns()
-	ctx.obj['verbose'] = verbose
-	pass
+    ctx.obj['verbose'] = verbose
 
 
 @cli.command()
@@ -70,6 +71,9 @@ def search(ctx, csv, files):
 	"""
 	Search for patterns of interest in the supplied files.
 	"""
+	client = apm.Client()
+	client.connect()
+
 	if csv:
 		click.echo('Writing CSV results to %s' % csv)
 		csvfile = open(csv, 'w')
@@ -77,22 +81,24 @@ def search(ctx, csv, files):
 		csv_writer.writerow(['Filename', 'Index', 'Pattern name', 'Match',
 			'Length'])
 
-	pattern = locke.Locke(LOCKE_PATTERNS)
 	for f in files:
 		click.echo("=" * 79)
 		click.echo("File: %s\n" % f.name)
-		for pat, matches in pattern.scan(f.read()):
-			for index, match in matches:
-				mstr = utils.prettyhex(match)
+
+		for description, weight, hsh in client.send_data(f.read()):
+			desc = description.decode()
+			for offset, data in hsh.items():
+				mstr = utils.prettyhex(data)
 				if len(mstr) > 50:
 					mstr = mstr[:24] + '...' + mstr[-23:]
 
-				click.echo('at %08X: %s - %s' % (index, pat.name, mstr))
+				click.echo('at %08X: %s - %s' % (offset, desc, mstr))
 
 				if csv:
-					csv_writer.writerow([f.name, '0x%08X' % index, pat.name,
-						mstr, len(match)])
-					click.echo()
+					csv_writer.writerow([f.name, '0x%08X' % offset,
+						desc, mstr, len(data)])
+
+	client.disconnect()
 
 	if csv:
 		csvfile.close()
@@ -134,15 +140,14 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
 	run_transformations(trans_list, filename,
 			zip_file, password)
 
-
 @cli.command()
 @click.pass_context
 def patterns(ctx):
 	"""
 	List all patterns known by Locke.
 	"""
-	for pat in LOCKE_PATTERNS:
-		click.echo('%s (%s)' % (pat.name, pat.weight))
+	for pat in apm.PatternPlugin.plugins():
+		click.echo('%s (%s)' % (pat.Description, pat.Weight))
 
 
 @cli.command()

@@ -35,9 +35,10 @@ class TransformXORInc(TransformString):
 
     def transform_string(self, data):
         result = bytearray()
+        append = result.append
         for i in range(0, len(data)):
             xor_key = (self.value + i) & 0xFF
-            result.append(data[i] ^ xor_key)
+            append(data[i] ^ xor_key)
         return bytes(result)
 
     @staticmethod
@@ -65,9 +66,10 @@ class TransformXORDec(TransformString):
 
     def transform_string(self, data):
         result = bytearray()
+        append = result.append
         for i in range(0, len(data)):
             xor_key = (self.value + 0xFF - i) & 0xFF
-            result.append(data[i] ^ xor_key)
+            append(data[i] ^ xor_key)
         return bytes(result)
 
     @staticmethod
@@ -95,9 +97,10 @@ class TransformSubInc(TransformString):
 
     def transform_string(self, data):
         result = bytearray()
+        append = result.append
         for i in range(0, len(data)):
             key = (self.value + i) & 0xFF
-            result.append((data[i] - key) & 0xFF)
+            append((data[i] - key) & 0xFF)
         return bytes(result)
 
     @staticmethod
@@ -105,9 +108,9 @@ class TransformSubInc(TransformString):
         return range(0, 256)
 
 
-class TransformXORChained(TransformString):
+class TransformXORLChained(TransformString):
     """
-    Name: Transform XOR Chained
+    Name: Transform XOR Left Chained
     Description: XOR with key chained with previous char
     ID: xor_chained
     """
@@ -115,19 +118,20 @@ class TransformXORChained(TransformString):
         return 2
 
     def name(self):
-        return "XOR %02X Chained" % self.value
+        return "XOR %02X LChained" % self.value
 
     def shortname(self):
-        return "xor%02X_chained" % self.value
+        return "xor%02X_lchained" % self.value
 
     def __init__(self, value):
         self.value = value
 
     def transform_string(self, data):
         result = bytearray()
-        result.append(data[0] ^ self.value)
+        append = result.append
+        append(data[0] ^ self.value)
         for i in range(1, len(data)):
-            result.append(data[i] ^ self.value ^ data[i-1])
+            append(data[i] ^ self.value ^ data[i-1])
         return bytes(result)
 
     @staticmethod
@@ -155,14 +159,20 @@ class TransformXORRChained(TransformString):
 
     def transform_string(self, data):
         result = bytearray()
+        append = result.append
         for i in range(0, len(data) - 1):
-            result.append(data[i] ^ self.value ^ data[i+1])
-        result.append(data[-1] ^ self.value)
+            append(data[i] ^ self.value ^ data[i+1])
+        append(data[-1] ^ self.value)
         return bytes(result)
 
     @staticmethod
     def all_iteration():
         return range(0, 256)
+
+
+# -----------------------------------------------------#
+# Char Transformer
+# -----------------------------------------------------#
 
 
 class TransformXORAdd(TransformChar):
