@@ -49,9 +49,10 @@ def load_all_transformers():
             elif clss[1].class_level() == -1:
                 print("!! %s is disable" % clss[0])
             else:
-                print("%s has an invalid class level (1 - 3 | -1 > disable)" 
-                        % clss[0])
+                print("%s has an invalid class level (1 - 3 | -1 > disable)"
+                      % clss[0])
     print("")
+
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
