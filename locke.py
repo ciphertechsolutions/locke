@@ -36,7 +36,7 @@ def load_all_transformers():
 	for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
 		exec(open(plugin).read(), globals())
 	for clss in inspect.getmembers(sys.modules[__name__], inspect.isclass):
-		if "Transform" in clss[0]:
+		if clss[0].startswith("Transform"):
 			if "locke" in clss[1].__module__:
 				continue
 			if clss[1].class_level() == 1:

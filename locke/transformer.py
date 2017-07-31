@@ -7,12 +7,7 @@ import time, sys, os
 import zipfile
 
 
-class TransformString(ABC):
-	"""
-	Name: Transform String
-	Description: Transform the whole data string
-	ID: str_trans
-	"""
+class _Transform(ABC):
 	@abstractproperty
 	def class_level():
 		pass
@@ -29,27 +24,8 @@ class TransformString(ABC):
 	def __init__(self, value):
 		self.value = value
 
-	def transform(self, data):
-		if not isinstance(data, bytes):
-			raise TypeError('Data (%s) needs to be a bytestring type'
-					% type(data))
-
-		return self.transform_string(data)
-
 	@abstractmethod
-	def transform_string(self, data):
-		"""
-		Needs to be overridden
-		This method contains all the requires steps/calls needed
-		to transform the data string. After it finishes transforming
-		the data, it needs to return a bytestring to be evaluated
-
-		Args:
-			data: The data that will be decoded by this method
-
-		Returns:
-			A bytestring
-		"""
+	def transform(self, data):
 		pass
 
 	@staticmethod
@@ -72,27 +48,53 @@ class TransformString(ABC):
 		yield None
 
 
+class TransformString(ABC):
+	"""
+	Name: Transform String
+	Description: Transform the whole data string
+	ID: str_trans
+	"""
+
+	def transform(self, data):
+		"""
+		This method contains all the requires steps/calls needed
+		to transform the string. This method should NOT be overridden.
+
+		Args:
+			data: The string that will be decoded by this method
+
+		Returns:
+			A bytestring
+		"""
+		if not isinstance(data, bytes):
+			raise TypeError('Data (%s) needs to be a bytestring type'
+					% type(data))
+
+		return self.transform_string(data)
+
+	@abstractmethod
+	def transform_string(self, data):
+		"""
+		Needs to be overridden
+		This method contains all the requires steps/calls needed
+		to transform the data string. After it finishes transforming
+		the data, it needs to return a bytestring to be evaluated
+
+		Args:
+			data: The data that will be decoded by this method
+
+		Returns:
+			A bytestring
+		"""
+		pass
+
+
 class TransformChar(ABC):
 	"""
 	Name: Transform Char
 	Description: Transform individual char in the data (two bytes)
 	ID: chr_trans
 	"""
-	@abstractproperty
-	def class_level():
-		pass
-
-	@abstractproperty
-	def name(self):
-		pass
-
-	@abstractproperty
-	def shortname(self):
-		pass
-
-	@abstractmethod
-	def __init__(self, value):
-		self.value = value
 
 	def transform(self, data):
 		"""
@@ -130,24 +132,6 @@ class TransformChar(ABC):
 			An int between 0 - 255
 		"""
 		pass
-
-	@staticmethod
-	@abstractmethod
-	def all_iteration():
-		"""
-		Needs to be overridden
-		This method will create a generator that lists/produces
-		all the different iteration possible that this class
-		can handle
-		Return:
-			A generator that produces all the different iteration
-			that this class can use to transform the string. For
-			example:
-
-			If this class transform by XOR, this method will produce
-			the value 1 - 255 (0 is the identity value for XOR).
-		"""
-		yield None
 
 
 def to_bytes(value):
