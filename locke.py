@@ -3,13 +3,14 @@ import click
 import glob
 import sys
 import inspect
+import dill
 import csv as csvlib
 from os import path
 
 import locke.locke
 from locke.pattern import REPattern, ByteListPattern, BytePattern
 from locke.transformer import (TransformString, TransformChar, select_transformers,
-		Transfomer)
+		run_transformations)
 
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
@@ -127,15 +128,15 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
 	Use patterns of interest to crack the supplied files.
 	"""
 	load_all_transformers()
-
 	if not zip_file and password is not None:
 		raise ValueError("Password field is set without zip enable")
 
-	lock = locke.Locke(LOCKE_PATTERNS)
-	trans = Transfomer(filename, password,
-			LOCKE_TRANSFORMERS, lock, zip_file,
-			level, only, name, keep, save,
-			no_save, verbose)
+	pattern = dill.dumps((locke.Locke,LOCKE_PATTERNS))
+
+	trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
+
+	run_transformations(trans_list, pattern, filename,
+			zip_file, password)
 
 
 @cli.command()
