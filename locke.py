@@ -19,6 +19,7 @@ APM_PATH = path.join(SCRIPT_DIR, 'apm')
 if APM_PATH not in sys.path:
     sys.path.append(APM_PATH)
 
+print(sys.path)
 import apm
 import patterns
 
@@ -131,9 +132,8 @@ def crack(ctx, level, only, name, keep, save, zip, password,
     if not zip and password is not None:
         raise ValueError("Password field is set without zip enable")
 
-    lock = locke.Locke(LOCKE_PATTERNS)
     trans = Transfomer(filename, password,
-            LOCKE_TRANSFORMERS, lock, zip,
+            LOCKE_TRANSFORMERS, zip,
             level, only, name, keep, save,
             no_save, verbose)
 
