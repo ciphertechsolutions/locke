@@ -3,7 +3,9 @@ from multiprocessing import Process, Queue
 from locke.utils import vprint
 import multiprocessing
 import math
-import time, sys, os
+import time
+import sys
+import os
 import zipfile
 
 

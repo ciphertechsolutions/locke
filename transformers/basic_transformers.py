@@ -74,8 +74,7 @@ class TransformRotateLeft(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 8):
-            yield val
+        return range(1, 8)
 
 
 class TransformRotateRight(TransformChar):
@@ -101,8 +100,7 @@ class TransformRotateRight(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 8):
-            yield val
+        return range(1, 8)
 
 
 class TransformXOR(TransformChar):
@@ -128,8 +126,7 @@ class TransformXOR(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 256):
-            yield val
+        return range(1, 256)
 
 
 class TransformAdd(TransformChar):
@@ -155,8 +152,7 @@ class TransformAdd(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 256):
-            yield val
+        return range(1, 256)
 
 
 class TransformSub(TransformChar):
@@ -186,8 +182,7 @@ class TransformSub(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 256):
-            yield val
+        return range(1, 256)
 
 class TransformXORRRoll(TransformChar):
     """

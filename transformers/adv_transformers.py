@@ -102,5 +102,4 @@ class TransformXORRChainedAll(TransformString):
 
     @staticmethod
     def all_iteration():
-        for i in range(0, 256):
-            yield i
+        return range(0, 256)
