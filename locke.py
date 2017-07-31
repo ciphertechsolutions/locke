@@ -19,7 +19,6 @@ APM_PATH = path.join(SCRIPT_DIR, 'apm')
 if APM_PATH not in sys.path:
     sys.path.append(APM_PATH)
 
-print(sys.path)
 import apm
 import patterns
 
