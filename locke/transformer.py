@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
-from multiprocessing import Process, Queue
+from multiprocessing import Pool, Process
 from locke.utils import vprint
 import multiprocessing
 import math
@@ -235,12 +235,8 @@ def select_transformers(trans_list, name_list, select, level = 3):
 			print("---------------------------")
 	elif select is not None:
 		vprint("Selecting transform from specified level %i" % select, 1)
-		if select == 1:
-			trans_class = trans_list[0]
-		elif select == 2:
-			trans_class = trans_list[1]
-		elif select == 3:
-			trans_class = trans_list[2]
+		if select < 4 and select > 0:
+			trans_class = trans_list[select]
 		else:
 			sys.exit("There are no such level as %i" % select)
 	else:
@@ -256,234 +252,94 @@ def select_transformers(trans_list, name_list, select, level = 3):
 	return trans_class
 
 
-class Transfomer(object):
+def read_zip(filename, password=None):
 	"""
-	This class initialize the variables required to start
-	transforming and analyzing the data. It will try to run
-	multiple processes to speed up the transformation
+	Read a zip file and get the byte data from it. If there are multiple
+	files inside the zip, it will ask which on to evaluate 
+	Args:
+		filename: The location of the file
+		password: Defaults to None. The zip's password if applicable
+	Return:
+		Either a list of bytestring or a single bytestring
 	"""
-	def __init__(self, filename, password, transformers, patterns, zip,
-			level, select, name_list, keep, save, no_save, verbose):
-		"""
-		Set up the Transformer class. Read the file data and create a list
-		of transformers based on user request. Afterward, divide the list
-		into groups to multiprocess. Each process will transform
-		and search the data and return a list of result. The result
-		will be sorted and the top X will be writing to disk
-		Args:
-			filename: The location of the file
-			password: The zip password if applicable
-			transformers: The list of transformer available
-			patterns: The Pattern searching instance to use
-			zip: Flag the file as a zip or not
-			level: The transformer max level to use
-			select: The one and only transformer level to use
-			name_list: The list of transformers name to use
-			keep: The number of initial result to keep
-			save: The number of final result to save to disk
-			verbose: Flag the program to be verbose
-			process: The number of process available to use
-		Return:
-			Nothing
-		"""
-		process_pool = []
-		process_count = multiprocessing.cpu_count()
-		vprint(verbose=verbose)
-		# To ensure that stage two will have at minimal the save amount
-		# in case one transformation have a bunch of extremely hih 
-		# ranking results
-		keep = math.ceil(keep/process) if keep/process_count >= save else save
+	if not zipfile.is_zipfile(filename):
+		raise TypeError('\"%s\" is NOT a valid zip file! Try running a '
+				'normal scan on it' % filename)
 
-		# Read the data
-		vprint("Reading data from %s" % filename, 2)
-		global data
-		data = (self.read_file(filename) if not zip else
-				self.read_zip(filename, password))
+	zfile = zipfile.ZipFile(filename, 'r')
 
-		vprint("Selecting transformers", 2)
-		transformer_list = select_transformers(transformers,
-				name_list, select, level)
+	print('What file do you want to evaluate:')
+	for i in range(0, len(zfile.namelist())):
+		print('%i: %s' % (i + 1, zfile.namelist()[i]))
+	answer = int(input('1 - %i: ' % len(zfile.namelist())))
 
-		# divide the transformer list
-		vprint("Dividing transformers into groups of %i" % process_count, 2)
-		group = math.ceil(len(transformer_list) / process_count)
-		transformer_list = [transformer_list[i:i+group]
-				for i in range(0, len(transformer_list), group)]
+	vprint("User select file number %i" % ans, 2)
+	if answer in range(1, len(zfile.namelist())):
+		vprint("Reading file %s with password %s" 
+				% (zfile.infolist()[ans - 1], password), 2)
+		data = zfile.read(zfile.infolist()[ans - 1], password)
+	else:
+		raise IndexError('Range %i is out of bound' % ans)
+	vprint("Done reading data from %s" % filename, 1)
+	return data
 
-		if verbose == 1:
-			for i in range(0, len(transformer_list)):
-				print("Eval %i: " % i)
-				for t in transformer_list[i]:
-					print("\t- %s" % t[0])
-			print("")
 
-		# create multiple process
-		for i in range(0, len(transformer_list)):
-			result = Queue()
+def read_file(filename):
+	"""
+	ReAD a file and return the bytestring
+	Args:
+		filename: The location of the file
+	Return:
+		The bytestring of the file
+	"""
+	f = open(filename, 'rb')
+	data = f.read()
+	f.close()
+	vprint("Done reading data from %s" % filename, 1)
+	return data
 
-			p = Process(target=self.evaluate_data, name="Eval %i" % i,
-					args=(transformer_list[i], keep, patterns, result))
-			process_pool.append((p, result))
-			vprint("Process %i created and starting" % i, 2)
-			p.start()
 
-		for i in process_pool:
-			vprint("Waiting for %s to finish" % i[0].name, 2)
-			i[0].join()
-
+def transform(transformer_data, stage=1):
+	name = multiprocessing.current_process().name
+	transformer_class = transformer_data[1]
+	print(name)
+	print(transformer_class)
+	return
+	try:
 		results = []
-		for i in process_pool:
-			if not i[1].empty():
-				vprint("Getting data from %s" % i[0].name, 1)
-				results += i[1].get()
+		for value in transformer_class.all_iteration():
+			transformer = transformer_class(value)
+			trans_data = transformer.transform(data)
+			score = 0
 
-		# limit to top X results
-		results = sorted(results, key=lambda r: r[1], reverse=True)[:save]
-		vprint("Writing top %i results to list" % save, 2)
-		self.write_file(filename, results, data, no_save)
-
-	def read_zip(self, filename, password=None):
-		"""
-		Read a zip file and get the byte data from it. If there are multiple
-		files inside the zip, it will ask which on to evaluate 
-		Args:
-			filename: The location of the file
-			password: Defaults to None. The zip's password if applicable
-		Return:
-			Either a list of bytestring or a single bytestring
-		"""
-		if not zipfile.is_zipfile(filename):
-			raise TypeError('\"%s\" is NOT a valid zip file! Try running a '
-					'normal scan on it' % filename)
-
-		zfile = zipfile.ZipFile(filename, 'r')
-
-		print('What file do you want to evaluate:')
-		for i in range(0, len(zfile.namelist())):
-			print('%i: %s' % (i + 1, zfile.namelist()[i]))
-		ans = int(input('1 - %i: ' % len(zfile.namelist())))
-
-		vprint("User select file number %i" % ans, 2)
-		if ans in range(1, len(zfile.namelist())):
-			vprint("Reading file %s with password %s" 
-					% (zfile.infolist()[ans - 1], password), 2)
-			data = zfile.read(zfile.infolist()[ans - 1], password)
-		else:
-			raise IndexError('Range %i is out of bound' % ans)
-		vprint("Done reading data from %s" % filename, 1)
-		return data
-
-	def read_file(self, filename):
-		"""
-		ReAD a file and return the bytestring
-		Args:
-			filename: The location of the file
-		Return:
-			The bytestring of the file
-		"""
-		f = open(filename, 'rb')
-		data = f.read()
-		f.close()
-		vprint("Done reading data from %s" % filename, 1)
-		return data
-
-	def evaluate_data(self, trans_list, keep, patterns, result):
-		"""
-		This method will transform the data it received and scan the data using
-		its pattern database. Each pattern will have a weight that will help
-		determine the score of each transformation on the data. The top highest
-		score will be saved to disk.
-		Args:
-			data: A bytestring to evaluate
-			trans_list: The list of transformer to use
-			keep: How many transformation to keep to stage 2
-			patterns: The pattern class to use
-			result: a c_char_p byte string to store the result
-		Return:
-			A list of tuples (transformer, score, data)
-		"""
-		try:
-			name = multiprocessing.current_process().name
-			transform = None
-			results = []
-
-			vprint("### %s Started on Stage 1" % name)
-			# Stage 1 pattern searching
-			start_time = time.clock()
-			for trans in trans_list:
-				vprint("\t--- %s Working on Transformer: %s" % (name, trans[0]), 1)
-				for value in trans[1].all_iteration():
-					# Create transformer and transform data
-					transform = trans[1](value)
-					trans_data = transform.transform(data)
-					# Pattern search the transformed data
-					score = 0
-					for pat, count in patterns.count(trans_data):
-						score += count * pat.weight
-					results.append((transform, score))
-					vprint("%s's Score: %i" % (transform.shortname(), score), 2)
-
-			elapse = time.clock() - start_time
-			vprint("\t**** %s ran through %i transforms in %f seconds - %f trans/sec"
-					% (name, len(results), elapse, len(results)/elapse))
-			# Sort the array and keep only the high scoring result
-			results = sorted(results, key=lambda r: r[1], reverse=True)[:keep]
-
-			vprint("### %s Started on Stage 2" % name)
-			#print("Stage 2 Scan")
-			# Time for stage 2 pattern searching
-			# Search through the data with a more specific pattern
-			final_result = []
-			start_time = time.clock()
-			for transform, trans_score in results:
-				vprint("\t--- %s Working on Transformer: %s"
-						% (name, transform.name()), 1)
-				# Re transform the data
-				trans_data = transform.transform(data)
-				score = 0
-				# XXX
-				# count does not provide any information about the actual
-				# matches and scan makes a generator
-				for pat, count in patterns.count(trans_data):
-					score += count * pat.weight
-				final_result.append((transform, score))
-				vprint("%s's Score: %i" % (transform.shortname(), score), 2)
+			# make instance of client here
+			for pat, count in patterns.count(trans_data):
+				score += count * pat.weight
+			results.append((transformer, score))
+		return results
+	except Exception as e:
+		error = ("!! %s ran into an error when working with %s\n" 
+				% (name, transformer_data[0]))
+		if transformer is not None:
+			error += "!! Error encounter in iteration %s\n" % transformer.name()
+		print(error)
+		raise e
 
 
-			elapse = time.clock() - start_time
-			vprint("\t**** %s ran through %i transforms in %f seconds - %f trans/sec"
-					% (name, len(results), elapse, len(results)/elapse))
-			# no returns as we are multiprocessing. 
-			# result will be shared to the parent process
-			result.put(final_result)
-			vprint("%s Finished" % name)
-		except Exception:
-			error = "!!! %s ran into an error" % name
-			if transform is not None:
-				error += "\n!!! %s " % transform.__class__.__name__
-			vprint(error)
-			raise
+def error_raise(msg):
+	sys.exit(msg)
 
 
-	def write_file(self, filename, results, data, no_save):
-		score_log = []
-		# Write the final data to disk
-		# Lowest to Highest
-		for i in range(0, len(results)):
-			transform, score = results[i]
-			# due to multiprocessing, we have to re-transform the data
-			# once more
-			final_data = transform.transform(data)
-			score_log.append("Rank %i -- Tran: %s | Score %i"
-					% (i, transform.name(), score))
-			if score > 0 and not no_save:
-				base, ext = os.path.splitext(filename)
-				t_filename = base + '_%i - ' % i + transform.shortname() + ext
-				score_log.append("\t- Saved to file %s" % t_filename)
-				open(t_filename, "wb").write(final_data)
-			else:
-				score_log.append("Skipping write")
-		print('\n'.join(score_log))
-		open("%s.cracklog" % filename, 'w').write('\n'.join(score_log))
+def run_transformations(trans_list, filename, 
+		zip_file=False, password=None):
+	global data
+	data = (read_file(filename) if not zip_file else
+			read_zip(filename, password))
+	
+	pool = Pool()
+	result = pool.map_async(transform, trans_list,
+			error_callback=error_raise)
+	print(result.get())
 
-# This was coded while listening to Nightcore
+
+	sys.exit("check")
