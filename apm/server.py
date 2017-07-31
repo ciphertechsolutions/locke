@@ -33,7 +33,7 @@ class ServerThread(Thread):
             for match in matches:
                 match_hash[match.offset] = match.data
 
-            msg = msgpack.packb([pat.Description, match_hash])
+            msg = msgpack.packb([pat.Description, pat.Weight, match_hash])
             self.client.sendall(msg)
         self.client.close()
 
