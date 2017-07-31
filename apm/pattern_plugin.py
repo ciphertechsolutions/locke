@@ -80,7 +80,6 @@ class PatternPlugin(ABC):
         data = manager.data_lower if self.NoCase else manager.data
         return [m for m in self.find_all(data) if self.filter(m)]
 
-    @abstractmethod
     def validate(self) -> None:
         """
         This method is called during plugin initialization to
@@ -95,6 +94,13 @@ class PatternPlugin(ABC):
         Match instances for the pattern.
         """
         pass
+
+
+class CustomPatternPlugin(PatternPlugin):
+    """
+    A CustomPatternPlugin is one of the basic pattern plugins, representing
+    a blank slate for a user to implement their own find_all() method.
+    """
 
 
 class BytesPatternPlugin(PatternPlugin):
