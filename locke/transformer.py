@@ -7,7 +7,6 @@ import time
 import sys
 import os
 import zipfile
-
 import apm
 
 
@@ -341,32 +340,68 @@ def read_file(filename):
 	return data
 
 
-def transform(transformer_data, stage=1):
+def transform_init(transformer_data, stage=1):
+	"""
+	Create instances of the transformers with different
+	iteration value provided by the all_iteration method
+	Calls on transform to actually process the data
+
+	Args:
+		transformer_data: A tuple(Transform_Name, Transform_class)
+	Return:
+		A list of tuple(transform_instance, score)
+	"""
+
 	name = multiprocessing.current_process().name
 	transformer_class = transformer_data[1]
-	print(name)
-	print(transformer_class)
-	return
 	try:
-		results = []
 		for value in transformer_class.all_iteration():
+			print("%s starting" % name)
 			transformer = transformer_class(value)
-			trans_data = transformer.transform(data)
-			score = 0
-
-			# make instance of client here
-			for pat, count in patterns.count(trans_data):
-				score += count * pat.weight
-			results.append((transformer, score))
-		return results
+			transform(transformer)
+			print("%s ending" % name)
+			return []
 	except Exception as e:
 		error = ("!! %s ran into an error when working with %s\n" 
 				% (name, transformer_data[0]))
 		if transformer is not None:
 			error += "!! Error encounter in iteration %s\n" % transformer.name()
-		print(error)
+		print(error + str(e))
 		raise e
 
+
+def transform(transformer):
+	"""
+	Process the data using the transformer provided
+	Creates an instance of the search client and passes
+	the transformed data over. Upon receiving the results
+	store it in a list of tuple(transform_instance, score)
+	
+	Args:
+		transformer: The initialized transformer instance
+	Return:
+		A list of tuple(transform_instance, score)
+	"""
+
+	trans_data = transformer.transform(data)
+	results = []
+	score = 0
+
+	# make instance of client here
+	#client = apm.Client(host="192.168.10.125")
+	#client.connect()
+
+	dummy(trans_data)
+	#for desc, weight, matches in client.send_data(trans_data):
+		#score += len(matches) * weight
+	results.append((transformer, score))
+
+	#client.disconnect()
+	return results
+
+
+def dummy(dat):
+	time.sleep(15)
 
 def error_raise(msg):
 	sys.exit(msg)
@@ -379,9 +414,11 @@ def run_transformations(trans_list, filename,
 			read_zip(filename, password))
 	
 	pool = Pool()
-	result = pool.map_async(transform, trans_list,
+	result = pool.map_async(transform_init, trans_list,
 			error_callback=error_raise)
-	print(result.get())
+	
+	for i in result.get():
+		print(i)
 	sys.exit("check")
 
 # This was coded while listening to Nightcore
