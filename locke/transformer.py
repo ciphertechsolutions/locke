@@ -287,12 +287,12 @@ class Transfomer(object):
 			Nothing
 		"""
 		process_pool = []
-		process = multiprocessing.cpu_count()
+		process_count = multiprocessing.cpu_count()
 		vprint(verbose=verbose)
 		# To ensure that stage two will have at minimal the save amount
 		# in case one transformation have a bunch of extremely hih 
 		# ranking results
-		keep = math.ceil(keep/process) if keep/process >= save else save
+		keep = math.ceil(keep/process) if keep/process_count >= save else save
 
 		# Read the data
 		vprint("Reading data from %s" % filename, 2)
@@ -305,8 +305,8 @@ class Transfomer(object):
 				name_list, select, level)
 
 		# divide the transformer list
-		vprint("Dividing transformers into groups of %i" % process, 2)
-		group = math.ceil(len(transformer_list) / process)
+		vprint("Dividing transformers into groups of %i" % process_count, 2)
+		group = math.ceil(len(transformer_list) / process_count)
 		transformer_list = [transformer_list[i:i+group]
 				for i in range(0, len(transformer_list), group)]
 
@@ -337,16 +337,15 @@ class Transfomer(object):
 				vprint("Getting data from %s" % i[0].name, 1)
 				results += i[1].get()
 
+		# limit to top X results
 		results = sorted(results, key=lambda r: r[1], reverse=True)[:save]
 		vprint("Writing top %i results to list" % save, 2)
-		# limit to top X results
 		self.write_file(filename, results, data, no_save)
 
 	def read_zip(self, filename, password=None):
 		"""
 		Read a zip file and get the byte data from it. If there are multiple
-		files inside the zip, it will ask which on to evaluate (or all if
-		desired)
+		files inside the zip, it will ask which on to evaluate 
 		Args:
 			filename: The location of the file
 			password: Defaults to None. The zip's password if applicable
@@ -378,7 +377,7 @@ class Transfomer(object):
 		"""
 		ReAD a file and return the bytestring
 		Args:
-			The location of the file
+			filename: The location of the file
 		Return:
 			The bytestring of the file
 		"""
