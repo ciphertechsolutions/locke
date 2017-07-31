@@ -66,6 +66,9 @@ def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
+    client = apm.Client()
+    client.connect()
+
     if csv:
         click.echo('Writing CSV results to %s' % csv)
         csvfile = open(csv, 'w')
@@ -76,19 +79,21 @@ def search(ctx, csv, files):
     for f in files:
         click.echo("=" * 79)
         click.echo("File: %s\n" % f.name)
-        mgr = apm.Manager(raw=f.read())
-        for pat, matches in mgr.run():
-            for m in matches:
-                mstr = utils.prettyhex(m.data)
+
+        for description, hsh in client.send_data(f.read()):
+            desc = description.decode()
+            for offset, data in hsh.items():
+                mstr = utils.prettyhex(data)
                 if len(mstr) > 50:
                     mstr = mstr[:24] + '...' + mstr[-23:]
 
-                click.echo('at %08X: %s - %s' %
-                           (m.offset, pat.Description, mstr))
+                click.echo('at %08X: %s - %s' % (offset, desc, mstr))
 
                 if csv:
-                    csv_writer.writerow([f.name, '0x%08X' % m.offset,
-                                         pat.Description, mstr, len(m.data)])
+                    csv_writer.writerow([f.name, '0x%08X' % offset,
+                                         desc, mstr, len(data)])
+
+    client.disconnect()
 
     if csv:
         csvfile.close()
