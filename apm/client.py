@@ -19,7 +19,7 @@ class Client(object):
         self.sock.close()
         self.sock = None
 
-    def send_data(self, data):
+    def send_data(self, data, level=1):
         size = struct.pack('>I', len(data))
         self.sock.send(size)
         self.sock.sendall(data)
@@ -32,11 +32,11 @@ class Client(object):
             for unpacked in unpacker:
                 yield unpacked
 
-    def send_file(self, file):
+    def send_file(self, file, level=1):
         with open(file, 'rb') as f:
             data = f.read()
 
-        return self.send_data(data)
+        return self.send_data(data, level=level)
 
 
 if __name__ == '__main__':
