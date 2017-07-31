@@ -112,13 +112,12 @@ def search(ctx, csv, files):
               'set. Allows input of password for zip file')
 @click.option('--no-save', is_flag=True, help="Don't save result to disk")
 @click.option('-p', '--profiling', is_flag=True)
-@click.option('-v', '--verbose', type=int, default=0, help='Set the verbose level '
-        'Valid inputs are 0 - 2 (lowest output to highest). Note that -v 2 is not '
-        'human friendly')
+@click.option('-v', '--verbose', type=int, default=0,
+              help='Set the verbose level (0 - 2)')
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
 def crack(ctx, level, only, name, keep, save, zip, password,
-        no_save, profiling, verbose, filename):
+          no_save, profiling, verbose, filename):
     """
     Use patterns of interest to crack the supplied files.
     """
@@ -132,7 +131,6 @@ def crack(ctx, level, only, name, keep, save, zip, password,
             LOCKE_TRANSFORMERS, lock, zip,
             level, only, name, keep, save,
             no_save, verbose)
-
 
 @cli.command()
 @click.pass_context
