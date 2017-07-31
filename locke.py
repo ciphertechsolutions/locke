@@ -8,7 +8,8 @@ from os import path
 
 import locke.locke
 from locke.pattern import REPattern, ByteListPattern, BytePattern
-from locke.transformer import *
+from locke.transformer import (TransformString, TransformChar, select_transformers,
+		Transfomer)
 
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
