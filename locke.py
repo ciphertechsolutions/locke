@@ -80,7 +80,7 @@ def search(ctx, csv, files):
         click.echo("=" * 79)
         click.echo("File: %s\n" % f.name)
 
-        for description, hsh in client.send_data(f.read()):
+        for description, weight, hsh in client.send_data(f.read()):
             desc = description.decode()
             for offset, data in hsh.items():
                 mstr = utils.prettyhex(data)
