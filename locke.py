@@ -3,7 +3,6 @@ import click
 import glob
 import sys
 import inspect
-import dill
 import csv as csvlib
 from os import path
 
@@ -131,11 +130,8 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
 	if not zip_file and password is not None:
 		raise ValueError("Password field is set without zip enable")
 
-	pattern = dill.dumps((locke.Locke,LOCKE_PATTERNS))
-
 	trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
-
-	run_transformations(trans_list, pattern, filename,
+	run_transformations(trans_list, filename,
 			zip_file, password)
 
 

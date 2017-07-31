@@ -11,6 +11,5 @@ setup(name='locke',
       packages=['locke'],
       install_requires=[
         'click',
-        'dill',
       ],
       zip_safe=True)
