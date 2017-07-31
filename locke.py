@@ -1,5 +1,4 @@
 #!/usr/bin/python3.5
-
 import click
 import glob
 import sys
@@ -7,8 +6,8 @@ import inspect
 import csv as csvlib
 from os import path
 
-from locke import pattern, locke, transformer, utils
-from locke.pattern import *
+import locke.locke
+from locke.pattern import REPattern, ByteListPattern, BytePattern
 from locke.transformer import *
 
 
@@ -25,41 +24,41 @@ LOCKE_PATTERNS = []
 TRANSFORM_PLUGIN_DIR = path.join(SCRIPT_DIR, 'transformers')
 TRANSFORM_PLUGIN_GLOB = path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 # Nest array. One for each level
-LOCKE_TRANSFORMERS = [[], [], []]
+LOCKE_TRANSFORMERS = ([], [], [])
 
 
 def load_all_patterns():
-    for plugin in glob.glob(PATTERN_PLUGIN_GLOB):
-        exec(open(plugin).read())
+	for plugin in glob.glob(PATTERN_PLUGIN_GLOB):
+		exec(open(plugin).read())
 
 
 def load_all_transformers():
-    for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
-            exec(open(plugin).read(), globals())
-    for clss in inspect.getmembers(sys.modules[__name__], inspect.isclass):
-        if "Transform" in clss[0]:
-            if "locke" in clss[1].__module__:
-                continue
-            if clss[1].class_level() == 1:
-                LOCKE_TRANSFORMERS[0].append(clss)
-            elif clss[1].class_level() == 2:
-                LOCKE_TRANSFORMERS[1].append(clss)
-            elif clss[1].class_level() == 3:
-                LOCKE_TRANSFORMERS[2].append(clss)
-            elif clss[1].class_level() == -1:
-                print("!! %s is disable" % clss[0])
-            else:
-                print("%s has an invalid class level (1 - 3 | -1 > disable)" 
-                        % clss[0])
-    print("")
+	for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
+		exec(open(plugin).read(), globals())
+	for clss in inspect.getmembers(sys.modules[__name__], inspect.isclass):
+		if "Transform" in clss[0]:
+			if "locke" in clss[1].__module__:
+				continue
+			if clss[1].class_level() == 1:
+				LOCKE_TRANSFORMERS[0].append(clss)
+			elif clss[1].class_level() == 2:
+				LOCKE_TRANSFORMERS[1].append(clss)
+			elif clss[1].class_level() == 3:
+				LOCKE_TRANSFORMERS[2].append(clss)
+			elif clss[1].class_level() == -1:
+				print("!! %s is disable" % clss[0])
+			else:
+				print("%s has an invalid class level (1 - 3 | -1 > disable)" 
+						% clss[0])
+				print("")
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
 @click.pass_context
 def cli(ctx, verbose):
-    load_all_patterns()
-    ctx.obj['verbose'] = verbose
-    pass
+	load_all_patterns()
+	ctx.obj['verbose'] = verbose
+	pass
 
 
 @cli.command()
@@ -67,106 +66,106 @@ def cli(ctx, verbose):
 @click.argument('files', type=click.File('rb'), nargs=-1)
 @click.pass_context
 def search(ctx, csv, files):
-    """
-    Search for patterns of interest in the supplied files.
-    """
-    if csv:
-        click.echo('Writing CSV results to %s' % csv)
-        csvfile = open(csv, 'w')
-        csv_writer = csvlib.writer(csvfile)
-        csv_writer.writerow(['Filename', 'Index', 'Pattern name', 'Match',
-                             'Length'])
+	"""
+	Search for patterns of interest in the supplied files.
+	"""
+	if csv:
+		click.echo('Writing CSV results to %s' % csv)
+		csvfile = open(csv, 'w')
+		csv_writer = csvlib.writer(csvfile)
+		csv_writer.writerow(['Filename', 'Index', 'Pattern name', 'Match',
+			'Length'])
 
-    l = locke.Locke(LOCKE_PATTERNS)
-    for f in files:
-        click.echo("=" * 79)
-        click.echo("File: %s\n" % f.name)
-        for pat, matches in l.scan(f.read()):
-            for index, match in matches:
-                mstr = utils.prettyhex(match)
-                if len(mstr) > 50:
-                    mstr = mstr[:24] + '...' + mstr[-23:]
+	pattern = locke.Locke(LOCKE_PATTERNS)
+	for f in files:
+		click.echo("=" * 79)
+		click.echo("File: %s\n" % f.name)
+		for pat, matches in pattern.scan(f.read()):
+			for index, match in matches:
+				mstr = utils.prettyhex(match)
+				if len(mstr) > 50:
+					mstr = mstr[:24] + '...' + mstr[-23:]
 
-                click.echo('at %08X: %s - %s' % (index, pat.name, mstr))
+				click.echo('at %08X: %s - %s' % (index, pat.name, mstr))
 
-                if csv:
-                    csv_writer.writerow([f.name, '0x%08X' % index, pat.name,
-                                         mstr, len(match)])
-        click.echo()
+				if csv:
+					csv_writer.writerow([f.name, '0x%08X' % index, pat.name,
+						mstr, len(match)])
+					click.echo()
 
-    if csv:
-        csvfile.close()
+	if csv:
+		csvfile.close()
 
 
 @cli.command()
 @click.option('-l', '--level', type=int, default=3,
-              help='Select transformers with level 1, 2, or 3 and below')
+		help='Select transformers with level 1, 2, or 3 and below')
 @click.option('-o', '--only', type=int, default=None,
-              help='Only use transformers on that specific level')
+		help='Only use transformers on that specific level')
 @click.option('-n', '--name', nargs=1, default=None,
-              help='A list of transformer classes to use in quotes and '
-              'is commas separated')
+		help='A list of transformer classes to use in quotes and '
+		'is commas separated')
 @click.option('-k', '--keep', default=20, help='How many transforms to save'
-              'after stage 1')
+		'after stage 1')
 @click.option('-s', '--save', default=10, help='How many transforms to save'
-              'after stage 2')
-@click.option('-z', '--zip', is_flag=True, help='Mark this file'
-              'as a zip file. Use --password to enter zip password')
+		'after stage 2')
+@click.option('-z', '--zip_file', is_flag=True, help='Mark this file'
+		'as a zip file. Use --password to enter zip password')
 @click.option('--password', nargs=1, default=None, help='Only works if -z is '
-              'set. Allows input of password for zip file')
+		'set. Allows input of password for zip file')
 @click.option('--no-save', is_flag=True, help="Don't save result to disk")
 @click.option('-p', '--profiling', is_flag=True)
 @click.option('-v', '--verbose', type=int, default=0, help='Set the verbose level '
-        'Valid inputs are 0 - 2 (lowest output to highest). Note that -v 2 is not '
-        'human friendly')
+		'Valid inputs are 0 - 2 (lowest output to highest). Note that -v 2 is not '
+		'human friendly')
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
-def crack(ctx, level, only, name, keep, save, zip, password,
-        no_save, profiling, verbose, filename):
-    """
-    Use patterns of interest to crack the supplied files.
-    """
-    load_all_transformers()
+def crack(ctx, level, only, name, keep, save, zip_file, password,
+		no_save, profiling, verbose, filename):
+	"""
+	Use patterns of interest to crack the supplied files.
+	"""
+	load_all_transformers()
 
-    if not zip and password is not None:
-        raise ValueError("Password field is set without zip enable")
+	if not zip_file and password is not None:
+		raise ValueError("Password field is set without zip enable")
 
-    lock = locke.Locke(LOCKE_PATTERNS)
-    trans = Transfomer(filename, password,
-            LOCKE_TRANSFORMERS, lock, zip,
-            level, only, name, keep, save,
-            no_save, verbose)
+	lock = locke.Locke(LOCKE_PATTERNS)
+	trans = Transfomer(filename, password,
+			LOCKE_TRANSFORMERS, lock, zip_file,
+			level, only, name, keep, save,
+			no_save, verbose)
 
 
 @cli.command()
 @click.pass_context
 def patterns(ctx):
-    """
-    List all patterns known by Locke.
-    """
-    for pat in LOCKE_PATTERNS:
-        click.echo('%s (%s)' % (pat.name, pat.weight))
+	"""
+	List all patterns known by Locke.
+	"""
+	for pat in LOCKE_PATTERNS:
+		click.echo('%s (%s)' % (pat.name, pat.weight))
 
 
 @cli.command()
 @click.option('-l', '--level', type=int, default=3,
-              help='Select transformers with level 1, 2, or 3 and below')
+		help='Select transformers with level 1, 2, or 3 and below')
 @click.option('-o', '--only', type=int, default=None,
-              help='Only use transformers on that specific level')
+		help='Only use transformers on that specific level')
 @click.option('-n', '--name', nargs=1, default=None,
-              help='A list of transformer classes to use in quotes and '
-              'is commas separated')
+		help='A list of transformer classes to use in quotes and '
+		'is commas separated')
 @click.pass_context
 def transforms(ctx, level, only, name):
-    """
-    List all transformations known by Locke.
-    """
-    load_all_transformers()
-    trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
-    for trans in trans_list:
-        click.echo('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
-        click.echo(trans[1].__doc__)
+	"""
+	List all transformations known by Locke.
+	"""
+	load_all_transformers()
+	trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
+	for trans in trans_list:
+		click.echo('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
+		click.echo(trans[1].__doc__)
 
 
 if __name__ == '__main__':
-    cli(obj={})
+	cli(obj={})
