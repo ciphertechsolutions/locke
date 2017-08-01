@@ -4,9 +4,6 @@ from apm.pattern_plugin import BytesListPatternPlugin, REPatternPlugin
 class IPv4Address(REPatternPlugin):
     """
     A pattern describing IPv4 addresses.
-
-    NOTE: This pattern is imperfect, and would benefit
-    from a filter function.
     """
     Description = 'IPv4 address'
     Pattern = r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'
