@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
-from multiprocessing import Pool, Process
+from multiprocessing import Pool
 from locke.utils import vprint
 import multiprocessing
 import math
@@ -339,7 +339,6 @@ def transform(transformer):
 	Return:
 		A list of tuple(transform_instance, score)
 	"""
-
 	trans_data = transformer.transform(data)
 	results = []
 	score = 0
@@ -360,18 +359,32 @@ def error_raise(msg):
 	sys.exit(msg)
 
 
+def iteration_transformer(trans_list):
+	for trans in trans_list:
+		for value in trans[1].all_iteration():
+			yield trans[1](value)
+
 def run_transformations(trans_list, filename, 
 		zip_file=False, password=None):
 	global data
 	data = (read_file(filename) if not zip_file else
 			read_zip(filename, password))
 	
+	start = time.time()
+
 	pool = Pool()
-	result = pool.map_async(transform_init, trans_list,
+	result = pool.map_async(transform, iteration_transformer(trans_list),
 			error_callback=error_raise)
+	#result = pool.map_async(transform_init, trans_list,
+	#		error_callback=error_raise)
 	
-	for i in result.get():
-		print(i)
+	result_list = result.get()
+	
+	duration = time.time() - start
+	m, s = divmod(duration, 60)
+	h, m = divmod(m, 60)
+	d, h = divmod(h, 24)
+	print("%i iteration in %iD:%02iH:%02iM:%02iS" % (len(result_list), d,h,m,s))
 	sys.exit("check")
 
 # This was coded while listening to Nightcore
