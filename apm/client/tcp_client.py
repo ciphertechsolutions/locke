@@ -14,15 +14,15 @@ class TCPClient(Client):
         self.port = port
         self.sock = None
 
-    def connect(self):
+    def connect(self) -> None:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.host, self.port))
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         self.sock.close()
         self.sock = None
 
-    def send_data(self, data: bytes):
+    def send_data(self, data: bytes) -> None:
         handshake = struct.pack('>2I', len(data), self.stage)
         self.sock.send(handshake)
         self.sock.sendall(data)
@@ -35,7 +35,7 @@ class TCPClient(Client):
             for unpacked in unpacker:
                 yield unpacked
 
-    def send_file(self, file: str):
+    def send_file(self, file: str) -> None:
         with open(file, 'rb') as f:
             data = f.read()
 

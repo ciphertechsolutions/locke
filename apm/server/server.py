@@ -1,14 +1,16 @@
 from abc import ABC, abstractmethod
 
 class Server(ABC):
-    """docstring for Server"""
+    """
+    An abstract Server for APM interfaces to subclass.
+    """
     def __init__(self):
-        super(Server, self).__init__()
+        super().__init__()
 
     @abstractmethod
-    def start(self):
+    def start(self) -> None:
         pass
 
     @abstractmethod
-    def stop(self):
+    def stop(self) -> None:
         pass

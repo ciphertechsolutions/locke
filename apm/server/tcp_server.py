@@ -9,12 +9,14 @@ from apm.server import Server
 
 
 class TCPServerThread(Thread):
-    """docstring for TCPServerThread"""
+    """
+    An individual server thread for the TCP server.
+    """
     def __init__(self, client: socket.socket):
-        super(TCPServerThread, self).__init__()
+        super().__init__()
         self.client = client
 
-    def run(self):
+    def run(self) -> None:
         handshake = self.client.recv(8)
         if not handshake or len(handshake) < 8:
             return None
@@ -43,14 +45,18 @@ class TCPServerThread(Thread):
 
 
 class TCPServer(Server):
-    """docstring for TCPServer"""
+    """
+    A TCP server that listens for requests, processes the data
+    within those requests, and returns the results as msgpack-formatted
+    lists and dictionaries.
+    """
     def __init__(self, host: str = 'localhost', port: int = 1337):
-        super(TCPServer, self).__init__()
+        super().__init__()
         self.host = host
         self.port = port
         self.sock = None
 
-    def start(self):
+    def start(self) -> None:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.host, self.port))
         self.sock.listen(5)
@@ -59,7 +65,7 @@ class TCPServer(Server):
             client, _ = self.sock.accept()
             TCPServerThread(client).start()
 
-    def stop(self):
+    def stop(self) -> None:
         self.sock.close()
         self.sock = None
 
