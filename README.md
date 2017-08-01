@@ -13,8 +13,8 @@ of matches.
 $ pip3 install click # click is needed for the CLI
 $ pip3 install msgpack-python # msgpack is needed for client/server communication
 
-$ PYTHONPATH=. python3 apm/server.py
-$ PYTHONPATH=. python3 apm/client.py big_file.exe
+$ PYTHONPATH=. python3 apm/server/tcp_server.py
+$ PYTHONPATH=. python3 apm/client/tcp_client.py big_file.exe
 ```
 
 ### TODO
