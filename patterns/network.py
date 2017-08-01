@@ -10,6 +10,11 @@ class IPv4Address(REPatternPlugin):
     Weight = 100
 
     def filter(self, match):
+        """
+        Filter through IPv4 address candidates for interesting matches.
+
+        XXX: Use the ipaddress library?
+        """
         ip = match.data.decode()
 
         # this falsely catches 8.8.8.8 etc.
