@@ -289,8 +289,10 @@ def read_file(filename):
     return data
 
 
-def transform_init(transformer_data, stage=1):
+def deprecated_transform_init(transformer_data, stage=1):
     """
+    Deprecated. Only to be use if Pool of transformer instance
+        is slower.
     Create instances of the transformers with different
     iteration value provided by the all_iteration method
     Calls on transform to actually process the data
@@ -316,7 +318,7 @@ def transform_init(transformer_data, stage=1):
         raise e
 
 
-def transform(transformer):
+def transform(transform_stage):
     """
     Process the data using the transformer provided
     Creates an instance of the search client and passes
@@ -324,23 +326,26 @@ def transform(transformer):
     store it in a list of tuple(transform_instance, score)
 
     Args:
-        transformer: The initialized transformer instance
+        transform_stage: A tuple(transformer, stage_number)
     Return:
         A list of tuple(transform_instance, score)
     """
+    transformer, stage = transform_stage
+
     trans_data = transformer.transform(data)
-    results = []
     score = 0
 
+
     # make instance of client here
-    client = apm.Client()
+    client = apm.Client(stage=stage)
     client.connect()
 
     for desc, weight, matches in client.send_data(trans_data):
         score += len(matches) * weight
-    results.append((transformer, score))
+    results = (transformer, score)
 
     client.disconnect()
+
     return results
 
 
@@ -348,32 +353,74 @@ def error_raise(msg):
     sys.exit(msg)
 
 
-def iteration_transformer(trans_list):
-    for trans in trans_list:
-        for value in trans[1].all_iteration():
-            yield trans[1](value)
+def iteration_transformer(stage_data):
+    """
+    Create a generate tuples to be used with Transform method
+    Args:
+        stage_data: A tuple( (trans_name, trans_class), stage_num)
+    Return:
+        Generates tuple(trans_instance, stage_num)
+    """
+    for part in stage_data:
+        for value in part[0][1].all_iteration():
+            yield (part[0][1](value), part[1])
 
-def run_transformations(trans_list, filename, 
+def run_transformations(trans_list, filename, keep,
         zip_file=False, password=None):
     global data
     data = (read_file(filename) if not zip_file else
             read_zip(filename, password))
-
-    start = time.time()
-
     pool = Pool()
-    result = pool.map_async(transform, iteration_transformer(trans_list),
+
+    #----------------------#
+    # Stage 1 #
+    #----------------------#
+    print("Starting Stage 1")
+    start = time.time()
+    stage1 = list(zip(trans_list, (1,) * len(trans_list)))
+
+    # What is faster? A pool of transformer instances or a pool of
+    # transformer to create instances of? Both have roughly the same speed
+    # on smaller files... but what about the more complex transformers and 
+    # bigger files? Pool of instances should be faster?
+    result = pool.map_async(transform, iteration_transformer(stage1),
             error_callback=error_raise)
     #result = pool.map_async(transform_init, trans_list,
     #		error_callback=error_raise)
 
     result_list = result.get()
-
+    
+    # time debug
     duration = time.time() - start
     m, s = divmod(duration, 60)
     h, m = divmod(m, 60)
     d, h = divmod(h, 24)
     print("%i iteration in %iD:%02iH:%02iM:%02iS" % (len(result_list), d,h,m,s))
-    sys.exit("check")
+    
+    #----------------------#
+    # Stage 2 #
+    #----------------------#
+    print("Starting Stage 2")
+    start = time.time()
 
-# This was coded while listening to Nightcore
+    # sort the data and keep only the top few
+    result_list = sorted(result_list, key=lambda r:r[1], reverse=True)[:keep]
+    # extract the wanted transformer and group it with 2 (mark as stage 2)
+    stage2 = [(trans[0], 2) for trans in result_list]
+
+    result = pool.map_async(transform, stage2,
+            error_callback=error_raise)
+
+    result_list = result.get()
+
+    # time debug
+    duration = time.time() - start
+    m, s = divmod(duration, 60)
+    h, m = divmod(m, 60)
+    d, h = divmod(h, 24)
+    print("%i iteration in %iD:%02iH:%02iM:%02iS" % (len(result_list), d,h,m,s))
+
+    return sorted(result_list, key=lambda r:r[1], reverse=True)
+
+
+# This was coded while listening to Game OST
