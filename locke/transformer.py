@@ -286,35 +286,6 @@ def read_file(filename):
     return data
 
 
-def deprecated_transform_init(transformer_data, stage=1):
-    """
-    Deprecated. Only to be use if Pool of transformer instance
-        is slower.
-    Create instances of the transformers with different
-    iteration value provided by the all_iteration method
-    Calls on transform to actually process the data
-
-    Args:
-        transformer_data: A tuple(Transform_Name, Transform_class)
-    Return:
-        A list of tuple(transform_instance, score)
-    """
-
-    name = multiprocessing.current_process().name
-    transformer_class = transformer_data[1]
-    try:
-        for value in transformer_class.all_iteration():
-            transformer = transformer_class(value)
-            return transform(transformer)
-    except Exception as e:
-        error = ("!! %s ran into an error when working with %s\n" 
-                % (name, transformer_data[0]))
-        if transformer is not None:
-            error += "!! Error encounter in iteration %s\n" % transformer.name()
-        print(error + str(e))
-        raise e
-
-
 def transform(transform_stage):
     """
     Process the data using the transformer provided
