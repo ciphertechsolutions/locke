@@ -23,7 +23,7 @@ Char Transformers
 """
 
 
-class TransformIndentity(TransformString):
+class TransformIdentity(TransformString):
     """
     Name: Identity Transformer
     Description: Just return the default value
