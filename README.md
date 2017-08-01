@@ -14,7 +14,7 @@ $ pip3 install click # click is needed for the CLI
 $ pip3 install msgpack-python # msgpack is needed for client/server communication
 
 $ PYTHONPATH=. python3 apm/server.py
-$ python3 apm/client.py big_file.exe
+$ PYTHONPATH=. python3 apm/client.py big_file.exe
 ```
 
 ### TODO
