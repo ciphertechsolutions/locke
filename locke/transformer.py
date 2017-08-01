@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod, abstractproperty
 from multiprocessing import Pool
-from locke.utils import vprint
 import multiprocessing
 import math
 import time
@@ -209,7 +208,6 @@ def select_transformers(trans_list, name_list, select, level = 3):
     """
     trans_class = []
     if name_list is not None:
-        vprint("Selecting transformer from a name list", 1)
         not_found = []
         for name in name_list.split(','):
             not_found.append(name.strip().lower())
@@ -217,14 +215,12 @@ def select_transformers(trans_list, name_list, select, level = 3):
                 found = False
                 for trans in trans_level:
                     if not_found[-1] == trans[0].lower():
-                        vprint("%s transformer found!" % not_found[-1], 2)
                         found = True
                         trans_class.append(trans)
                         break
                 if found:
                     not_found.pop()
                     break
-                vprint("%s transformer NOT found!" % not_found[-1], 2)
 
         if len(not_found) != 0:
             print("No transformation found for:\n%s" % not_found)
@@ -235,13 +231,11 @@ def select_transformers(trans_list, name_list, select, level = 3):
                 sys.exit()
             print("---------------------------")
     elif select is not None:
-        vprint("Selecting transform from specified level %i" % select, 1)
         if select < 4 and select > 0:
             trans_class = trans_list[select]
         else:
             sys.exit("There are no such level as %i" % select)
     else:
-        vprint("Defaulting back to level %i and below" % level, 1)
         if level == 1:
             trans_class = trans_list[0]
         elif level == 2:
@@ -274,14 +268,10 @@ def read_zip(filename, password=None):
         print('%i: %s' % (i + 1, zfile.namelist()[i]))
     answer = int(input('1 - %i: ' % len(zfile.namelist())))
 
-    vprint("User select file number %i" % ans, 2)
     if answer in range(1, len(zfile.namelist())):
-        vprint("Reading file %s with password %s" 
-                % (zfile.infolist()[ans - 1], password), 2)
         data = zfile.read(zfile.infolist()[ans - 1], password)
     else:
         raise IndexError('Range %i is out of bound' % ans)
-    vprint("Done reading data from %s" % filename, 1)
     return data
 
 
@@ -296,7 +286,6 @@ def read_file(filename):
     f = open(filename, 'rb')
     data = f.read()
     f.close()
-    vprint("Done reading data from %s" % filename, 1)
     return data
 
 
