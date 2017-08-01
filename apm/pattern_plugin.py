@@ -5,7 +5,7 @@ from typing import List
 from apm.match import Match
 
 
-class Utils(object):
+class _Utils(object):
     """
     Utility functions for pattern plugins.
     """
@@ -130,7 +130,7 @@ class BytesPatternPlugin(PatternPlugin):
         """
         pat = self.Pattern.lower() if self.NoCase else self.Pattern
 
-        return Utils.find_all(pat, data)
+        return _Utils.find_all(pat, data)
 
 
 class BytesListPatternPlugin(PatternPlugin):
@@ -166,7 +166,7 @@ class BytesListPatternPlugin(PatternPlugin):
         matches = []
 
         for pat in self.Patterns:
-            matches.extend(Utils.find_all(pat, data))
+            matches.extend(_Utils.find_all(pat, data))
 
         return matches
 
