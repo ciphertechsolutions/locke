@@ -7,6 +7,26 @@ import msgpack
 
 
 class TCPClient(Client):
+    """
+    A TCP client that issues requests understood by the TCPServer class.
+
+    The protocol spoken by APM TCP clients is very simple, with an 8-byte
+    header followed by N bytes of data:
+        <nbytes><stage><data>
+
+    <nbytes> is a 4-byte network (big-endian) word, specifying the size
+    of <data>.
+
+    <stage> is a 4-byte network (big-endian) word, specifying the "stage"
+    of the patterns that the client expects to be run.
+
+    <data> is <nbytes> of binary data, fed directly into the pattern matching
+    core. No packing or unpacking is done to this data.
+
+    For example, this would be a valid transmission requesting the analysis
+    of 4 bytes of data via stage 1:
+        b'\x00\x00\x00\x04\x00\x00\x00\x01asdf'
+    """
     def __init__(self, host: str = 'localhost', port: int = 1337,
                  stage: int = 1):
         super().__init__(stage=stage)
