@@ -5,6 +5,7 @@ from threading import Thread
 import msgpack
 
 import apm
+from apm.server import Server
 
 
 class TCPServerThread(Thread):
@@ -41,7 +42,7 @@ class TCPServerThread(Thread):
         self.client.close()
 
 
-class TCPServer(object):
+class TCPServer(Server):
     """docstring for TCPServer"""
     def __init__(self, host: str = 'localhost', port: int = 1337):
         super(TCPServer, self).__init__()
@@ -61,3 +62,17 @@ class TCPServer(object):
     def stop(self):
         self.sock.close()
         self.sock = None
+
+
+if __name__ == '__main__':
+    import click
+    import patterns
+
+    @click.command()
+    @click.option('--host', default='localhost', help='The host to bind to')
+    @click.option('--port', default=1337, help='The port to listen on')
+    def cli(host, port):
+        server = TCPServer(host=host, port=port)
+        server.start()
+
+    cli()
