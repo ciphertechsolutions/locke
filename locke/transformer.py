@@ -362,9 +362,17 @@ def iteration_transformer(stage_data):
         for value in part[0][1].all_iteration():
             yield (part[0][1](value), part[1])
 
+
+def display_elapse(start_time, iter_count):
+    duration = time.time() - start_time
+    m, s = divmod(duration, 60)
+    h, m = divmod(m, 60)
+    d, h = divmod(h, 24)
+    print("%i iteration in %iD:%02iH:%02iM:%02iS" % (iter_count, d,h,m,s))
+
 def run_transformations(trans_list, filename, keep,
         zip_file=False, password=None):
-    global data
+    global data 
     data = (read_file(filename) if not zip_file else
             read_zip(filename, password))
     pool = Pool()
@@ -380,19 +388,10 @@ def run_transformations(trans_list, filename, keep,
     # transformer to create instances of? Both have roughly the same speed
     # on smaller files... but what about the more complex transformers and 
     # bigger files? Pool of instances should be faster?
-    result = pool.map_async(transform, iteration_transformer(stage1),
-            error_callback=error_raise)
-    #result = pool.map_async(transform_init, trans_list,
-    #		error_callback=error_raise)
+    result_list = pool.map_async(transform, iteration_transformer(stage1),
+            error_callback=error_raise).get()
 
-    result_list = result.get()
-    
-    # time debug
-    duration = time.time() - start
-    m, s = divmod(duration, 60)
-    h, m = divmod(m, 60)
-    d, h = divmod(h, 24)
-    print("%i iteration in %iD:%02iH:%02iM:%02iS" % (len(result_list), d,h,m,s))
+    display_elapse(start, len(result_list))
     
     #----------------------#
     # Stage 2 #
@@ -405,17 +404,11 @@ def run_transformations(trans_list, filename, keep,
     # extract the wanted transformer and group it with 2 (mark as stage 2)
     stage2 = [(trans[0], 2) for trans in result_list]
 
-    result = pool.map_async(transform, stage2,
-            error_callback=error_raise)
-
-    result_list = result.get()
+    result_list = pool.map_async(transform, stage2,
+            error_callback=error_raise).get()
 
     # time debug
-    duration = time.time() - start
-    m, s = divmod(duration, 60)
-    h, m = divmod(m, 60)
-    d, h = divmod(h, 24)
-    print("%i iteration in %iD:%02iH:%02iM:%02iS" % (len(result_list), d,h,m,s))
+    display_elapse(start, len(result_list))
 
     return sorted(result_list, key=lambda r:r[1], reverse=True)
 
