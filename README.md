@@ -16,3 +16,7 @@ $ pip3 install msgpack-python # msgpack is needed for client/server communicatio
 $ PYTHONPATH=. python3 apm/server.py
 $ python3 apm/client.py big_file.exe
 ```
+
+### TODO
+
+Rewrtite plugins to use metaclasses?
