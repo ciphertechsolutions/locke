@@ -7,9 +7,8 @@ import csv as csvlib
 from os import path
 
 import locke.locke
-from locke.pattern import REPattern, ByteListPattern, BytePattern
-from locke.transformer import (TransformString, TransformChar, select_transformers,
-        run_transformations)
+from locke.transformer import TransformString, TransformChar, select_transformers,\
+        run_transformations
 
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
@@ -27,11 +26,6 @@ TRANSFORM_PLUGIN_DIR = path.join(SCRIPT_DIR, 'transformers')
 TRANSFORM_PLUGIN_GLOB = path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 # Nest array. One for each level
 LOCKE_TRANSFORMERS = ([], [], [])
-
-
-def load_all_patterns():
-	for plugin in glob.glob(PATTERN_PLUGIN_GLOB):
-		exec(open(plugin).read())
 
 
 def load_all_transformers():
@@ -59,7 +53,7 @@ def load_all_transformers():
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
 @click.pass_context
 def cli(ctx, verbose):
-    ctx.obj['verbose'] = verbose
+	ctx.obj['verbose'] = verbose
 
 
 @cli.command()

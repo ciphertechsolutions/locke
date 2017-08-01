@@ -1,5 +1,5 @@
-from locke.transformer import (rol_left, rol_right, to_bytes, 
-        TransformString, TransformChar)
+from locke.transformer import rol_left, rol_right, to_bytes, \
+        TransformString, TransformChar
 
 """
 These are all Level 2 Transformers
