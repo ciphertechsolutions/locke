@@ -6,9 +6,7 @@ import inspect
 import csv as csvlib
 from os import path
 
-import locke.locke
-from locke.transformer import TransformString, TransformChar, select_transformers,\
-        run_transformations
+from locke.transformer import select_transformers, run_transformations
 
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
@@ -81,7 +79,7 @@ def search(ctx, csv, files):
         for description, weight, hsh in client.send_data(f.read()):
             desc = description.decode()
             for offset, data in hsh.items():
-                mstr = utils.prettyhex(data)
+                mstr = repr(data)[1:]
                 if len(mstr) > 50:
                     mstr = mstr[:24] + '...' + mstr[-23:]
 
@@ -130,7 +128,7 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
         raise ValueError("Password field is set without zip enable")
 
     trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
-    run_transformations(trans_list, filename,
+    run_transformations(trans_list, filename, keep,
             zip_file, password)
 
 @cli.command()
@@ -163,5 +161,21 @@ def transforms(ctx, level, only, name):
         click.echo(trans[1].__doc__)
 
 
+def TestServer (data):
+    client = apm.Client()
+    client.connect()
+    for i,v,z in client.send_data(data):
+        pass
+    client.disconnect()
+    print('done')
+
 if __name__ == '__main__':
     cli(obj={})
+    sys.exit()
+    # Quick code to test server
+    from multiprocessing import Pool
+    p = Pool()
+    data = open("Test/125M", 'rb').read()
+    dataT = (data,) * 100
+    result = p.map_async(sendLOTS, dataT)
+    result.get()
