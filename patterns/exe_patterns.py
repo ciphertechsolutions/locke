@@ -106,3 +106,12 @@ class InterestingRegKeys(BytesListPatternPlugin):
     Description = 'Interesting registry keys'
     Patterns = ['CurrentVersion\\Run', 'UserInit']
     Weight = 10000
+
+
+class CompiledWithMSVC(BytesPatternPlugin):
+    """
+    Indication that a program was compiled with MSVC.
+    """
+    Description = 'Possibly compiled with Microsoft Visual C++'
+    Pattern = 'Microsoft Visual C++'
+    Weight = 10000
