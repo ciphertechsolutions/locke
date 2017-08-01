@@ -5,7 +5,8 @@ import msgpack
 
 
 class Client(object):
-    def __init__(self, host='localhost', port=1337, stage=1):
+    def __init__(self, host: str = 'localhost', port: int = 1337,
+                 stage: int = 1):
         super(Client, self).__init__()
         self.host = host
         self.port = port
@@ -20,7 +21,7 @@ class Client(object):
         self.sock.close()
         self.sock = None
 
-    def send_data(self, data):
+    def send_data(self, data: bytes):
         handshake = struct.pack('>2I', len(data), self.stage)
         self.sock.send(handshake)
         self.sock.sendall(data)
@@ -33,7 +34,7 @@ class Client(object):
             for unpacked in unpacker:
                 yield unpacked
 
-    def send_file(self, file):
+    def send_file(self, file: str):
         with open(file, 'rb') as f:
             data = f.read()
 

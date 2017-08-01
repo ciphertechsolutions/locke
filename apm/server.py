@@ -9,7 +9,7 @@ import apm
 
 class ServerThread(Thread):
     """docstring for ServerThread"""
-    def __init__(self, client):
+    def __init__(self, client: socket.socket):
         super(ServerThread, self).__init__()
         self.client = client
 
@@ -43,7 +43,7 @@ class ServerThread(Thread):
 
 class Server(object):
     """docstring for Server"""
-    def __init__(self, host='localhost', port=1337):
+    def __init__(self, host: str = 'localhost', port: int = 1337):
         super(Server, self).__init__()
         self.host = host
         self.port = port

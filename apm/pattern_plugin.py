@@ -50,7 +50,7 @@ class PatternPlugin(ABC):
     NoCase = False
 
     @classmethod
-    def plugins(cls, stage=1) -> List[type]:
+    def plugins(cls, stage: int = 1) -> List[type]:
         """
         This method provides a list of all concrete plugin classes.
         """
