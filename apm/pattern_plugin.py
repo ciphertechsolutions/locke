@@ -38,24 +38,26 @@ class PatternPlugin(ABC):
     to all concrete plugins.
 
     Every pattern plugin has the following fields:
+    * Stage (int) - A processing "level" that hints at the pattern's complexity
     * Description (str) - A short, human friendly description
     * Weight (int) - The weight associated with the pattern
     * NoCase (bool) - Whether the pattern is case-sensitive
     """
 
+    Stage = 1
     Description = None
     Weight = 1
     NoCase = False
 
     @classmethod
-    def plugins(cls) -> List[type]:
+    def plugins(cls, stage=1) -> List[type]:
         """
         This method provides a list of all concrete plugin classes.
         """
         plugins_ = []
         for sc in cls.__subclasses__():
             plugins_.extend(sc.__subclasses__())
-        return plugins_
+        return [p for p in plugins_ if p.Stage == stage]
 
     def __init__(self):
         super().__init__()

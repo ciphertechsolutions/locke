@@ -5,10 +5,11 @@ import msgpack
 
 
 class Client(object):
-    def __init__(self, host='localhost', port=1337):
+    def __init__(self, host='localhost', port=1337, stage=1):
         super(Client, self).__init__()
         self.host = host
         self.port = port
+        self.stage = stage
         self.sock = None
 
     def connect(self):
@@ -19,9 +20,9 @@ class Client(object):
         self.sock.close()
         self.sock = None
 
-    def send_data(self, data, level=1):
-        size = struct.pack('>I', len(data))
-        self.sock.send(size)
+    def send_data(self, data):
+        handshake = struct.pack('>2I', len(data), self.stage)
+        self.sock.send(handshake)
         self.sock.sendall(data)
 
         unpacker = msgpack.Unpacker()
@@ -32,11 +33,11 @@ class Client(object):
             for unpacked in unpacker:
                 yield unpacked
 
-    def send_file(self, file, level=1):
+    def send_file(self, file):
         with open(file, 'rb') as f:
             data = f.read()
 
-        return self.send_data(data, level=level)
+        return self.send_data(data)
 
 
 if __name__ == '__main__':
@@ -45,9 +46,10 @@ if __name__ == '__main__':
     @click.command()
     @click.option('--host', default='localhost', help='The host to connect to')
     @click.option('--port', default=1337, help='The port to connect on')
+    @click.option('--stage', default=1, help='The processing stage')
     @click.argument('file', type=click.File('rb'), nargs=1)
-    def cli(host, port, file):
-        client = Client(host=host, port=port)
+    def cli(host, port, stage, file):
+        client = Client(host=host, port=port, stage=stage)
         client.connect()
 
         for obj in client.send_data(file.read()):

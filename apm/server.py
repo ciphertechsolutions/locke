@@ -14,17 +14,20 @@ class ServerThread(Thread):
         self.client = client
 
     def run(self):
-        size_msg = self.client.recv(4)
-        if not size_msg or len(size_msg) < 4:
+        handshake = self.client.recv(8)
+        if not handshake or len(handshake) < 8:
             return None
 
-        size = struct.unpack('>I', size_msg)[0]
+        size, stage = struct.unpack('>2I', handshake)
+
+        if stage < 1:
+            stage = 1
 
         buf = self.client.recv(size)
         while len(buf) < size:
             buf += self.client.recv(size)
 
-        mgr = apm.Manager(raw=buf)
+        mgr = apm.Manager(raw=buf, stage=stage)
         for pat, matches in mgr.run():
             if not matches:
                 continue

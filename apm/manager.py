@@ -30,11 +30,11 @@ class Manager(object):
     """
 
     def __init__(self, file: str = None, raw: bytes = None,
-                 nproc=os.cpu_count()):
+                 nproc=os.cpu_count(), stage: int = 1):
         global data
         global data_lower
         self.file = file
-        self.pats = [pat() for pat in PatternPlugin.plugins()]
+        self.pats = [pat() for pat in PatternPlugin.plugins(stage=stage)]
         self.nproc = nproc
 
         if file:
