@@ -343,6 +343,18 @@ def display_elapse(start_time, iter_count):
 
 def run_transformations(trans_list, filename, keep,
         zip_file=False, password=None):
+    """
+    Using a process pool, run all transformation on the file and return
+    only the top few resutls
+    Args:
+        trans_list: A list of tuples(trans_name, trans_class)
+        filename: The file to read and evaluate
+        keep: How many results to keep
+        zip_file: Mark the file as a zip (default = False)
+        password: Set the password for the zip (default = None)
+    Return:
+        A sorted list of tuples(trans_instance, score) up to "keep" size
+    """
     global data 
     data = (read_file(filename) if not zip_file else
             read_zip(filename, password))
