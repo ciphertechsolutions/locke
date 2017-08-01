@@ -9,7 +9,7 @@ from os import path
 import locke.locke
 from locke.pattern import REPattern, ByteListPattern, BytePattern
 from locke.transformer import (TransformString, TransformChar, select_transformers,
-		run_transformations)
+        run_transformations)
 
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
@@ -19,7 +19,6 @@ APM_PATH = path.join(SCRIPT_DIR, 'apm')
 if APM_PATH not in sys.path:
     sys.path.append(APM_PATH)
 
-print(sys.path)
 import apm
 import patterns
 
