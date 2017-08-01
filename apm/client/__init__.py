@@ -1,1 +1,1 @@
-from apm.client.client import Client
+from apm.client.client import SocketClient
