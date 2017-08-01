@@ -10,7 +10,7 @@ class Utils(object):
     Utility functions for pattern plugins.
     """
     @staticmethod
-    def find_all(pat, data: bytes) -> List[Match]:
+    def find_all(pat: bytes, data: bytes) -> List[Match]:
         """
         This method finds all instances of pat (a bytes object)
         inside data (a larger bytes object), returning them
@@ -88,7 +88,7 @@ class PatternPlugin(ABC):
         pass
 
     @abstractmethod
-    def find_all(self, data) -> List[Match]:
+    def find_all(self, data: bytes) -> List[Match]:
         """
         This method, when overridden, should return a list of all
         Match instances for the pattern.
@@ -124,7 +124,7 @@ class BytesPatternPlugin(PatternPlugin):
         elif not isinstance(self.Pattern, bytes):
             raise ValueError('unable to coerce pattern to bytes')
 
-    def find_all(self, data) -> List[Match]:
+    def find_all(self, data: bytes) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
@@ -159,7 +159,7 @@ class BytesListPatternPlugin(PatternPlugin):
         if self.NoCase:
             self.Patterns = [p.lower() for p in self.Patterns]
 
-    def find_all(self, data) -> List[Match]:
+    def find_all(self, data: bytes) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
@@ -192,7 +192,7 @@ class REPatternPlugin(PatternPlugin):
         elif not isinstance(self.Pattern, bytes):
             raise ValueError('unable to coerce pattern to bytes')
 
-    def find_all(self, data) -> List[Match]:
+    def find_all(self, data: bytes) -> List[Match]:
         """
         See PatternPlugin.find_all.
         """
