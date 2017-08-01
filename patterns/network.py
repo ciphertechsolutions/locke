@@ -12,6 +12,69 @@ class IPv4Address(REPatternPlugin):
     Pattern = r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'
     Weight = 100
 
+    def filter(self, match):
+        ip = match.data.decode()
+
+        # this falsely catches 8.8.8.8 etc.
+        # if len(ip) < 8:
+        #     return False
+
+        ip_bytes = ip.split('.')
+        byte1 = int(ip_bytes[0])
+        byte2 = int(ip_bytes[1])
+
+        # 0.0.0.0 255.0.0.0
+        if ip.startswith('0.'):
+            return False
+
+        # actually we might want to see the following bogon IPs if malware uses
+        # them (this should be an option)
+        # 10.0.0.0 255.0.0.0
+        if ip.startswith('10.'):
+            return False
+        # 100.64.0.0 255.192.0.0
+        if ip.startswith('100.') and (byte2 & 192 == 64):
+            return False
+        # 127.0.0.0 255.0.0.0
+        if ip.startswith('127.'):
+            return False
+        # 169.254.0.0 255.255.0.0
+        if ip.startswith('169.254.'):
+            return False
+        # 172.16.0.0 255.240.0.0
+        if ip.startswith('172.') and (byte2 & 240 == 16):
+            return False
+        # 192.0.0.0 255.255.255.0
+        if ip.startswith('192.0.0.'):
+            return False
+        # 192.0.2.0 255.255.255.0
+        if ip.startswith('192.0.2.'):
+            return False
+        # 192.168.0.0 255.255.0.0
+        if ip.startswith('192.168.'):
+            return False
+        # 198.18.0.0 255.254.0.0
+        if ip.startswith('198.') and (byte2 & 254 == 18):
+            return False
+        # 198.51.100.0 255.255.255.0
+        if ip.startswith('198.51.100.'):
+            return False
+        # 203.0.113.0 255.255.255.0
+        if ip.startswith('203.0.113.'):
+            return False
+        # 224.0.0.0 240.0.0.0
+        if byte1 & 240 == 224:
+            return False
+        # 240.0.0.0 240.0.0.0
+        if byte1 & 240 == 240:
+            return False
+
+        # also reject IPs ending with .0 or .255
+        if ip.endswith('.0') or ip.endswith('.255'):
+            return False
+        # otherwise it's a valid IP adress
+        return True
+
 
 class EmailAddress(REPatternPlugin):
     """
