@@ -81,7 +81,7 @@ def search(ctx, csv, files):
             desc = description.decode()
             for offset, data in hsh.items():
                 # mstr = data
-                mstr = utlils.prettyhex(data)
+                mstr = utils.prettyhex(data)
                 if len(mstr) > 50:
                     mstr = mstr[:24] + '...' + mstr[-23:]
 
