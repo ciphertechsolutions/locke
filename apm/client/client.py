@@ -33,7 +33,7 @@ class Client(ABC):
 
 class SocketClient(Client):
     """
-    A superclass client for all APM interfaces that use socket objects.
+    A superclass client for all APM client interfaces that use socket objects.
 
     The protocol spoken by APM socket clients is very simple, with an 8-byte
     header followed by N bytes of data:
@@ -56,7 +56,7 @@ class SocketClient(Client):
         super().__init__(stage=stage)
         self.sock = None
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         self.sock.close()
 
     def send_data(self, data: bytes) -> None:

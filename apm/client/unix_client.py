@@ -8,12 +8,12 @@ class UnixClient(SocketClient):
     A Unix domain socket client that issues requests understood
     by the UnixServer class.
     """
-    def __init__(self, file='/tmp/apm.sock', stage=1):
+    def __init__(self, file: str = '/tmp/apm.sock', stage: int = 1):
         super().__init__(stage=stage)
         self.file = file
         self.sock = None
 
-    def connect(self):
+    def connect(self) -> None:
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.connect(self.file)
 

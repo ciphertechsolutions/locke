@@ -26,12 +26,13 @@ class Server(ABC):
 
 class SocketServer(Server):
     """
+    A superclass server for all APM server instances that use socket objects.
     """
     def __init__(self):
         super().__init__()
         self.sock = None
 
-    def stop(self):
+    def stop(self) -> None:
         self.sock.close()
         self.sock = None
 

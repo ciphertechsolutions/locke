@@ -6,7 +6,7 @@ from apm.server import SocketServer, SocketServerThread
 class TCPServer(SocketServer):
     """
     A TCP server that listens for requests, processes the data
-    within those requests, and returns the results as msgpack-formatted
+    within those requests, and sends the results as msgpack-formatted
     lists and dictionaries.
     """
     def __init__(self, host: str = 'localhost', port: int = 1337):
