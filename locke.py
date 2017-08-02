@@ -66,7 +66,7 @@ def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
-    client = apm.client.SocketClient()
+    client = apm.client.TCPClient()
     client.connect()
 
     if csv:
