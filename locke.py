@@ -14,12 +14,13 @@ from locke.transformer import *
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
 
-# Locke pattern plugins are expected to be in this directory.
-PATTERN_PLUGIN_DIR = path.join(SCRIPT_DIR,  'patterns')
-PATTERN_PLUGIN_GLOB = path.join(PATTERN_PLUGIN_DIR, '*.py')
+APM_PATH = path.join(SCRIPT_DIR, 'apm')
 
-# Locke pattern plugins are expected to modify this array.
-LOCKE_PATTERNS = []
+if APM_PATH not in sys.path:
+    sys.path.append(APM_PATH)
+
+import apm
+import patterns
 
 # Locke transformer plugins
 TRANSFORM_PLUGIN_DIR = path.join(SCRIPT_DIR, 'transformers')
@@ -28,18 +29,11 @@ TRANSFORM_PLUGIN_GLOB = path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 LOCKE_TRANSFORMERS = [[], [], []]
 
 
-def load_all_patterns():
-    for plugin in glob.glob(PATTERN_PLUGIN_GLOB):
-        exec(open(plugin).read())
-
-
 def load_all_transformers():
     for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
-            f = open(plugin)
-            exec(f.read(), globals())
-            f.close()
+            exec(open(plugin).read(), globals())
     for clss in inspect.getmembers(sys.modules[__name__], inspect.isclass):
-        if clss[0].startswith("Transform"):
+        if "Transform" in clss[0]:
             if "locke" in clss[1].__module__:
                 continue
             if clss[1].class_level() == 1:
@@ -52,18 +46,14 @@ def load_all_transformers():
                 print("!! %s is disable" % clss[0])
             else:
                 print("%s has an invalid class level (1 - 3 | -1 > disable)"
-                        % clss[0])
-    print("Loaded: %i lvl 1, %i lvl 2, %i lvl 3\n\n" % (
-        len(LOCKE_TRANSFORMERS[0]),
-        len(LOCKE_TRANSFORMERS[1]),
-        len(LOCKE_TRANSFORMERS[2])))
+                      % clss[0])
+    print("")
 
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
 @click.pass_context
 def cli(ctx, verbose):
-    load_all_patterns()
     ctx.obj['verbose'] = verbose
     pass
 
@@ -76,6 +66,9 @@ def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
+    client = apm.Client()
+    client.connect()
+
     if csv:
         click.echo('Writing CSV results to %s' % csv)
         csvfile = open(csv, 'w')
@@ -83,22 +76,24 @@ def search(ctx, csv, files):
         csv_writer.writerow(['Filename', 'Index', 'Pattern name', 'Match',
                              'Length'])
 
-    l = locke.Locke(LOCKE_PATTERNS)
     for f in files:
         click.echo("=" * 79)
         click.echo("File: %s\n" % f.name)
-        for pat, matches in l.scan(f.read()):
-            for index, match in matches:
-                mstr = utils.prettyhex(match)
+
+        for description, weight, hsh in client.send_data(f.read()):
+            desc = description.decode()
+            for offset, data in hsh.items():
+                mstr = utils.prettyhex(data)
                 if len(mstr) > 50:
                     mstr = mstr[:24] + '...' + mstr[-23:]
 
-                click.echo('at %08X: %s - %s' % (index, pat.name, mstr))
+                click.echo('at %08X: %s - %s' % (offset, desc, mstr))
 
                 if csv:
-                    csv_writer.writerow([f.name, '0x%08X' % index, pat.name,
-                                         mstr, len(match)])
-        click.echo()
+                    csv_writer.writerow([f.name, '0x%08X' % offset,
+                                         desc, mstr, len(data)])
+
+    client.disconnect()
 
     if csv:
         csvfile.close()
@@ -122,13 +117,12 @@ def search(ctx, csv, files):
               'set. Allows input of password for zip file')
 @click.option('--no-save', is_flag=True, help="Don't save result to disk")
 @click.option('-p', '--profiling', is_flag=True)
-@click.option('-v', '--verbose', type=int, default=0, help='Set the verbose level '
-        'Valid inputs are 0 - 2 (lowest output to highest). Note that -v 2 is not '
-        'human friendly')
+@click.option('-v', '--verbose', type=int, default=0,
+              help='Set the verbose level (0 - 2)')
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
 def crack(ctx, level, only, name, keep, save, zip, password,
-        no_save, profiling, verbose, filename):
+          no_save, profiling, verbose, filename):
     """
     Use patterns of interest to crack the supplied files.
     """
@@ -137,12 +131,10 @@ def crack(ctx, level, only, name, keep, save, zip, password,
     if not zip and password is not None:
         raise ValueError("Password field is set without zip enable")
 
-    lock = locke.Locke(LOCKE_PATTERNS)
     trans = Transfomer(filename, password,
-            LOCKE_TRANSFORMERS, lock, zip,
+            LOCKE_TRANSFORMERS, zip,
             level, only, name, keep, save,
             no_save, verbose)
-
 
 @cli.command()
 @click.pass_context
@@ -150,8 +142,8 @@ def patterns(ctx):
     """
     List all patterns known by Locke.
     """
-    for pat in LOCKE_PATTERNS:
-        click.echo('%s (%s)' % (pat.name, pat.weight))
+    for pat in apm.PatternPlugin.plugins():
+        click.echo('%s (%s)' % (pat.Description, pat.Weight))
 
 
 @cli.command()
