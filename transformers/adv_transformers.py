@@ -1,3 +1,6 @@
+from locke.transformer import rol_left, rol_right, to_bytes, \
+        TransformString, TransformChar
+
 """
 These are all Level 3 Transformers
 
@@ -104,5 +107,4 @@ class TransformXORRChainedAll(TransformString):
 
     @staticmethod
     def all_iteration():
-        for i in range(0, 256):
-            yield i
+        return range(0, 256)
