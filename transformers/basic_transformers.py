@@ -1,3 +1,6 @@
+from locke.transformer import rol_left, rol_right, to_bytes, \
+        TransformString, TransformChar
+
 """
 These are all Level 1 Transformers
 
@@ -20,7 +23,7 @@ Char Transformers
 """
 
 
-class TransformIndentity(TransformString):
+class TransformIdentity(TransformString):
     """
     Name: Identity Transformer
     Description: Just return the default value
@@ -74,8 +77,7 @@ class TransformRotateLeft(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 8):
-            yield val
+        return range(1, 8)
 
 
 class TransformRotateRight(TransformChar):
@@ -101,8 +103,7 @@ class TransformRotateRight(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 8):
-            yield val
+        return range(1, 8)
 
 
 class TransformXOR(TransformChar):
@@ -128,8 +129,7 @@ class TransformXOR(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 256):
-            yield val
+        return range(1, 256)
 
 
 class TransformAdd(TransformChar):
@@ -155,8 +155,7 @@ class TransformAdd(TransformChar):
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 256):
-            yield val
+        return range(1, 256)
 
 
 class TransformSub(TransformChar):
@@ -181,13 +180,12 @@ class TransformSub(TransformChar):
 
     def transform_byte(self, byte):
         result = byte - self.value
-        result = (result + 255) if result < 0 else result
-        return result & 0xFF
+        result = 0 if result < 0 else result
+        return result
 
     @staticmethod
     def all_iteration():
-        for val in range(1, 256):
-            yield val
+        return range(1, 256)
 
 
 class TransformXORRRoll(TransformChar):

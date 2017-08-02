@@ -1,3 +1,6 @@
+from locke.transformer import rol_left, rol_right, to_bytes, \
+        TransformString, TransformChar
+
 """
 These are all Level 2 Transformers
 
@@ -41,8 +44,7 @@ class TransformXORInc(TransformString):
 
     @staticmethod
     def all_iteration():
-        for i in range(0, 256):
-            yield i
+        return range(0, 256)
 
 
 class TransformXORDec(TransformString):
@@ -73,8 +75,7 @@ class TransformXORDec(TransformString):
 
     @staticmethod
     def all_iteration():
-        for i in range(0, 256):
-            yield i
+        return range(0, 256)
 
 
 class TransformSubInc(TransformString):
@@ -105,8 +106,7 @@ class TransformSubInc(TransformString):
 
     @staticmethod
     def all_iteration():
-        for i in range(0, 256):
-            yield i
+        return range(0, 256)
 
 
 class TransformXORLChained(TransformString):
@@ -137,8 +137,7 @@ class TransformXORLChained(TransformString):
 
     @staticmethod
     def all_iteration():
-        for i in range(0, 256):
-            yield i
+        return range(0, 256)
 
 
 class TransformXORRChained(TransformString):
@@ -169,8 +168,7 @@ class TransformXORRChained(TransformString):
 
     @staticmethod
     def all_iteration():
-        for i in range(0, 256):
-            yield i
+        return range(0, 256)
 
 
 # -----------------------------------------------------#
