@@ -6,7 +6,7 @@ import inspect
 import csv as csvlib
 from os import path
 
-import locke.utils
+import locke.utils as utils
 from locke.transformer import select_transformers, run_transformations
 
 
