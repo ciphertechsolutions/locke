@@ -70,4 +70,5 @@ class SocketServerThread(Thread):
 
             msg = msgpack.packb([pat.Description, pat.Weight, match_hash])
             self.client.sendall(msg)
+        del mgr
         self.client.close()
