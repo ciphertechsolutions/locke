@@ -305,7 +305,7 @@ def transform(transform_stage):
 
 
     # make instance of client here
-    client = apm.Client(stage=stage)
+    client = apm.client.TCPClient(stage=stage)
     client.connect()
 
     for desc, weight, matches in client.send_data(trans_data):
