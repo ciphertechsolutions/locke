@@ -6,6 +6,7 @@ import inspect
 import csv as csvlib
 from os import path
 
+import locke.utils
 from locke.transformer import select_transformers, run_transformations
 
 
@@ -79,7 +80,8 @@ def search(ctx, csv, files):
         for description, weight, hsh in client.send_data(f.read()):
             desc = description.decode()
             for offset, data in hsh.items():
-                mstr = repr(data)[1:]
+                # mstr = data
+                mstr = utlils.prettyhex(data)
                 if len(mstr) > 50:
                     mstr = mstr[:24] + '...' + mstr[-23:]
 

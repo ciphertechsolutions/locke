@@ -47,7 +47,7 @@ class _Transform(ABC):
         yield None
 
 
-class TransformString(ABC):
+class TransformString(_Transform):
     """
     Name: Transform String
     Description: Transform the whole data string
@@ -88,7 +88,7 @@ class TransformString(ABC):
         pass
 
 
-class TransformChar(ABC):
+class TransformChar(_Transform):
     """
     Name: Transform Char
     Description: Transform individual char in the data (two bytes)
