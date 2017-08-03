@@ -9,6 +9,8 @@ Requires Python3 +
 
 Requires Time. A lot of time. Or a Super Computer (prefer a Quantum Computer)
 
+Requires apm server to be running. Just cd to apm and run PYTHONPATH=. apm/server/tcp_server.py
+
 ### Usage
 
 Locke is simple to use. Just run
