@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod, abstractproperty
 from multiprocessing import Pool
 import time
 import sys
+import os
 import zipfile
 import apm
 
@@ -211,7 +212,7 @@ def select_transformers(trans_list, name_list, select, level = 3):
             for trans_level in trans_list:
                 found = False
                 for trans in trans_level:
-                    if not_found[-1] == trans[0].lower():
+                    if not_found[-1] == trans.__name__.lower():
                         found = True
                         trans_class.append(trans)
                         break
@@ -229,7 +230,7 @@ def select_transformers(trans_list, name_list, select, level = 3):
             print("---------------------------")
     elif select is not None:
         if select < 4 and select > 0:
-            trans_class = trans_list[select]
+            trans_class = trans_list[select - 1]
         else:
             sys.exit("There are no such level as %i" % select)
     else:
@@ -330,8 +331,8 @@ def iteration_transformer(stage_data):
         Generates tuple(trans_instance, stage_num)
     """
     for part in stage_data:
-        for value in part[0][1].all_iteration():
-            yield (part[0][1](value), part[1])
+        for value in part[0].all_iteration():
+            yield (part[0](value), part[1])
 
 
 def display_elapse(start_time, iter_count):
@@ -340,6 +341,7 @@ def display_elapse(start_time, iter_count):
     h, m = divmod(m, 60)
     d, h = divmod(h, 24)
     print("%i iteration in %iD:%02iH:%02iM:%02iS" % (iter_count, d,h,m,s))
+
 
 def run_transformations(trans_list, filename, keep,
         zip_file=False, password=None):
@@ -373,9 +375,11 @@ def run_transformations(trans_list, filename, keep,
     # bigger files? Pool of instances should be faster?
     result_list = pool.map_async(transform, iteration_transformer(stage1),
             error_callback=error_raise).get()
-
     display_elapse(start, len(result_list))
     
+    # TODO
+    # Print out stage 1's result?
+
     #----------------------#
     # Stage 2 #
     #----------------------#
@@ -389,11 +393,33 @@ def run_transformations(trans_list, filename, keep,
 
     result_list = pool.map_async(transform, stage2,
             error_callback=error_raise).get()
-
-    # time debug
     display_elapse(start, len(result_list))
 
     return sorted(result_list, key=lambda r:r[1], reverse=True)
 
+    # TODO
+    # Call on save to disk here? or Make locke.py call write to disk?
 
+    
+def write_to_disk(results, filename):
+    """
+    Write a list of results to disk
+    Args:
+        results: A list of tuple(trans_instance, score)
+        filename: The file name of the original file
+    """
+    print("Writing results to disk")
+    for i in range(0, len(results)):
+        # B/C we multiprocessed, we have to re-transform the data
+        trans, score = results[i]
+        trans_data = trans.transform(data)
+        if score > 0:
+            base, ext = os.path.splitext(filename)
+            t_name = base + "_%i_%s%s" % (i, trans.shortname(), ext)
+            open(t_name, "wb").write(trans_data)
+            print("Wrote %s to file %s" % (trans.name(), t_name))
+        else:
+            print("Skipping write as score == 0")
+
+            
 # This was coded while listening to Game OST

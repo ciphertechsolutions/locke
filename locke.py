@@ -7,7 +7,8 @@ import csv as csvlib
 from os import path
 
 import locke.utils as utils
-from locke.transformer import select_transformers, run_transformations
+from locke.transformer import select_transformers, run_transformations, \
+        write_to_disk
 
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
@@ -24,7 +25,7 @@ import patterns
 TRANSFORM_PLUGIN_DIR = path.join(SCRIPT_DIR, 'transformers')
 TRANSFORM_PLUGIN_GLOB = path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 # Nest array. One for each level
-LOCKE_TRANSFORMERS = ([], [], [])
+TRANSFORMERS = ([], [], [])
 
 
 def load_all_transformers():
@@ -34,16 +35,12 @@ def load_all_transformers():
         if clss[0].startswith("Transform"):
             if "locke" in clss[1].__module__:
                 continue
-            if clss[1].class_level() == 1:
-                LOCKE_TRANSFORMERS[0].append(clss)
-            elif clss[1].class_level() == 2:
-                LOCKE_TRANSFORMERS[1].append(clss)
-            elif clss[1].class_level() == 3:
-                LOCKE_TRANSFORMERS[2].append(clss)
+            elif clss[1].class_level() > 0 and clss[1].class_level() < 4:
+                TRANSFORMERS[clss[1].class_level() - 1].append(clss[1])
             elif clss[1].class_level() == -1:
                 print("!! %s is disable" % clss[0])
             else:
-                print("%s has an invalid class level (1 - 3 | -1 > disable)" 
+                print("%s has an invalid class level (1 - 3 | -1 --> disable)" 
                         % clss[0])
                 print("")
 
@@ -114,14 +111,13 @@ def search(ctx, csv, files):
 @click.option('--password', nargs=1, default=None, help='Only works if -z is '
         'set. Allows input of password for zip file')
 @click.option('--no-save', is_flag=True, help="Don't save result to disk")
-@click.option('-p', '--profiling', is_flag=True)
 @click.option('-v', '--verbose', type=int, default=0, help='Set the verbose level '
         'Valid inputs are 0 - 2 (lowest output to highest). Note that -v 2 is not '
         'human friendly')
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
 def crack(ctx, level, only, name, keep, save, zip_file, password,
-        no_save, profiling, verbose, filename):
+        no_save, verbose, filename):
     """
     Use patterns of interest to crack the supplied files.
     """
@@ -129,9 +125,22 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
     if not zip_file and password is not None:
         raise ValueError("Password field is set without zip enable")
 
-    trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
-    run_transformations(trans_list, filename, keep,
-            zip_file, password)
+    trans_list = select_transformers(TRANSFORMERS, name, only, level)
+    results = run_transformations(trans_list, filename, keep,
+            zip_file, password)[:save]
+    
+    result_log = ( "Transform: %s \t\t| Score %i" % (t.name(), s) 
+            for t, s in results )
+    print("\n--------------")
+    print("Results:")
+    [print(log) for log in result_log]
+    print("--------------\n")
+
+    # TODO
+    # Call on save to disk here? or Make run_transformation call write to disk?
+    if (not no_save):
+        write_to_disk(results, filename)
+
 
 @cli.command()
 @click.pass_context
@@ -157,27 +166,12 @@ def transforms(ctx, level, only, name):
     List all transformations known by Locke.
     """
     load_all_transformers()
-    trans_list = select_transformers(LOCKE_TRANSFORMERS, name, only, level)
+    trans_list = select_transformers(TRANSFORMERS, name, only, level)
     for trans in trans_list:
-        click.echo('Class: %s | Level: %i' % (trans[0], trans[1].class_level()))
-        click.echo(trans[1].__doc__)
+        click.echo('Class: %s | Level: %i' % (trans.__name__, trans.class_level()))
+        click.echo(trans.__doc__)
 
-
-def TestServer (data):
-    client = apm.Client()
-    client.connect()
-    for i,v,z in client.send_data(data):
-        pass
-    client.disconnect()
-    print('done')
 
 if __name__ == '__main__':
     cli(obj={})
     sys.exit()
-    # Quick code to test server
-    from multiprocessing import Pool
-    p = Pool()
-    data = open("Test/125M", 'rb').read()
-    dataT = (data,) * 100
-    result = p.map_async(sendLOTS, dataT)
-    result.get()
