@@ -1,4 +1,4 @@
 test:
  script:
- - python transTest.py -b
+ - python transTest.py
 

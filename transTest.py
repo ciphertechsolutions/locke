@@ -4,9 +4,7 @@ import sys
 import inspect
 from os import path
 
-from locke.transformer import (rol_left, rol_right,
-        select_transformers, to_bytes,
-        TransformString, TransformChar)
+from locke.transformer import *
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
 
