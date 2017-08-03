@@ -191,7 +191,8 @@ def rol_right(byte, count):
     return (byte >> count | byte << (8 - count)) & 0xFF
 
 
-def select_transformers(trans_list, name_list, select, level = 3):
+def select_transformers(trans_list, name_list = None, select = None, 
+        level = 3, yes = False):
     """
     There is an order of precedent. If the names are provided, we will only
     use names, else the levels, else the only requested. Only one field
@@ -199,8 +200,8 @@ def select_transformers(trans_list, name_list, select, level = 3):
     Args:
         trans_list: A list of transformer to choose form
         name_list: A list of names to find
+        select: The only level allowed to use
         level: The highest level allow for transformer
-        only: The only level allowed to use
     Return:
         A list of transformer to use
     """
@@ -224,9 +225,10 @@ def select_transformers(trans_list, name_list, select, level = 3):
             print("No transformation found for:\n%s" % not_found)
             if len(trans_class) == 0:
                 sys.exit('No transformation(s) found exiting...')
-            ans = input("Do you wish to continue? ")
-            if ans.strip().lower() == 'n':
-                sys.exit()
+            if not yes:
+                ans = input("Do you wish to continue? ")
+                if ans.strip().lower() == 'n':
+                    sys.exit()
             print("---------------------------")
     elif select is not None:
         if select < 4 and select > 0:
