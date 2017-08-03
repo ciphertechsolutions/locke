@@ -1,6 +1,6 @@
 from locke.transformer import rol_left, rol_right, to_bytes, TransformChar
 
-class TransformOutlookPST(TransformString):
+class TransformOutlookPST(TransformChar):
     """
         Decrypt data byte by bytes using a decryption table.
         Note that 0 - 255 are the values used to decrypt
@@ -119,12 +119,9 @@ class TransformOutlookPST(TransformString):
     def __init__(self, value):
         self.value = value
 
-    def transform_string(self, data):
-        results = []
-        for i in range(0, len(data)):
-            results[i] = to_bytes(encode_table[ord(data[i])])
+    def transform_byte(self, byte):
+        return self.encode_table[byte]
 
-        return results 
 
     @staticmethod
     def all_iteration():
