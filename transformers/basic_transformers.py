@@ -180,8 +180,7 @@ class TransformSub(TransformChar):
 
     def transform_byte(self, byte):
         result = byte - self.value
-        result = 0 if result < 0 else result
-        return result
+        return abs(result)
 
     @staticmethod
     def all_iteration():
