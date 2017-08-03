@@ -133,8 +133,18 @@ class TestingTransformer(unittest.TestCase):
         with self.assertRaises(Exception) as excpt:
             tChar = TransformChar(self.genKey)
 
+    def test_iteration_transformer(self):
+        # Throw in a list of three transformer and see if we get
+        # the correct number of transform instance back
+        trans_list = [TransformIdentity, TransformXOR, TransformRotateRight]
+        send_list = list(zip(trans_list, (1,) * len(trans_list)))
 
-class TestingTransforms (unittest.TestCase):
+        result = iteration_transformer(send_list)
+        # 1 (tID) + 255 (tXOR) + 7 (tRR) = 263
+        self.assertEqual(263, sum(1 for x in result))
+
+
+class TestingBasicTransforms (unittest.TestCase):
     def setUp(self):
         # Any stream of bytes will work, but 0 - 10 is pretty good
         self.data = b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A'
