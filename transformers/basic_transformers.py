@@ -187,6 +187,7 @@ class TransformSub(TransformChar):
     def all_iteration():
         return range(1, 256)
 
+
 class TransformXORRRoll(TransformChar):
     """
     Name: Transform XOR Right Roll Char
