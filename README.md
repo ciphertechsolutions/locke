@@ -47,19 +47,22 @@ Usage: locke.py crack [OPTIONS] FILENAME
   Use patterns of interest to crack the supplied files.
 
 Options:
-  -l, --level INTEGER  Select transformers with level 1, 2, or 3 and below
-  -o, --only INTEGER   Only use transformers on that specific level
-  -n, --name TEXT      A list of transformer classes to use in quotes and is
-                       commas separated
-  -k, --keep INTEGER   How many transforms to saveafter stage 1
-  -s, --save INTEGER   How many transforms to saveafter stage 2
-  -z, --zip            Mark this fileas a zip file. Use --password to enter
-                       zip password
-  --password TEXT      Only works if -z is set. Allows input of password for
-                       zip file
-  -p, --profiling
-  -v, --verbose
-  --help               Show this message and exit.
+  -l, --level INTEGER    Select transformers with level 1, 2, or 3 and below
+  -o, --only INTEGER     Only use transformers on that specific level
+  -n, --name TEXT        A list of transformer classes to use in quotes and is
+                         commas separated
+  -k, --keep INTEGER     How many transforms to saveafter stage 1
+  -s, --save INTEGER     How many transforms to saveafter stage 2
+  -z, --zip_file         Mark this fileas a zip file. Use --password to enter
+                         zip password
+  --password TEXT        Only works if -z is set. Allows input of password for
+                         zip file
+  --no-save              Don't save result to disk
+  -v, --verbose INTEGER  Set the verbose level Valid inputs are 0 - 2 (lowest
+                         output to highest). Note that -v 2 is not human
+                         friendly
+  --help                 Show this message and exit.
+
 ```
 
 To start a basic start with all the transformers (from level 1 - 3), run ``python locke.py crack <filename>``
