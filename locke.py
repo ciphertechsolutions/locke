@@ -8,7 +8,8 @@ from os import path
 
 import liblocke.utils as utils
 from liblocke.transformer import select_transformers, run_transformations, \
-        write_to_disk
+        write_to_disk, TransformChar, TransformString
+import transformers
 
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
@@ -29,19 +30,15 @@ TRANSFORMERS = ([], [], [])
 
 
 def load_all_transformers():
-    for plugin in glob.glob(TRANSFORM_PLUGIN_GLOB):
-        exec(open(plugin).read(), globals())
-    for clss in inspect.getmembers(sys.modules[__name__], inspect.isclass):
-        if clss[0].startswith("Transform"):
-            if "locke" in clss[1].__module__:
-                continue
-            elif clss[1].class_level() > 0 and clss[1].class_level() < 4:
-                TRANSFORMERS[clss[1].class_level() - 1].append(clss[1])
-            elif clss[1].class_level() == -1:
-                print("!! %s is disable" % clss[0])
+    for cls in (TransformChar, TransformString):
+        for trans in cls.__subclasses__():
+            if trans.class_level() > 0 and trans.class_level() < 4:
+                TRANSFORMERS[trans.class_level() - 1].append(trans)
+            elif trans.class_level() == -1:
+                print("!! %s is disable" % trans.__name__)
             else:
                 print("%s has an invalid class level (1 - 3 | -1 --> disable)" 
-                        % clss[0])
+                        % trans.__name__)
                 print("")
 
 
