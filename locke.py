@@ -8,12 +8,11 @@ from os import path
 
 import liblocke.utils as utils
 from liblocke.transformer import select_transformers, run_transformations, \
-	write_to_disk, TransformChar, TransformString
+		write_to_disk, TransformChar, TransformString
 import transformers
 
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
-
 APM_PATH = path.join(SCRIPT_DIR, 'apm')
 
 if APM_PATH not in sys.path:
@@ -22,9 +21,6 @@ if APM_PATH not in sys.path:
 import apm
 import patterns
 
-# Locke transformer plugins
-TRANSFORM_PLUGIN_DIR = path.join(SCRIPT_DIR, 'transformers')
-TRANSFORM_PLUGIN_GLOB = path.join(TRANSFORM_PLUGIN_DIR, '*.py')
 # Nest array. One for each level
 TRANSFORMERS = ([], [], [])
 
@@ -113,7 +109,7 @@ def search(ctx, csv, files):
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
 def crack(ctx, level, only, name, keep, save, zip_file, password,
-	no_save, verbose, filename):
+		no_save, verbose, filename):
 	"""
 	Use patterns of interest to crack the supplied files.
 	"""
