@@ -29,11 +29,11 @@ def load_all_transformers():
 		len(TRANSFORMERS[2])))
 
 
-	class TestingTransformer(unittest.TestCase):
-		def setUp(self):
-			# 0100 1111
-			self.genKey = 79  # Any key will work. 79 b/c it's 79
-			self.tList = TRANSFORMERS
+class TestingTransformer(unittest.TestCase):
+	def setUp(self):
+		# 0100 1111
+		self.genKey = 79  # Any key will work. 79 b/c it's 79
+		self.tList = TRANSFORMERS
 
 	def test_test(self):
 		"""
@@ -127,12 +127,13 @@ def load_all_transformers():
 			tChar = TransformChar(self.genKey)
 
 	def test_iteration_transformer(self):
+		import liblocke.transformer
 		# Throw in a list of three transformer and see if we get
 		# the correct number of transform instance back
 		trans_list = [TransformIdentity, TransformXOR, TransformRotateRight]
 		send_list = list(zip(trans_list, (1,) * len(trans_list)))
 
-		result = iteration_transformer(send_list)
+		result =  liblocke.transformer._iteration_transformer(send_list)
 		# 1 (tID) + 255 (tXOR) + 7 (tRR) = 263
 		self.assertEqual(263, sum(1 for x in result))
 
@@ -166,7 +167,6 @@ class TestingBasicTransforms (unittest.TestCase):
 	def test_sub(self):
 		t = TransformSub(self.genKey)
 		tdata = t._transform(self.data)
-		adata = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 		adata = b'\x4f\x4e\x4d\x4c\x4b\x4a\x49\x48\x47\x46\x45'
 		self.assertEqual(adata, tdata)
 
@@ -187,7 +187,6 @@ class TestingBasicTransforms (unittest.TestCase):
 		# 1111 1011 > 1111 1101
 		# 1111 1100 > 0111 1110
 		# 0000 0001 > 1000 0000 (1 > 128)
-		#adata = b'\xfa\xfb\xfc\xfd\xfe\xff\x00\x01\x02\x03\x04'
 		adata = b'\x7d\xfd\x7e\xfe\x7f\xff\x00\x80\x01\x81\x02'
 		self.assertEqual(adata, tdata)
 
@@ -197,7 +196,6 @@ class TestingBasicTransforms (unittest.TestCase):
 		# 0000 0001 > 1111 1100
 		# 0000 0010 > 1111 1110
 		# 0000 0011 > 0000 0000
-		#adata = b'\x7d\xfd\x7e\x00\x02\x04\x06\x08\x0a\x0c\x0e'
 		adata = b'\xfa\xfc\xfe\x00\x02\x04\x06\x08\x0a\x0c\x0e'
 		self.assertEqual(adata, tdata)
 
