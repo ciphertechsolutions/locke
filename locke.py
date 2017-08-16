@@ -11,10 +11,10 @@ sys.path.append(path.join(SCRIPT_DIR, 'apm'))
 
 import apm
 import patterns
+import transformers
 import liblocke.utils as utils
 from liblocke.transformer import select_transformers, run_transformations, \
 	write_to_disk, TransformChar, TransformString
-import transformers
 
 # Nest array. One for each level
 TRANSFORMERS = ([], [], [])
