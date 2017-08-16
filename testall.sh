@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 echo -e "\n\e[1;31mBasic Testing\e[21;32m"
 PYTHONPATH=. python3 Tests/testTransform.py -b
