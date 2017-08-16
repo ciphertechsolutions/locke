@@ -1,4 +1,4 @@
-from locke.transformer import rol_left, rol_right, to_bytes, \
+from liblocke.transformer import rol_left, rol_right, to_bytes, \
         TransformString, TransformChar
 
 """

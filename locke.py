@@ -6,8 +6,8 @@ import inspect
 import csv as csvlib
 from os import path
 
-import locke.utils as utils
-from locke.transformer import select_transformers, run_transformations, \
+import liblocke.utils as utils
+from liblocke.transformer import select_transformers, run_transformations, \
         write_to_disk
 
 
