@@ -6,20 +6,15 @@ import inspect
 import csv as csvlib
 from os import path
 
-import liblocke.utils as utils
-from liblocke.transformer import select_transformers, run_transformations, \
-		write_to_disk, TransformChar, TransformString
-import transformers
-
-
 SCRIPT_DIR = path.dirname(path.abspath(__file__))
-APM_PATH = path.join(SCRIPT_DIR, 'apm')
-
-if APM_PATH not in sys.path:
-	sys.path.append(APM_PATH)
+sys.path.append(path.join(SCRIPT_DIR, 'apm'))
 
 import apm
 import patterns
+import liblocke.utils as utils
+from liblocke.transformer import select_transformers, run_transformations, \
+	write_to_disk, TransformChar, TransformString
+import transformers
 
 # Nest array. One for each level
 TRANSFORMERS = ([], [], [])
