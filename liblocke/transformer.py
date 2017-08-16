@@ -10,22 +10,54 @@ import apm
 class _Transform(ABC):
 	@abstractproperty
 	def class_level():
+		"""
+		The level of the transformation. Only 1 - 3 (or 0 - 2 if 
+		zero-based) are allowed.
+		1: Typically this level includes one basic transformation
+		2: This level contains moderately complex transformation or 
+			is a combination of multiple levels 1 transformations
+		2: This level includes advance transformations that perform
+			multiple calculation to transform the data/byte. They're
+			usually highly technical and are specific transformation
+		"""
 		pass
 
 	@abstractproperty
 	def name(self):
+		"""
+		This is the Full Name of the class a long with the current 
+		iteration that it is working on. For example if the class
+		is XORing a byte with 5 and then adding 10 to the result, 
+		an example name could be:
+			Xor by 5, Add 10
+		"""
 		pass
 
 	@abstractproperty
 	def shortname(self):
+		"""
+		A shorter version of the name property without space. This
+		name with be used to label files. Preferably, use abbreviations.
+		Instead of writing rotate_left, you can write lrot
+		"""
 		pass
 
 	@abstractmethod
 	def __init__(self, value):
+		"""
+		A generic init function. self.value = value is required unless
+		this transformation takes no iterations. This can be used
+		to initialize necessary values as this will be called every
+		time a there is a new iteration for this class
+		"""
 		self.value = value
 
 	@abstractmethod
-	def transform(self, data):
+	def _transform(self, data):
+		"""
+		Called by the workers to pass the data package to the transform
+		classes
+		"""
 		pass
 
 	@staticmethod
@@ -55,7 +87,7 @@ class TransformString(_Transform):
 	ID: str_trans
 	"""
 
-	def transform(self, data):
+	def _transform(self, data):
 		"""
 		This method contains all the requires steps/calls needed
 		to transform the string. This method should NOT be overridden.
@@ -96,7 +128,7 @@ class TransformChar(_Transform):
 	ID: chr_trans
 	"""
 
-	def transform(self, data):
+	def _transform(self, data):
 		"""
 		This method contains all the requires steps/calls needed
 		to transform the string's individual char. This method
@@ -115,6 +147,7 @@ class TransformChar(_Transform):
 		if not isinstance(data, bytes):
 			raise TypeError('Data (%s) needs to be a bytestring type'
 					% type(data))
+
 		trans_table = b''
 		for i in range(0, 256):
 			trans_table += bytes([self.transform_byte(i)])
@@ -206,6 +239,8 @@ def select_transformers(trans_list, name_list = None, select = None,
 		A list of transformer to use
 	"""
 	trans_class = []
+	# TODO
+	# Extract this if statement to another function?
 	if name_list is not None:
 		not_found = []
 		for name in name_list.split(','):
@@ -221,20 +256,27 @@ def select_transformers(trans_list, name_list = None, select = None,
 					not_found.pop()
 					break
 
+		# This could be remove if we do not want to continue if there
+		# is an invalid transformer name. This only allows
+		# the user to continue the process if at least one of the name
+		# was found
 		if len(not_found) != 0:
+			#print("No transformation found for:\n%s" % "\n".join(not_found))
 			print("No transformation found for:\n%s" % not_found)
 			if len(trans_class) == 0:
 				sys.exit('No transformation(s) found exiting...')
 			if not yes:
-				ans = input("Do you wish to continue? ")
+				ans = input("Do you wish to continue? (y/n) ")
 				if ans.strip().lower() == 'n':
 					sys.exit()
 			print("---------------------------")
-	elif select is not None:
+	# Select transformers in the specified level
+	elif select is not None: 
 		if select < 4 and select > 0:
 			trans_class = trans_list[select - 1]
 		else:
 			sys.exit("There are no such level as %i" % select)
+	# Select all transformers on the specified level and below
 	else:
 		if level == 1:
 			trans_class = trans_list[0]
@@ -247,7 +289,7 @@ def select_transformers(trans_list, name_list = None, select = None,
 	return trans_class
 
 
-def read_zip(filename, password=None):
+def _read_zip(filename, password=None):
 	"""
 	Read a zip file and get the byte data from it. If there are multiple
 	files inside the zip, it will ask which on to evaluate 
@@ -266,7 +308,11 @@ def read_zip(filename, password=None):
 	print('What file do you want to evaluate:')
 	for i in range(0, len(zfile.namelist())):
 		print('%i: %s' % (i + 1, zfile.namelist()[i]))
-	answer = int(input('1 - %i: ' % len(zfile.namelist())))
+	answer = int(
+			input('1 - %i: ' 
+				% len(zfile.namelist())
+				)
+			)
 
 	if answer in range(1, len(zfile.namelist())):
 		data = zfile.read(zfile.infolist()[ans - 1], password)
@@ -275,9 +321,9 @@ def read_zip(filename, password=None):
 	return data
 
 
-def read_file(filename):
+def _read_file(filename):
 	"""
-	ReAD a file and return the bytestring
+	Read a file and return the bytestring
 	Args:
 		filename: The location of the file
 	Return:
@@ -289,7 +335,7 @@ def read_file(filename):
 	return data
 
 
-def transform(transform_stage):
+def _transform(transform_stage):
 	"""
 	Process the data using the transformer provided
 	Creates an instance of the search client and passes
@@ -303,9 +349,8 @@ def transform(transform_stage):
 	"""
 	transformer, stage = transform_stage
 
-	trans_data = transformer.transform(data)
+	trans_data = transformer._transform(data)
 	score = 0
-
 
 	# make instance of client here
 	client = apm.client.TCPClient(stage=stage)
@@ -320,15 +365,15 @@ def transform(transform_stage):
 	return results
 
 
-def error_raise(msg):
+def _error_raise(msg):
 	sys.exit(msg)
 
 
-def iteration_transformer(stage_data):
+def _iteration_transformer(stage_data):
 	"""
 	Create a generate tuples to be used with Transform method
 	Args:
-		stage_data: A tuple( (trans_name, trans_class), stage_num)
+		stage_data: A tuple(trans_name, stage_num)
 	Return:
 		Generates tuple(trans_instance, stage_num)
 	"""
@@ -337,7 +382,12 @@ def iteration_transformer(stage_data):
 			yield (part[0](value), part[1])
 
 
-def display_elapse(start_time, iter_count):
+def _display_elapse(start_time, iter_count):
+	"""
+	Display the time elapsed when given a start time
+	"""
+	# TODO
+	# use time delta?
 	duration = time.time() - start_time
 	m, s = divmod(duration, 60)
 	h, m = divmod(m, 60)
@@ -360,8 +410,8 @@ def run_transformations(trans_list, filename, keep,
 		A sorted list of tuples(trans_instance, score) up to "keep" size
 	"""
 	global data 
-	data = (read_file(filename) if not zip_file else
-			read_zip(filename, password))
+	data = (_read_file(filename) if not zip_file else
+			_read_zip(filename, password))
 	pool = Pool()
 
 	#----------------------#
@@ -375,9 +425,9 @@ def run_transformations(trans_list, filename, keep,
 	# transformer to create instances of? Both have roughly the same speed
 	# on smaller files... but what about the more complex transformers and 
 	# bigger files? Pool of instances should be faster?
-	result_list = pool.map_async(transform, iteration_transformer(stage1),
-			error_callback=error_raise).get()
-	display_elapse(start, len(result_list))
+	result_list = pool.map_async(_transform, _iteration_transformer(stage1),
+			error_callback=_error_raise).get()
+	_display_elapse(start, len(result_list))
 
 	# TODO
 	# Print out stage 1's result?
@@ -393,13 +443,13 @@ def run_transformations(trans_list, filename, keep,
 	# extract the wanted transformer and group it with 2 (mark as stage 2)
 	stage2 = [(trans[0], 2) for trans in result_list]
 
-	result_list = pool.map_async(transform, stage2,
-			error_callback=error_raise).get()
-	display_elapse(start, len(result_list))
+	result_list = pool.map_async(_transform, stage2,
+			error_callback=_error_raise).get()
+	_display_elapse(start, len(result_list))
 
 	return sorted(result_list, key=lambda r:r[1], reverse=True)
 
-# TODO
+	# TODO
 	# Call on save to disk here? or Make locke.py call write to disk?
 
 
@@ -413,8 +463,10 @@ def write_to_disk(results, filename):
 	print("Writing results to disk")
 	for i in range(0, len(results)):
 		# B/C we multiprocessed, we have to re-transform the data
+		# It shouldn't take that long as we don't have to process the 
+		# pattern matching
 		trans, score = results[i]
-		trans_data = trans.transform(data)
+		trans_data = trans._transform(data)
 		if score > 0:
 			base, ext = os.path.splitext(filename)
 			t_name = base + "_%i_%s%s" % (i, trans.shortname(), ext)
