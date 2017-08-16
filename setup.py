@@ -2,10 +2,10 @@ from setuptools import setup
 
 
 setup(name='locke',
-      version='0.1.0-alpha',
+      version='0.1.5-alpha',
       description='A fork of BulBuzard',
-      url='placeholder',
-      author='placeholder',
+      url='https://www.ciphertechsolutions.com/',
+      author='Cipher Tech Solutions',
       author_email='placeholder',
       license='placeholder',
       packages=['locke'],

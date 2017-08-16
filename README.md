@@ -68,24 +68,24 @@ Options:
 To start a basic start with all the transformers (from level 1 - 3), run ``python locke.py crack <filename>``
 This will decode the files, search each decoded instance and save the top 10 scoring instance to disk
 
-To adjust how many files to keep/save, enter a number after ``-k`` or ``-s``. The lower the number to keep
-and save, the fast the program will run, but you will be limiting your results.
+To adjust how many files to keep/save, enter a number after ``-k`` or ``-s``. The lower the number,
+the fast the program will run, but you will be limiting your results.
 
 To select what transformation to run, use either ``-l``, ``-o``, or ``-n`` command. There is an order of
 precedence. Only one of the value will be used to filter the transformers list. The order is as follow:
 ``Name > Only > Select``
 
-For example if you run the script with `` -n transformxor -l 2 -o 1``, only the Transformer TransformXOR will
+For example if you run the script with ``-n transformxor -l 2 -o 1``, only the Transformer TransformXOR will
 be applied to the file as name is the highest precedence; the level and only option will be disregarded. 
-Likewise, if you run `` -l 2 -o 1``, only Transformers on level 1 will be run as only have a higher precedence 
+Likewise, if you run ``-l 2 -o 1``, only Transformers on level 1 will be run as only have a higher precedence 
 than level.
 
-To select more than one Transformer by name, wrap the list in quotes and seperate each Transformers by a comma.
+To select more than one Transformer by name, wrap the list in quotes and separate each Transformers by a comma.
 EX: ``--name "transformxor, transformadd, transformsub"``
 
 This program also support decoding files inside a zip. Run with ``-z`` to mark the file as a zip. If the zip is
 password encrypted, you can supply the password by using the ``--password <password>`` option. The script
-will attempt to read the zip and list the files avaiable and ask which files do you want to decode (if there are
+will attempt to read the zip and list the files available and ask which files do you want to decode (if there are
 more than one files).
 
 
