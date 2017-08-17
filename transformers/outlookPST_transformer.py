@@ -1,4 +1,4 @@
-from locke.transformer import rol_left, rol_right, to_bytes, TransformChar
+from liblocke.transformer import rol_left, rol_right, to_bytes, TransformChar
 
 class TransformOutlookPST(TransformChar):
     """
