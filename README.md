@@ -5,7 +5,7 @@ Locke is a refactoring and remodeling of [Balbuzard](https://github.com/decalage
 
 ### Installation
 
-Requires Python3 + 
+Requires Python3.5 + 
 
 Requires Time. A lot of time. Or a Super Computer (prefer a Quantum Computer)
 
@@ -15,7 +15,7 @@ Requires apm server to be running. Just cd to apm and run PYTHONPATH=. apm/serve
 
 Locke is simple to use. Just run
 ``` bash
-python locke.py --help
+python3 locke.py --help
 ```
 After each command, you can run ``--help`` to get more information about the command.
 
@@ -36,7 +36,7 @@ Commands:
 
 For a basic search just run 
 ```
-python locke.py search <filename>
+python3 locke.py search <filename>
 ```
 You can add in `` --csv <outputName>`` to save the result as a csv
 
@@ -65,7 +65,7 @@ Options:
 
 ```
 
-To start a basic start with all the transformers (from level 1 - 3), run ``python locke.py crack <filename>``
+To start a basic start with all the transformers (from level 1 - 3), run ``python3 locke.py crack <filename>``
 This will decode the files, search each decoded instance and save the top 10 scoring instance to disk
 
 To adjust how many files to keep/save, enter a number after ``-k`` or ``-s``. The lower the number,
@@ -89,6 +89,6 @@ will attempt to read the zip and list the files available and ask which files do
 more than one files).
 
 
-For a list of all available Transformers, run ``python locke.py transforms``.
+For a list of all available Transformers, run ``python3 locke.py transforms``.
 
-For a list of all available Patterns, run ``python locke.py patterns``.
+For a list of all available Patterns, run ``python3 locke.py patterns``.
