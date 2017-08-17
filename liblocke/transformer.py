@@ -101,7 +101,7 @@ class TransformString(_Transform):
 		"""
 		if not isinstance(data, bytes):
 			raise TypeError('Data (%s) needs to be a bytestring type'
-					% type(data))
+			                % type(data))
 
 		return self.transform_string(data)
 
@@ -147,7 +147,7 @@ class TransformChar(_Transform):
 		"""
 		if not isinstance(data, bytes):
 			raise TypeError('Data (%s) needs to be a bytestring type'
-					% type(data))
+			                % type(data))
 
 		trans_table = b''
 		for i in range(0, 256):
@@ -179,8 +179,8 @@ def to_bytes(value):
 		If value is not a byte
 	"""
 	if not isinstance(value, int):
-		raise TypeError('Value is type %s, but needs to be an int' 
-				% type(value))
+		raise TypeError('Value is type %s, but needs to be an int'
+		                % type(value))
 	return bytes([value])
 
 
@@ -188,14 +188,15 @@ def rol_left(byte, count):
 	"""
 	This method will left shift the byte left by count
 	Args:
+		byte: the byte to rol
 		count: The numerical amount to shift by. Needs to be an int
 		and greater or equal to 0
 	Return:
 		The byte shifted
 	"""
-	if (count < 0):
+	if count < 0:
 		raise ValueError('count needs to be larger than 0')
-	if (not isinstance(count, int)):
+	if not isinstance(count, int):
 		raise TypeError('count needs to be an int')
 
 	count = count % 8
@@ -208,15 +209,16 @@ def rol_right(byte, count):
 	"""
 	This method will right shift the byte left by count
 	Args:
+		byte: the byte to rol
 		count: The numerical amount to shift by. Needs to be an int
 		and greater or equal to 0
 
 	Return:
 		The byte shifted
 	"""
-	if (count < 0):
+	if count < 0:
 		raise ValueError('count needs to be larger than 0')
-	if (not isinstance(count, int)):
+	if not isinstance(count, int):
 		raise TypeError('count needs to be an int')
 
 	count = count % 8
@@ -225,8 +227,8 @@ def rol_right(byte, count):
 	return (byte >> count | byte << (8 - count)) & 0xFF
 
 
-def select_transformers(trans_list, name_list = None, select = None, 
-		level = 3, yes = False):
+def select_transformers(trans_list, name_list=None, select=None,
+                        level=3, yes=False):
 	"""
 	There is an order of precedent. If the names are provided, we will only
 	use names, else the levels, else the only requested. Only one field
@@ -236,6 +238,8 @@ def select_transformers(trans_list, name_list = None, select = None,
 		name_list: A list of names to find
 		select: The only level allowed to use
 		level: The highest level allow for transformer
+		yes: Always allow the user to continue regard the user request an
+			unknown transformer
 	Return:
 		A list of transformer to use
 	"""
@@ -262,7 +266,7 @@ def select_transformers(trans_list, name_list = None, select = None,
 		# the user to continue the process if at least one of the name
 		# was found
 		if len(not_found) != 0:
-			#print("No transformation found for:\n%s" % "\n".join(not_found))
+			# print("No transformation found for:\n%s" % "\n".join(not_found))
 			print("No transformation found for:\n%s" % not_found)
 			if len(trans_class) == 0:
 				sys.exit('No transformation(s) found exiting...')
@@ -272,8 +276,8 @@ def select_transformers(trans_list, name_list = None, select = None,
 					sys.exit()
 			print("---------------------------")
 	# Select transformers in the specified level
-	elif select is not None: 
-		if select < 4 and select > 0:
+	elif select is not None:
+		if 0 < select < 4:
 			trans_class = trans_list[select - 1]
 		else:
 			sys.exit("There are no such level as %i" % select)
@@ -302,7 +306,7 @@ def _read_zip(filename, password=None):
 	"""
 	if not zipfile.is_zipfile(filename):
 		raise TypeError('\"%s\" is NOT a valid zip file! Try running a '
-				'normal scan on it' % filename)
+		                'normal scan on it' % filename)
 
 	zfile = zipfile.ZipFile(filename, 'r')
 
@@ -310,10 +314,10 @@ def _read_zip(filename, password=None):
 	for i in range(0, len(zfile.namelist())):
 		print('%i: %s' % (i + 1, zfile.namelist()[i]))
 	answer = int(
-			input('1 - %i: ' 
-				% len(zfile.namelist())
-				)
-			)
+		input('1 - %i: '
+		      % len(zfile.namelist())
+		      )
+	)
 
 	if answer in range(1, len(zfile.namelist())):
 		data = zfile.read(zfile.infolist()[ans - 1], password)
@@ -393,11 +397,11 @@ def _display_elapse(start_time, iter_count):
 	m, s = divmod(duration, 60)
 	h, m = divmod(m, 60)
 	d, h = divmod(h, 24)
-	print("%i iteration in %iD:%02iH:%02iM:%02iS" % (iter_count, d,h,m,s))
+	print("%i iteration in %iD:%02iH:%02iM:%02iS" % (iter_count, d, h, m, s))
 
 
 def run_transformations(trans_list, filename, keep,
-		zip_file=False, password=None):
+                        zip_file=False, password=None):
 	"""
 	Using a process pool, run all transformation on the file and return
 	only the top few resutls
@@ -410,14 +414,14 @@ def run_transformations(trans_list, filename, keep,
 	Return:
 		A sorted list of tuples(trans_instance, score) up to "keep" size
 	"""
-	global data 
+	global data
 	data = (_read_file(filename) if not zip_file else
-			_read_zip(filename, password))
+	        _read_zip(filename, password))
 	pool = Pool()
 
-	#----------------------#
+	# ----------------------#
 	# Stage 1 #
-	#----------------------#
+	# ----------------------#
 	print("Starting Stage 1")
 	start = time.time()
 	stage1 = list(zip(trans_list, (1,) * len(trans_list)))
@@ -427,31 +431,32 @@ def run_transformations(trans_list, filename, keep,
 	# on smaller files... but what about the more complex transformers and 
 	# bigger files? Pool of instances should be faster?
 	result_list = pool.map_async(_transform, _iteration_transformer(stage1),
-			error_callback=_error_raise).get()
+	                             error_callback=_error_raise).get()
 	_display_elapse(start, len(result_list))
 
 	# TODO
 	# Print out stage 1's result?
 
-	#----------------------#
+	# ----------------------#
 	# Stage 2 #
-	#----------------------#
+	# ----------------------#
 	print("Starting Stage 2")
 	start = time.time()
 
 	# sort the data and keep only the top few
-	result_list = sorted(result_list, key=lambda r:r[1], reverse=True)[:keep]
+	result_list = sorted(result_list, key=lambda r: r[1], reverse=True)[:keep]
 	# extract the wanted transformer and group it with 2 (mark as stage 2)
 	stage2 = [(trans[0], 2) for trans in result_list]
 
 	result_list = pool.map_async(_transform, stage2,
-			error_callback=_error_raise).get()
+	                             error_callback=_error_raise).get()
 	_display_elapse(start, len(result_list))
 
-	return sorted(result_list, key=lambda r:r[1], reverse=True)
+	return sorted(result_list, key=lambda r: r[1], reverse=True)
 
-	# TODO
-	# Call on save to disk here? or Make locke.py call write to disk?
+
+# TODO
+# Call on save to disk here? or Make locke.py call write to disk?
 
 
 def write_to_disk(results, filename):
@@ -475,6 +480,5 @@ def write_to_disk(results, filename):
 			print("Wrote %s to file %s" % (trans.name(), t_name))
 		else:
 			print("Skipping write as score == 0")
-
 
 # This was coded while listening to Random Songs
