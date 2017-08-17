@@ -17,7 +17,7 @@ TRANSFORMERS = [[], [], []]
 def load_all_transformers():
 	for cls in (TransformChar, TransformString):
 		for trans in cls.__subclasses__():
-			if trans.class_level() > 0 and trans.class_level() < 4:
+			if 0 < trans.class_level() < 4:
 				TRANSFORMERS[trans.class_level() - 1].append(trans)
 			elif trans.class_level() == -1:
 				print("!! %s is disable" % trans.__name__)

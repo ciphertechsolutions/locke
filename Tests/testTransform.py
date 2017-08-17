@@ -16,13 +16,13 @@ TRANSFORMERS = [[], [], []]
 def load_all_transformers():
 	for cls in (TransformChar, TransformString):
 		for trans in cls.__subclasses__():
-			if trans.class_level() > 0 and trans.class_level() < 4:
+			if 0 < trans.class_level() < 4:
 				TRANSFORMERS[trans.class_level() - 1].append(trans)
 			elif trans.class_level() == -1:
 				print("!! %s is disable" % trans.__name__)
 			else:
-				print("%s has an invalid class level (1 - 3 | -1 --> disable\n)" 
-						% trans.__name__)
+				print("%s has an invalid class level (1 - 3 | -1 --> disable\n)"
+				      % trans.__name__)
 	print("Loaded: %i lvl 1, %i lvl 2, %i lvl 3\n\n" % (
 		len(TRANSFORMERS[0]),
 		len(TRANSFORMERS[1]),
@@ -133,7 +133,7 @@ class TestingTransformer(unittest.TestCase):
 		trans_list = [TransformIdentity, TransformXOR, TransformRotateRight]
 		send_list = list(zip(trans_list, (1,) * len(trans_list)))
 
-		result =  liblocke.transformer._iteration_transformer(send_list)
+		result = liblocke.transformer._iteration_transformer(send_list)
 		# 1 (tID) + 255 (tXOR) + 7 (tRR) = 263
 		self.assertEqual(263, sum(1 for x in result))
 
