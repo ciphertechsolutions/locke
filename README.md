@@ -92,8 +92,9 @@ more than one files).
 For a list of all available Transformers, run ``python3 locke.py transforms``.
 
 For a list of all available Patterns, run ``python3 locke.py patterns``.
+
 apm
-===
+=====
 
 APM is a simple but scalable pattern matcher, providing the ability to scan files
 for patterns of interest (POIs) declared as Python classes.
@@ -113,4 +114,4 @@ $ PYTHONPATH=. python3 apm/client/tcp_client.py big_file.exe
 
 ### TODO
 
-Rewrtite plugins to use metaclasses?
+Rewrite plugins to use metaclasses?
