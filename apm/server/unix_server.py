@@ -1,5 +1,5 @@
-import socket
 import os
+import socket
 
 from apm.server import SocketServer, SocketServerThread
 
@@ -10,6 +10,7 @@ class UnixServer(SocketServer):
     processes the data within those requests, and sends the
     results as msgpack-formatted lists and dictionaries.
     """
+
     def __init__(self, file: str = '/tmp/apm.sock'):
         super().__init__()
         self.file = file
@@ -30,12 +31,13 @@ class UnixServer(SocketServer):
 
 if __name__ == '__main__':
     import click
-    import patterns
+
 
     @click.command()
     @click.option('--socket', default='/tmp/apm.sock', help='The UNIX socket')
     def cli(socket):
         server = UnixServer(file=socket)
         server.start()
+
 
     cli()

@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import re
+from abc import ABC, abstractmethod
 from typing import List
 
 from apm.match import Match
@@ -9,6 +9,7 @@ class _Utils(object):
     """
     Utility functions for pattern plugins.
     """
+
     @staticmethod
     def find_all(pat: bytes, data: bytes) -> List[Match]:
         """
