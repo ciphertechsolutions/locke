@@ -1,5 +1,5 @@
 from apm.pattern_plugin import BytesPatternPlugin, BytesListPatternPlugin, \
-                               REPatternPlugin
+    REPatternPlugin
 
 
 class DOSMessage(BytesPatternPlugin):

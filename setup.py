@@ -1,5 +1,4 @@
-from setuptools import setup
-
+from setuptools import setup, find_packages
 
 setup(name='locke',
       version='0.1.5-alpha',
@@ -8,8 +7,16 @@ setup(name='locke',
       author='Cipher Tech Solutions',
       author_email='placeholder',
       license='placeholder',
-      packages=['locke'],
+      packages=find_packages(),
+      py_modules='locke',
+      python_requires='>=3',
       install_requires=[
-        'click',
+            'msgpack-python',
+            'click',
       ],
+      entry_points={
+          'console_scripts' : [
+              'locke=locke.locke:main',
+          ],
+      },
       zip_safe=True)

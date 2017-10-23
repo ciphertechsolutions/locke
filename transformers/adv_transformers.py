@@ -1,5 +1,4 @@
-from liblocke.transformer import rol_left, rol_right, to_bytes, \
-        TransformString, TransformChar
+from liblocke.transformer import rol_left, rol_right, TransformString
 
 """
 These are all Level 3 Transformers
@@ -17,6 +16,7 @@ class TransformXORIncRRol(TransformString):
         char then right roll
     ID: xor_inc_rrol
     """
+
     def class_level():
         return 3
 
@@ -52,6 +52,7 @@ class TransformXORIncLRol(TransformString):
         char then left roll
     ID: xor_inc_lrol
     """
+
     def class_level():
         return 3
 
@@ -86,6 +87,7 @@ class TransformXORRChainedAll(TransformString):
     Description: XOR byte with all the bytes from the right of it
     ID: xor_rchain_all
     """
+
     def class_level():
         return 3
 

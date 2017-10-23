@@ -1,2 +1,2 @@
 def prettyhex(string):
-	return repr(string)[1:]
+    return repr(string)[1:]

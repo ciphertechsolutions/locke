@@ -1,5 +1,4 @@
-from liblocke.transformer import rol_left, rol_right, to_bytes, \
-        TransformString, TransformChar
+from liblocke.transformer import TransformString, TransformChar
 
 """
 These are all Level 2 Transformers
@@ -22,6 +21,7 @@ class TransformXORInc(TransformString):
     Description: XOR with 8 bits A and increment after each char
     ID: xor_inc
     """
+
     def class_level():
         return 2
 
@@ -53,6 +53,7 @@ class TransformXORDec(TransformString):
     Description: XOR with 8 bits A and decrements after each char
     ID: xor_dec
     """
+
     def class_level():
         return 2
 
@@ -84,6 +85,7 @@ class TransformSubInc(TransformString):
     Description: Subtract with a value incrementing after each char
     ID: sub_inc
     """
+
     def class_level():
         return 2
 
@@ -115,6 +117,7 @@ class TransformXORLChained(TransformString):
     Description: XOR with key chained with previous char
     ID: xor_chained
     """
+
     def class_level():
         return 2
 
@@ -132,7 +135,7 @@ class TransformXORLChained(TransformString):
         append = result.append
         append(data[0] ^ self.value)
         for i in range(1, len(data)):
-            append(data[i] ^ self.value ^ data[i-1])
+            append(data[i] ^ self.value ^ data[i - 1])
         return bytes(result)
 
     @staticmethod
@@ -146,6 +149,7 @@ class TransformXORRChained(TransformString):
     Description: XOR with key chained with next char
     ID: xor_Rchained
     """
+
     def class_level():
         return 2
 
@@ -162,7 +166,7 @@ class TransformXORRChained(TransformString):
         result = bytearray()
         append = result.append
         for i in range(0, len(data) - 1):
-            append(data[i] ^ self.value ^ data[i+1])
+            append(data[i] ^ self.value ^ data[i + 1])
         append(data[-1] ^ self.value)
         return bytes(result)
 
@@ -182,6 +186,7 @@ class TransformXORAdd(TransformChar):
     Description: XOR byte then add a value
     ID: xor_add
     """
+
     def class_level():
         return -1
 
@@ -210,6 +215,7 @@ class TransformAddXOR(TransformChar):
     Description: Add byte then XOR with value
     ID: add_xor
     """
+
     def class_level():
         return -1
 

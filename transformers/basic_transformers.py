@@ -1,5 +1,5 @@
-from liblocke.transformer import rol_left, rol_right, to_bytes, \
-        TransformString, TransformChar
+from liblocke.transformer import rol_left, rol_right, TransformString, \
+    TransformChar
 
 """
 These are all Level 1 Transformers
@@ -29,6 +29,7 @@ class TransformIdentity(TransformString):
     Description: Just return the default value
     ID: no_trans
     """
+
     def class_level():
         return 1
 
@@ -60,6 +61,7 @@ class TransformRotateLeft(TransformChar):
     Description: Rotate the data left by "X" amount
     ID: rLeft
     """
+
     def class_level():
         return 1
 
@@ -86,6 +88,7 @@ class TransformRotateRight(TransformChar):
     Description: Rotate the data right by "X" amount
     ID: rRight
     """
+
     def class_level():
         return 1
 
@@ -112,6 +115,7 @@ class TransformXOR(TransformChar):
     Description: XOR each byte of the data with the value
     ID: xor_char
     """
+
     def class_level():
         return 1
 
@@ -138,6 +142,7 @@ class TransformAdd(TransformChar):
     Description: Add a value to each byte and return
     ID: add_char
     """
+
     def class_level():
         return 1
 
@@ -166,6 +171,7 @@ class TransformSub(TransformChar):
         to zero
     ID: sub_char
     """
+
     def class_level():
         return 1
 
@@ -193,6 +199,7 @@ class TransformXORRRoll(TransformChar):
     Description: XOR byte and then R Roll the byte
     ID: xor_rrol
     """
+
     def class_level():
         return 1
 
@@ -221,6 +228,7 @@ class TransformXORLRoll(TransformChar):
     Description: XOR byte and then L Roll the byte
     ID: xor_lrol
     """
+
     def class_level():
         return 1
 
@@ -249,6 +257,7 @@ class TransformAddRRoll(TransformChar):
     Description: Add to byte and then R Roll the byte
     ID: add_rrol
     """
+
     def class_level():
         return 1
 
@@ -277,6 +286,7 @@ class TransformAddLRoll(TransformChar):
     Description: Add to byte and then L Roll the byte
     ID: add_lrol
     """
+
     def class_level():
         return 1
 
@@ -305,6 +315,7 @@ class TransformRRolAdd(TransformChar):
     Description: R Roll byte then Add
     ID: rrol_add
     """
+
     def class_level():
         return 1
 
@@ -333,6 +344,7 @@ class TransformLRolAdd(TransformChar):
     Description: L Roll byte then Add
     ID: lrol_add
     """
+
     def class_level():
         return 1
 
