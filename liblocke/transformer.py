@@ -205,28 +205,6 @@ def rol_left(byte, count):
     return (byte << count | byte >> (8 - count)) & 0xFF
 
 
-def rol_right(byte, count):
-    """
-    This method will right shift the byte left by count
-    Args:
-        byte: the byte to rol
-        count: The numerical amount to shift by. Needs to be an int
-        and greater or equal to 0
-
-    Return:
-        The byte shifted
-    """
-    if count < 0:
-        raise ValueError('count needs to be larger than 0')
-    if not isinstance(count, int):
-        raise TypeError('count needs to be an int')
-
-    count = count % 8
-    # Shift right then OR with the part that was shift out of bound
-    # afterward AND with 0xFF to get only a byte
-    return (byte >> count | byte << (8 - count)) & 0xFF
-
-
 def select_transformers(trans_list, name_list=None, select=None,
                         level=3, yes=False):
     """
@@ -434,7 +412,7 @@ def _display_elapse(start_time, iter_count):
     m, s = divmod(duration, 60)
     h, m = divmod(m, 60)
     d, h = divmod(h, 24)
-    print("%i iteration in %iD:%02iH:%02iM:%02iS" % (iter_count, d, h, m, s))
+    print("%i iterations in %iD:%02iH:%02iM:%02iS" % (iter_count, d, h, m, s))
 
 
 def run_transformations(trans_list, filename, keep, standalone,
@@ -455,7 +433,7 @@ def run_transformations(trans_list, filename, keep, standalone,
     global data
     data = (_read_file(filename) if not zip_file else
             _read_zip(filename, password))
-    pool = Pool()
+
 
     # ----------------------#
     # Stage 1 #
@@ -469,14 +447,21 @@ def run_transformations(trans_list, filename, keep, standalone,
     # on smaller files... but what about the more complex transformers and
     # bigger files? Pool of instances should be faster?
     if standalone:
-        result_list = [] # 16611
+        '''
+        result_list = [] 
         for trans in _iteration_transformer(stage1):
             result_list.append(_transform_standalone(trans))
         '''
-        result_list = pool.map_async(_transform_standalone, _iteration_transformer(stage1),
+        pool = Pool()
+        # TODO: Make sure there is safe execution.
+        # If this throws an error it hangs
+        result_list = pool.map_async(_transform_standalone,
+                                     _iteration_transformer(stage1),
                                      error_callback=_error_raise).get()
         '''
+        '''
     else:
+        pool = Pool()
         result_list = pool.map_async(_transform, _iteration_transformer(stage1),
                                  error_callback=_error_raise).get()
     _display_elapse(start, len(result_list))

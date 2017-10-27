@@ -33,13 +33,14 @@ class PESectionNames(BytesListPatternPlugin):
     """
     NoCase = True
     Description = 'PE section names'
-    Patterns = ['.text', '.data', '.rdata', '.rsrc']
+    Patterns = ['.text', '.data', '.rdata', '.rsrc', '.reloc']
 
 
 class MZFollowedByPE(REPatternPlugin):
     """
     The entire span of a PE compatibility header.
     """
+    Stage = 2
     Description = 'MZ header followed by PE header'
     #TODO: Look into how this could link with the PE and MZ lookups.
     Pattern = r'(?s)MZ.{32,1024}PE\x00\x00'

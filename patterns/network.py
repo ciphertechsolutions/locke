@@ -5,6 +5,7 @@ class IPv4Address(REPatternPlugin):
     """
     A pattern describing IPv4 addresses.
     """
+    Stage = 2
     Description = 'IPv4 address'
     Pattern = r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'
     Weight = 100
@@ -85,6 +86,7 @@ class EmailAddress(REPatternPlugin):
     NOTE: This pattern is imperfect, and would benefit from
     tweaking and/or a filter function.
     """
+    Stage = 2
     Description = 'Email address'
     Pattern = r'(?i)\b[A-Z0-9._%+-]+@(?:[A-Z0-9-]+\.)+' \
               r'(?:[A-Z]{2,12}|XN--[A-Z0-9]{4,18})\b'
@@ -99,6 +101,7 @@ class CommonURLs(REPatternPlugin):
     NOTE: This pattern is imperfect, and would benefit from
     tweaking and/or a filter function.
     """
+    Stage = 2
     Description = 'Common URL (http/https/ftp)'
     Pattern = r'(http|https|ftp)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}' \
               r'(:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])' \

@@ -41,11 +41,13 @@ def cli(ctx, verbose):
 @cli.command()
 @click.option('--csv', default=None, help='output results as CSV')
 @click.argument('files', type=click.File('rb'), nargs=-1)
+
 @click.pass_context
 def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
+    #TODO: make standalone version
     print('In search')
     client = apm.client.TCPClient()
     print(client.host, client.port)

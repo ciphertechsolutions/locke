@@ -188,7 +188,7 @@ class TransformXORAdd(TransformChar):
     """
 
     def class_level():
-        return -1
+        return 2
 
     def name(self):
         return "XOR %02X Add %i" % self.value
@@ -217,7 +217,7 @@ class TransformAddXOR(TransformChar):
     """
 
     def class_level():
-        return -1
+        return 2
 
     def name(self):
         return "Add %i XOR %02X" % self.value

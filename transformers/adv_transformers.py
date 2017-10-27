@@ -1,48 +1,11 @@
-from liblocke.transformer import rol_left, rol_right, TransformString
+from liblocke.transformer import rol_left, TransformString
 
 """
 These are all Level 3 Transformers
 
-    TransformXORIncRRol
     TransformXORIncLRol
     TransformXORRChainedAll
 """
-
-
-class TransformXORIncRRol(TransformString):
-    """
-    Name: Transform Xor Increment R Rol
-    Description: XOR with 8 bits A, increment after each
-        char then right roll
-    ID: xor_inc_rrol
-    """
-
-    def class_level():
-        return 3
-
-    def name(self):
-        return "XOR %02X Inc then R Roll %i" % self.value
-
-    def shortname(self):
-        return "xor%02X_inc_rrol%i" % self.value
-
-    def __init__(self, value):
-        self.value = value
-
-    def transform_string(self, data):
-        xor_key, roll = self.value
-        result = bytearray()
-        append = result.append
-        for i in range(0, len(data)):
-            key = (xor_key + i) & 0xFF
-            append(rol_right(data[i] ^ key, roll))
-        return bytes(result)
-
-    @staticmethod
-    def all_iteration():
-        for x in range(0, 256):
-            for r in range(1, 8):
-                yield x, r
 
 
 class TransformXORIncLRol(TransformString):

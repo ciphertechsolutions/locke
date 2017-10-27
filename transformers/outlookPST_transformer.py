@@ -109,7 +109,7 @@ class TransformOutlookPST(TransformChar):
         237, 154, 100, 63, 193, 108, 249, 236]
 
     def class_level():
-        return 2
+        return -1
 
     def name(self):
         return "Outlook PST"
