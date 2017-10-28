@@ -13,7 +13,7 @@ import patterns #n noqa - needed for module loading
 import transformers # noqa - needed for module loading
 import liblocke.utils as utils
 from liblocke.transformer import select_transformers, run_transformations, \
-    write_to_disk, TransformChar, TransformString
+    write_to_disk, TransformChar, TransformString, test_transformer
 
 # Nest array. One for each level
 TRANSFORMERS = ([], [], [])
@@ -31,6 +31,24 @@ def load_all_transformers():
                       % trans.__name__)
 
 
+def search_standalone(f):
+    score = 0
+    mgr = apm.Manager(raw=f.read())
+    msgs = []
+    for pat, matches in mgr.run_standalone():
+        if not matches:
+            continue
+
+        match_hash = {}
+        for match in matches:
+            match_hash[match.offset] = match.data
+
+        msgs.append([pat.Description.encode(), pat.Weight, match_hash])
+
+    del mgr
+
+    return msgs
+
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
 @click.pass_context
@@ -40,19 +58,19 @@ def cli(ctx, verbose):
 
 @cli.command()
 @click.option('--csv', default=None, help='output results as CSV')
+@click.option('-st', '--standalone', is_flag=True, help='standalone mode')
 @click.argument('files', type=click.File('rb'), nargs=-1)
 
 @click.pass_context
-def search(ctx, csv, files):
+def search(ctx, csv, standalone, files):
     """
     Search for patterns of interest in the supplied files.
     """
-    #TODO: make standalone version
-    print('In search')
-    client = apm.client.TCPClient()
-    print(client.host, client.port)
-    client.connect()
-    print('Made connection')
+    if not standalone:
+        client = apm.client.TCPClient()
+        print(client.host, client.port)
+        client.connect()
+        print('Made connection')
 
     if csv:
         click.echo('Writing CSV results to %s' % csv)
@@ -61,14 +79,15 @@ def search(ctx, csv, files):
         csv_writer.writerow(['Filename', 'Index', 'Pattern name', 'Match',
                              'Length'])
 
+    #TODO: Could Pool the searches
     for f in files:
         click.echo("=" * 79)
         click.echo("File: %s\n" % f.name)
 
-        for description, weight, hsh in client.send_data(f.read()):
+        for description, weight, hsh in search_standalone(f) if standalone \
+                else client.send_data(f.read()):
             desc = description.decode()
             for offset, data in hsh.items():
-                # mstr = data
                 mstr = utils.prettyhex(data)
                 if len(mstr) > 50:
                     mstr = mstr[:24] + '...' + mstr[-23:]
@@ -162,17 +181,30 @@ def patterns(ctx):
 @click.option('-n', '--name', nargs=1, default=None,
               help='A list of transformer classes to use in quotes and '
                    'is commas separated')
+@click.option('-t', '--test', is_flag=True, help='test transformations '
+                                                 'for simplification')
 @click.pass_context
-def transforms(ctx, level, only, name):
+def transforms(ctx, level, only, name, test):
     """
     List all transformations known by Locke.
     """
     load_all_transformers()
     trans_list = select_transformers(TRANSFORMERS, name, only, level)
-    for trans in trans_list:
-        click.echo(
-            'Class: %s | Level: %i' % (trans.__name__, trans.class_level()))
-        click.echo(trans.__doc__)
+    if test:
+        total = 0
+        uniques = set()
+        for trans in trans_list:
+            count, unique = test_transformer(trans)
+            total += count
+            if unique:
+                for uniq in unique:
+                    uniques.add(uniq)
+        print('total: %d uniques: %d' % (total, len(uniques)))
+    else:
+        for trans in trans_list:
+            click.echo(
+                'Class: %s | Level: %i' % (trans.__name__, trans.class_level()))
+            click.echo(trans.__doc__)
 
 
 def main():
