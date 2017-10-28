@@ -120,7 +120,8 @@ class TransformOutlookPST(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
+    def transform_byte(self, byte, encode=False):
+        #TODO: encode
         return self.encode_table[byte]
 
     @staticmethod

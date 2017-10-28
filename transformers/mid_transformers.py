@@ -34,7 +34,8 @@ class TransformXORInc(TransformString):
     def __init__(self, value):
         self.value = value
 
-    def transform_string(self, data):
+    def transform_string(self, data, encode=False):
+        # TODO: encode
         result = bytearray()
         append = result.append
         for i in range(0, len(data)):
@@ -66,7 +67,8 @@ class TransformXORDec(TransformString):
     def __init__(self, value):
         self.value = value
 
-    def transform_string(self, data):
+    def transform_string(self, data, encode=False):
+        #TODO: encode
         result = bytearray()
         append = result.append
         for i in range(0, len(data)):
@@ -99,6 +101,7 @@ class TransformSubInc(TransformString):
         self.value = value
 
     def transform_string(self, data):
+        #TODO: encode
         result = bytearray()
         append = result.append
         for i in range(0, len(data)):
@@ -130,7 +133,8 @@ class TransformXORLChained(TransformString):
     def __init__(self, value):
         self.value = value
 
-    def transform_string(self, data):
+    def transform_string(self, data, encode=False):
+        #TODO: encode
         result = bytearray()
         append = result.append
         append(data[0] ^ self.value)
@@ -162,7 +166,8 @@ class TransformXORRChained(TransformString):
     def __init__(self, value):
         self.value = value
 
-    def transform_string(self, data):
+    def transform_string(self, data, encode=False):
+        #TODO: encode
         result = bytearray()
         append = result.append
         for i in range(0, len(data) - 1):
@@ -199,8 +204,11 @@ class TransformXORAdd(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
-        return ((byte ^ self.value[0]) + self.value[1]) & 0xFF
+    def transform_byte(self, byte, encode=False):
+        if encode:
+            return ((byte - self.value[1]) ^ self.value[0]) & 0xFF
+        else:
+            return ((byte ^ self.value[0]) + self.value[1]) & 0xFF
 
     @staticmethod
     def all_iteration():
@@ -228,8 +236,11 @@ class TransformAddXOR(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
-        return ((byte + self.value[0]) & 0xFF) ^ self.value[1]
+    def transform_byte(self, byte, encode=False):
+        if encode:
+            return ((byte ^ self.value[1]) - self.value[0]) & 0xFF
+        else:
+            return ((byte + self.value[0]) & 0xFF) ^ self.value[1]
 
     @staticmethod
     def all_iteration():

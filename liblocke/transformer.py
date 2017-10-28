@@ -54,7 +54,7 @@ class _Transform(ABC):
         self.value = value
 
     @abstractmethod
-    def _transform(self, data):
+    def _transform(self, data, encode=False):
         """
         Called by the workers to pass the data package to the transform
         classes
@@ -88,7 +88,7 @@ class TransformString(_Transform):
     ID: str_trans
     """
 
-    def _transform(self, data):
+    def _transform(self, data, encode=False):
         """
         This method contains all the requires steps/calls needed
         to transform the string. This method should NOT be overridden.
@@ -106,7 +106,7 @@ class TransformString(_Transform):
         return self.transform_string(data)
 
     @abstractmethod
-    def transform_string(self, data):
+    def transform_string(self, data, encode=False):
         """
         Needs to be overridden
         This method contains all the requires steps/calls needed
@@ -122,6 +122,8 @@ class TransformString(_Transform):
         pass
 
 
+
+
 class TransformChar(_Transform):
     """
     Name: Transform Char
@@ -129,7 +131,7 @@ class TransformChar(_Transform):
     ID: chr_trans
     """
 
-    def _transform(self, data):
+    def _transform(self, data, encode=False):
         """
         This method contains all the requires steps/calls needed
         to transform the string's individual char. This method
@@ -149,13 +151,16 @@ class TransformChar(_Transform):
             raise TypeError('Data (%s) needs to be a bytestring type'
                             % type(data))
 
+        return data.translate(self.generate_trans_table(encode))
+
+    def generate_trans_table(self, encode=False):
         trans_table = b''
         for i in range(0, 256):
-            trans_table += bytes([self.transform_byte(i)])
-        return data.translate(trans_table)
+            trans_table += bytes([self.transform_byte(i, encode)])
+        return trans_table
 
     @abstractmethod
-    def transform_byte(self, byte):
+    def transform_byte(self, byte, encode=False):
         """
         This method will transform any char (byte from 0 - 255)
         and return the new char (with in the range 0 - 255).
@@ -203,6 +208,31 @@ def rol_left(byte, count):
     # Shift left then OR with the part that was shift out of bound
     # afterward AND with 0xFF to get only a byte
     return (byte << count | byte >> (8 - count)) & 0xFF
+
+
+def test_transformer(trans):
+    translation = {}
+    found = False
+    count = 0
+    if issubclass(trans,TransformChar):
+        for key in trans.all_iteration():
+            alpha = trans(key).generate_trans_table()
+            if alpha in translation:
+                found = True
+                translation[alpha].append(key)
+            else:
+                translation[alpha] = [key]
+            count += 1
+    else:
+        return (0, None)
+    if found:
+        print('Found duplicates for', trans)
+        for i in translation:
+            if len(translation[i]) > 1:
+                pass#print('Functionally equivalent:', translation[i])
+
+    print('Transformer',trans, 'done')
+    return (count, translation.keys())
 
 
 def select_transformers(trans_list, name_list=None, select=None,
@@ -446,13 +476,13 @@ def run_transformations(trans_list, filename, keep, standalone,
     # transformer to create instances of? Both have roughly the same speed
     # on smaller files... but what about the more complex transformers and
     # bigger files? Pool of instances should be faster?
+    pool = Pool()
     if standalone:
         '''
         result_list = [] 
         for trans in _iteration_transformer(stage1):
             result_list.append(_transform_standalone(trans))
         '''
-        pool = Pool()
         # TODO: Make sure there is safe execution.
         # If this throws an error it hangs
         result_list = pool.map_async(_transform_standalone,
@@ -461,7 +491,7 @@ def run_transformations(trans_list, filename, keep, standalone,
         '''
         '''
     else:
-        pool = Pool()
+
         result_list = pool.map_async(_transform, _iteration_transformer(stage1),
                                  error_callback=_error_raise).get()
     _display_elapse(start, len(result_list))
@@ -480,12 +510,9 @@ def run_transformations(trans_list, filename, keep, standalone,
     result_list = sorted(result_list, key=lambda r: r[1], reverse=True)[:keep]
     # extract the wanted transformer and group it with 2 (mark as stage 2)
     stage2 = [(trans[0], 2) for trans in result_list]
-    if standalone:
-        result_list = []
-        for trans in stage2:
-            result_list.append(_transform_standalone(trans))
-    else:
-        result_list = pool.map_async(_transform, stage2,
+    result_list = pool.map_async(_transform_standalone if standalone
+                                 else _transform,
+                                 stage2,
                                  error_callback=_error_raise).get()
     _display_elapse(start, len(result_list))
 

@@ -48,25 +48,25 @@ class TestingTransformer(unittest.TestCase):
         """
         tList = self.tList
         # Should be able to detect regardless of case
-        nList = "transformXOR, Transformadd,TransformSub,tRansFormrOTATeriGht"
+        nList = "transformXOR, Transformadd"
         transList = select_transformers(
             tList,
             nList,
             yes=1)
-        self.assertTrue(len(transList) == 4)
+        self.assertTrue(len(transList) == 2)
         # If we add an invalid transformer, it should just be ignored
         nList += ", TransformNoAvailable"
         transList = select_transformers(
             self.tList,
             nList,
             yes=1)
-        self.assertTrue(len(transList) == 4)
+        self.assertTrue(len(transList) == 2)
         # name > only > level
         transList = select_transformers(
             tList,
             nList, select=2, level=1,
             yes=1)
-        self.assertTrue(len(transList) == 4)
+        self.assertTrue(len(transList) == 2)
         # only > level (also check if we get the right amount of
         # trans on the requested level)
         for i in range(0, 3):
@@ -102,16 +102,6 @@ class TestingTransformer(unittest.TestCase):
         self.assertEqual(244, rol_left(self.genKey, 12))
         self.assertEqual(self.genKey, rol_left(self.genKey, 16))
 
-    def test_rol_right(self):
-        # Basic rolling (around crying)
-        self.assertEqual(167, rol_right(self.genKey, 1))
-        self.assertEqual(244, rol_right(self.genKey, 4))
-        self.assertEqual(self.genKey, rol_right(self.genKey, 8))
-        # Should be able to use mod to find the actual roll value
-        self.assertEqual(167, rol_right(self.genKey, 9))
-        self.assertEqual(244, rol_right(self.genKey, 12))
-        self.assertEqual(self.genKey, rol_right(self.genKey, 16))
-
     def test_abstract_init(self):
         # We should not be allowed to create instances of TransformString
         # nor TransformChar, unless we inherit them
@@ -124,7 +114,7 @@ class TestingTransformer(unittest.TestCase):
         import liblocke.transformer
         # Throw in a list of three transformer and see if we get
         # the correct number of transform instance back
-        trans_list = [TransformIdentity, TransformXOR, TransformRotateRight]
+        trans_list = [TransformIdentity, TransformXOR, TransformRotateLeft]
         send_list = list(zip(trans_list, (1,) * len(trans_list)))
 
         result = liblocke.transformer._iteration_transformer(send_list)
@@ -144,12 +134,14 @@ class TestingBasicTransforms(unittest.TestCase):
         t = TransformIdentity(self.genKey)
         tdata = t._transform(self.data)
         self.assertEqual(self.data, tdata)
+        self.assertEqual(self.data, t._transform(tdata, True))
 
     def test_xor(self):
         t = TransformXOR(self.genKey)
         tdata = t._transform(self.data)
         adata = b'\x4f\x4e\x4d\x4c\x4b\x4a\x49\x48\x47\x46\x45'
         self.assertEqual(adata, tdata)
+        self.assertEqual(self.data, t._transform(tdata,True))
 
     def test_add(self):
         # we need to test the limiter
@@ -157,12 +149,7 @@ class TestingBasicTransforms(unittest.TestCase):
         tdata = t._transform(self.data)
         adata = b'\xfa\xfb\xfc\xfd\xfe\xff\x00\x01\x02\x03\x04'
         self.assertEqual(adata, tdata)
-
-    def test_sub(self):
-        t = TransformSub(self.genKey)
-        tdata = t._transform(self.data)
-        adata = b'\x4f\x4e\x4d\x4c\x4b\x4a\x49\x48\x47\x46\x45'
-        self.assertEqual(adata, tdata)
+        self.assertEqual(self.data, t._transform(tdata, True))
 
     def test_xor_lrol(self):
         t = TransformXORLRoll((self.genKey, 1))
@@ -172,17 +159,7 @@ class TestingBasicTransforms(unittest.TestCase):
         # 0100 1101 > 1001 1010
         adata = b'\x9e\x9c\x9a\x98\x96\x94\x92\x90\x8e\x8c\x8a'
         self.assertEqual(adata, tdata)
-
-    def test_add_rrol(self):
-        # we need to test the limiter
-        t = TransformAddRRoll((250, 1))
-        tdata = t._transform(self.data)
-        # 1111 1010 > 0111 1101
-        # 1111 1011 > 1111 1101
-        # 1111 1100 > 0111 1110
-        # 0000 0001 > 1000 0000 (1 > 128)
-        adata = b'\x7d\xfd\x7e\xfe\x7f\xff\x00\x80\x01\x81\x02'
-        self.assertEqual(adata, tdata)
+        self.assertEqual(self.data, t._transform(tdata, True))
 
     def test_lrol_add(self):
         t = TransformLRolAdd((1, 250))
@@ -192,6 +169,17 @@ class TestingBasicTransforms(unittest.TestCase):
         # 0000 0011 > 0000 0000
         adata = b'\xfa\xfc\xfe\x00\x02\x04\x06\x08\x0a\x0c\x0e'
         self.assertEqual(adata, tdata)
+        self.assertEqual(self.data,t._transform(tdata, True))
+
+    def test_add_lrol(self):
+        t = TransformAddLRoll((250, 1))
+        tdata = t._transform(self.data)
+        # 0000 0001 > 1111 1100
+        # 0000 0010 > 1111 1110
+        # 0000 0011 > 0000 0000
+        adata = b'\xf5\xf7\xf9\xfb\xfd\xff\x00\x02\x04\x06\x08'
+        self.assertEqual(adata, tdata)
+        self.assertEqual(self.data,t._transform(tdata, True))
 
 
 if __name__ == '__main__':

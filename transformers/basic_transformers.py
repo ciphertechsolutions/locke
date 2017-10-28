@@ -37,7 +37,7 @@ class TransformIdentity(TransformString):
     def __init__(self, value):
         self.value = value
 
-    def transform_string(self, data):
+    def transform_string(self, data, encode=False):
         return data
 
     @staticmethod
@@ -69,8 +69,11 @@ class TransformRotateLeft(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
-        return rol_left(byte, self.value)
+    def transform_byte(self, byte, encode=False):
+        if encode:
+            return rol_left(byte, 8 - self.value)
+        else:
+            return rol_left(byte, self.value)
 
     @staticmethod
     def all_iteration():
@@ -96,7 +99,7 @@ class TransformXOR(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
+    def transform_byte(self, byte, encode=False):
         return byte ^ self.value
 
     @staticmethod
@@ -123,8 +126,11 @@ class TransformAdd(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
-        return (byte + self.value) & 0xFF
+    def transform_byte(self, byte, encode=False):
+        if encode:
+            return (byte - self.value) & 0xFF
+        else:
+            return (byte + self.value) & 0xFF
 
     @staticmethod
     def all_iteration():
@@ -150,8 +156,11 @@ class TransformXORLRoll(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
-        return rol_left(byte ^ self.value[0], self.value[1])
+    def transform_byte(self, byte, encode=False):
+        if encode:
+            return rol_left(byte, 8 - self.value[1]) ^ self.value[0]
+        else:
+            return rol_left(byte ^ self.value[0], self.value[1])
 
     @staticmethod
     def all_iteration():
@@ -179,8 +188,11 @@ class TransformAddLRoll(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
-        return rol_left((byte + self.value[0]) & 0xFF, self.value[1])
+    def transform_byte(self, byte, encode=False):
+        if encode:
+            return (rol_left(byte, 8-self.value[1]) - self.value[0]) & 0xFF
+        else:
+            return rol_left((byte + self.value[0]) & 0xFF, self.value[1])
 
     @staticmethod
     def all_iteration():
@@ -208,8 +220,11 @@ class TransformLRolAdd(TransformChar):
     def __init__(self, value):
         self.value = value
 
-    def transform_byte(self, byte):
-        return (rol_left(byte, self.value[0]) + self.value[1]) & 0xFF
+    def transform_byte(self, byte, encode=False):
+        if encode:
+            return rol_left((byte - self.value[1]) & 0xFF, 8 - self.value[0])
+        else:
+            return (rol_left(byte, self.value[0]) + self.value[1]) & 0xFF
 
     @staticmethod
     def all_iteration():
