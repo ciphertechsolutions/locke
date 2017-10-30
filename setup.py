@@ -5,7 +5,7 @@ setup(name='locke',
       description='A fork of BulBuzard',
       url='https://www.ciphertechsolutions.com/',
       author='Cipher Tech Solutions',
-      author_email='placeholder',
+      author_email='ahavens@ciphertechsolutions.com',
       license='placeholder',
       packages=find_packages(),
       py_modules='locke',
@@ -15,7 +15,7 @@ setup(name='locke',
             'click',
       ],
       entry_points={
-          'console_scripts' : [
+          'console_scripts': [
               'locke=locke.locke:main',
           ],
       },
