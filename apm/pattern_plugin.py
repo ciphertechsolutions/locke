@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
 import re
+from abc import ABC, abstractmethod
 from typing import List
-
 from apm.match import Match
 
 
@@ -9,6 +8,7 @@ class _Utils(object):
     """
     Utility functions for pattern plugins.
     """
+
     @staticmethod
     def find_all(pat: bytes, data: bytes) -> List[Match]:
         """
@@ -131,7 +131,6 @@ class BytesPatternPlugin(PatternPlugin):
         See PatternPlugin.find_all.
         """
         pat = self.Pattern.lower() if self.NoCase else self.Pattern
-
         return _Utils.find_all(pat, data)
 
 
@@ -200,7 +199,6 @@ class REPatternPlugin(PatternPlugin):
         """
         flags = re.IGNORECASE if self.NoCase else 0
         matches = []
-
         for md in re.finditer(self.Pattern, data, flags):
             matches.append(Match(md.start(), md.group(0)))
         return matches

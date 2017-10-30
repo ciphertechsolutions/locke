@@ -1,7 +1,7 @@
+import socket
+import struct
 from abc import ABC, abstractmethod
 from threading import Thread
-import struct
-import socket
 
 import msgpack
 
@@ -12,6 +12,7 @@ class Server(ABC):
     """
     An abstract Server for APM interfaces to subclass.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -28,6 +29,7 @@ class SocketServer(Server):
     """
     A superclass server for all APM server instances that use socket objects.
     """
+
     def __init__(self):
         super().__init__()
         self.sock = None
@@ -41,6 +43,7 @@ class SocketServerThread(Thread):
     """
     An individual server thread for the TCP server.
     """
+
     def __init__(self, client: socket.socket):
         super().__init__()
         self.client = client

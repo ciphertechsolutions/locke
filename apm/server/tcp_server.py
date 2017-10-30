@@ -26,7 +26,7 @@ class TCPServer(SocketServer):
 
 if __name__ == '__main__':
     import click
-    import patterns
+
 
     @click.command()
     @click.option('--host', default='localhost', help='The host to bind to')
@@ -34,5 +34,6 @@ if __name__ == '__main__':
     def cli(host, port):
         server = TCPServer(host=host, port=port)
         server.start()
+
 
     cli()

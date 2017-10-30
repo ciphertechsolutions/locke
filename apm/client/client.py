@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import struct
+from abc import ABC, abstractmethod
 
 import msgpack
 
@@ -8,6 +8,7 @@ class Client(ABC):
     """
     An abstract Client for APM interfaces to subclass.
     """
+
     def __init__(self, stage: int = 1):
         super().__init__()
         self.stage = stage
@@ -52,6 +53,7 @@ class SocketClient(Client):
     of 4 bytes of data via stage 1:
         b'\x00\x00\x00\x04\x00\x00\x00\x01asdf'
     """
+
     def __init__(self, stage=1):
         super().__init__(stage=stage)
         self.sock = None

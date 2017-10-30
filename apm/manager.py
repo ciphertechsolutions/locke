@@ -1,7 +1,7 @@
 import os
 from multiprocessing import Pool
 from typing import List, Tuple, Generator
-
+import patterns # needed for dynamic load
 from apm.match import Match
 from apm.pattern_plugin import PatternPlugin
 
@@ -10,7 +10,7 @@ These global variables contain the normal and lowercased data currently
 being processed.
 
 They're global to avoid excessive allocation, as most platforms will
-be clever enough to avoid duolicating them across multiple subprocess
+be clever enough to avoid duplicating them across multiple subprocess
 address spaces.
 """
 data = None
@@ -36,7 +36,6 @@ class Manager(object):
         self.file = file
         self.pats = [pat() for pat in PatternPlugin.plugins(stage=stage)]
         self.nproc = nproc
-
         if file:
             with open(file, 'rb') as f:
                 data = f.read()
@@ -63,6 +62,18 @@ class Manager(object):
 
         It returns a list of (PatternPlugin, List(Match)) tuples.
         """
+
         with Pool(self.nproc) as pool:
             for ms in pool.map(self.run_pattern, self.pats):
                 yield ms
+
+    def run_standalone(self) -> Generator[PatternMatches, None, None]:
+        """
+        This method runs all patterns against the data, utilizing
+        a process pool to distribute the work.
+
+        It returns a list of (PatternPlugin, List(Match)) tuples.
+        """
+
+        for pat in self.pats:
+            yield self.run_pattern(pat)

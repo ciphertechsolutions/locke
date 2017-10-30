@@ -5,6 +5,7 @@ class HexBlob(REPatternPlugin):
     """
     A pattern describing hexadecimal strings.
     """
+    Stage = 2
     NoCase = True
     Description = 'Hexadecimal string blob (>= 32 bytes)'
     Pattern = r'[A-F0-9]{32,}'
@@ -14,6 +15,7 @@ class Base64Blob(REPatternPlugin):
     """
     A pattern describing base64 strings.
     """
+    Stage = 2
     Description = 'Base64 string blob'
     Pattern = r'(?:[A-Za-z0-9+/]{4}){2,}(?:[A-Za-z0-9+/]{2}' \
               r'[AEIMQUYcgkosw048]=|[A-Za-z0-9+/][AQgw]==)'

@@ -8,6 +8,7 @@ class UnixClient(SocketClient):
     A Unix domain socket client that issues requests understood
     by the UnixServer class.
     """
+
     def __init__(self, file: str = '/tmp/apm.sock', stage: int = 1):
         super().__init__(stage=stage)
         self.file = file
@@ -21,6 +22,7 @@ class UnixClient(SocketClient):
 if __name__ == '__main__':
     import click
 
+
     @click.command()
     @click.option('--socket', default='/tmp/apm.sock', help='The UNIX socket')
     @click.option('--stage', default=1, help='The processing stage')
@@ -33,5 +35,6 @@ if __name__ == '__main__':
             print(obj)
 
         client.disconnect()
+
 
     cli()
