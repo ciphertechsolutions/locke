@@ -210,6 +210,28 @@ def rol_left(byte, count):
     return (byte << count | byte >> (8 - count)) & 0xFF
 
 
+def test_transforms(trans_list):
+    total = 0
+    uniques = set()
+    finaltranslations = {}
+    for trans in trans_list:
+        count, unique = test_transformer(trans)
+        total += count
+        if unique:
+            for uniq in unique.keys():
+                uniques.add(uniq)
+                if uniq in finaltranslations:
+                    for val in unique[uniq]:
+                        finaltranslations[uniq].append(val)
+                else:
+                    finaltranslations[uniq] = unique[uniq]
+    sorted_dict = sorted(finaltranslations,
+                         key=lambda k: len(finaltranslations[k]),
+                         reverse=True)
+
+    print('total: %d uniques: %d' % (total, len(uniques)))
+
+
 def test_transformer(trans):
     translation = {}
     found = False
@@ -217,11 +239,12 @@ def test_transformer(trans):
     if issubclass(trans,TransformChar):
         for key in trans.all_iteration():
             alpha = trans(key).generate_trans_table()
+            trans_str = trans(key).shortname();
             if alpha in translation:
                 found = True
-                translation[alpha].append(key)
+                translation[alpha].append(trans_str)
             else:
-                translation[alpha] = [key]
+                translation[alpha] = [trans_str]
             count += 1
     else:
         return (0, None)
@@ -232,7 +255,7 @@ def test_transformer(trans):
                 pass#print('Functionally equivalent:', translation[i])
 
     print('Transformer',trans, 'done')
-    return (count, translation.keys())
+    return (count, translation)
 
 
 def select_transformers(trans_list, name_list=None, select=None,
@@ -291,12 +314,16 @@ def select_transformers(trans_list, name_list=None, select=None,
             sys.exit("There are no such level as %i" % select)
     # Select all transformers on the specified level and below
     else:
-        if level == 1:
-            trans_class = trans_list[0]
-        elif level == 2:
-            trans_class = trans_list[0] + trans_list[1]
+        #TODO: cleaner way to do this
+        newstage1 = []
+        for trans in trans_list[0]:
+            if trans.__name__ in ['TransformAllStage12', 'TransformIdentity']:
+                newstage1.append(trans)
+        # TransformAllStage12 takes care of stage 1 and 2 transformers
+        if level == 1 or level == 2:
+            trans_class = newstage1
         elif level == 3 or level is None:
-            trans_class = trans_list[0] + trans_list[1] + trans_list[2]
+            trans_class = newstage1 + trans_list[2]
         else:
             sys.exit("There are no such level as %i" % level)
     return trans_class
@@ -493,7 +520,7 @@ def run_transformations(trans_list, filename, keep, standalone,
     else:
 
         result_list = pool.map_async(_transform, _iteration_transformer(stage1),
-                                 error_callback=_error_raise).get()
+                                     error_callback=_error_raise).get()
     _display_elapse(start, len(result_list))
 
     print('Stage1 Completed')

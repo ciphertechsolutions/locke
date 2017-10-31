@@ -3,6 +3,7 @@ import csv as csvlib
 import sys
 from os import path
 
+
 import click
 
 SCRIPT_DIR = path.dirname(path.abspath(__file__)) # shouldnt need this
@@ -13,7 +14,8 @@ import patterns #n noqa - needed for module loading
 import transformers # noqa - needed for module loading
 import liblocke.utils as utils
 from liblocke.transformer import select_transformers, run_transformations, \
-    write_to_disk, TransformChar, TransformString, test_transformer
+    write_to_disk, TransformChar, TransformString, test_transforms
+from transformers.utils import generate_database
 
 # Nest array. One for each level
 TRANSFORMERS = ([], [], [])
@@ -48,6 +50,7 @@ def search_standalone(f):
     del mgr
 
     return msgs
+
 
 @click.group()
 @click.option('-v', '--verbose', is_flag=True, help='be verbose')
@@ -105,7 +108,7 @@ def search(ctx, csv, standalone, files):
 
 
 @cli.command()
-@click.option('-l', '--level', type=int, default=3,
+@click.option('-l', '--level', type=int, default=2,
               help='Select transformers with level 1, 2, or 3 and below')
 @click.option('-o', '--only', type=int, default=None,
               help='Only use transformers on that specific level')
@@ -142,6 +145,9 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
     """
     Use patterns of interest to crack the supplied files.
     """
+    if not path.exists(transformers.utils.DBFILE):
+        print('Run generate to create a new transforms.db')
+        return 1
     load_all_transformers()
     if not zip_file and password is not None:
         raise ValueError("Password field is set without zip enable")
@@ -183,23 +189,24 @@ def patterns(ctx):
                    'is commas separated')
 @click.option('-t', '--test', is_flag=True, help='test transformations '
                                                  'for simplification')
+@click.option('-g', '--generate', is_flag=True, help='generate transformations '
+                                                     'database')
 @click.pass_context
-def transforms(ctx, level, only, name, test):
+def transforms(ctx, level, only, name, test, generate):
     """
     List all transformations known by Locke.
     """
     load_all_transformers()
     trans_list = select_transformers(TRANSFORMERS, name, only, level)
     if test:
-        total = 0
-        uniques = set()
+        test_transforms(trans_list)
+    elif generate:
+        charonly = []
         for trans in trans_list:
-            count, unique = test_transformer(trans)
-            total += count
-            if unique:
-                for uniq in unique:
-                    uniques.add(uniq)
-        print('total: %d uniques: %d' % (total, len(uniques)))
+            if issubclass(trans, TransformChar):
+                charonly.append(trans)
+        del trans
+        generate_database(charonly)
     else:
         for trans in trans_list:
             click.echo(

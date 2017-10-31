@@ -1,5 +1,6 @@
 from liblocke.transformer import rol_left, TransformString, \
     TransformChar
+from transformers.utils import get_alphabets
 
 """
 These are all Level 1 Transformers
@@ -231,3 +232,31 @@ class TransformLRolAdd(TransformChar):
         for val in range(1, 8):
             for rol in range(1, 256):
                 yield (val, rol)
+
+
+class TransformAllStage12(TransformString):
+    """
+    Name: Transform XOR R Chained with All Bytes
+    Description: XOR byte with all the bytes from the right of it
+    ID: xor_rchain_all
+    """
+
+    def class_level():
+        return 1
+
+    def name(self):
+        return self.value[1]
+
+    def shortname(self):
+        return self.value[1]
+
+    def __init__(self, value):
+        self.value = value
+
+    def transform_string(self, data, encode=False):
+        #TODO: encode
+        return data.translate(self.value[0])
+
+    @staticmethod
+    def all_iteration():
+        return get_alphabets()
