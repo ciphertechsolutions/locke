@@ -29,7 +29,7 @@ class TransformXORIncLRol(TransformString):
         self.value = value
 
     def transform_string(self, data, encode=False):
-        #TODO: encode
+        # TODO: encode
         xor_key, roll = self.value
         result = bytearray()
         append = result.append
@@ -65,7 +65,7 @@ class TransformXORRChainedAll(TransformString):
         self.value = value
 
     def transform_string(self, data, encode=False):
-        #TODO: encode
+        # TODO: encode
         result = bytearray(len(data))
         for i in range(len(data) - 1, 1, -1):
             result[i - 1] = data[i - 1] ^ self.value ^ data[i]

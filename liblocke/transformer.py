@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod, abstractproperty
 from multiprocessing import Pool
 
 import apm
+from liblocke.utils import prettyhex
 
 
 class _Transform(ABC):
@@ -122,8 +123,6 @@ class TransformString(_Transform):
         pass
 
 
-
-
 class TransformChar(_Transform):
     """
     Name: Transform Char
@@ -236,7 +235,7 @@ def test_transformer(trans):
     translation = {}
     found = False
     count = 0
-    if issubclass(trans,TransformChar):
+    if issubclass(trans, TransformChar):
         for key in trans.all_iteration():
             alpha = trans(key).generate_trans_table()
             trans_str = trans(key).shortname();
@@ -252,14 +251,14 @@ def test_transformer(trans):
         print('Found duplicates for', trans)
         for i in translation:
             if len(translation[i]) > 1:
-                pass#print('Functionally equivalent:', translation[i])
+                pass  # print('Functionally equivalent:', translation[i])
 
-    print('Transformer',trans, 'done')
+    print('Transformer', trans, 'done')
     return (count, translation)
 
 
 def select_transformers(trans_list, name_list=None, select=None,
-                        level=3, yes=False):
+                        level=3, yes=False, listing=False):
     """
     There is an order of precedent. If the names are provided, we will only
     use names, else the levels, else the only requested. Only one field
@@ -313,8 +312,17 @@ def select_transformers(trans_list, name_list=None, select=None,
         else:
             sys.exit("There are no such level as %i" % select)
     # Select all transformers on the specified level and below
+    elif listing:
+        if level == 1:
+            trans_class = trans_list[0]
+        elif level == 2:
+            trans_class = trans_list[0] + trans_list[1]
+        elif level == 3 or level is None:
+            trans_class = trans_list[0] + trans_list[1] + trans_list[2]
+        else:
+            sys.exit("There are no such level as %i" % level)
     else:
-        #TODO: cleaner way to do this
+        # TODO: cleaner way to do this
         newstage1 = []
         for trans in trans_list[0]:
             if trans.__name__ in ['TransformAllStage12', 'TransformIdentity']:
@@ -327,6 +335,23 @@ def select_transformers(trans_list, name_list=None, select=None,
         else:
             sys.exit("There are no such level as %i" % level)
     return trans_class
+
+
+def print_results(results, verbose=False):
+    for trans, score, msgs in results:
+        print('-' * 50)
+        print('Transform: %s (Score %i)' % (trans.name(), score))
+        for desc, weight, hsh in sorted(msgs,
+                                        key=lambda k: len(k[2]),
+                                        reverse=True):
+            print('\tFound %d - %s (weight=%d)' % (len(hsh), desc, weight))
+            if verbose:
+                for offset, data in hsh.items():
+                    mstr = prettyhex(data)
+                    if len(mstr) > 50:
+                        mstr = mstr[:24] + '...' + mstr[-23:]
+
+                    print('at %08X: %s - %s' % (offset, desc, mstr))
 
 
 def _read_zip(filename, password=None):
@@ -407,7 +432,7 @@ def _transform_standalone(transform_stage):
 
     for desc, weight, matches in msgs:
         score += len(matches) * weight
-    results = (transformer, score)
+    results = (transformer, score, msgs)
 
     return results
 
@@ -473,7 +498,7 @@ def _display_elapse(start_time, iter_count):
 
 
 def run_transformations(trans_list, filename, keep, standalone,
-                        zip_file=False, password=None):
+                        zip_file=False, password=None, verbose=0):
     """
     Using a process pool, run all transformation on the file and return
     only the top few resutls
@@ -484,6 +509,7 @@ def run_transformations(trans_list, filename, keep, standalone,
         standalone: boolean for whether to run without a socket
         zip_file: Mark the file as a zip (default = False)
         password: Set the password for the zip (default = None)
+        verbose: Specify whether you want verbose output
     Return:
         A sorted list of tuples(trans_instance, score) up to "keep" size
     """
@@ -491,11 +517,10 @@ def run_transformations(trans_list, filename, keep, standalone,
     data = (_read_file(filename) if not zip_file else
             _read_zip(filename, password))
 
-
     # ----------------------#
     # Stage 1 #
     # ----------------------#
-    print("Starting Stage 1")
+    print('=' * 20, 'Starting Stage 1', '=' * 20)
     start = time.time()
     stage1 = list(zip(trans_list, (1,) * len(trans_list)))
 
@@ -523,18 +548,14 @@ def run_transformations(trans_list, filename, keep, standalone,
                                      error_callback=_error_raise).get()
     _display_elapse(start, len(result_list))
 
-    print('Stage1 Completed')
-    # TODO
-    # Print out stage 1's result?
-
-    # ----------------------#
-    # Stage 2 #
-    # ----------------------#
-    print("Starting Stage 2")
-    start = time.time()
-
     # sort the data and keep only the top few
     result_list = sorted(result_list, key=lambda r: r[1], reverse=True)[:keep]
+    if verbose > 0:
+        print_results(result_list, True if verbose > 1 else False)
+    print('=' * 20, 'Stage1 Completed', '=' * 20)
+    print('=' * 20, 'Starting Stage 2', '=' * 20)
+    start = time.time()
+
     # extract the wanted transformer and group it with 2 (mark as stage 2)
     stage2 = [(trans[0], 2) for trans in result_list]
     result_list = pool.map_async(_transform_standalone if standalone
@@ -543,13 +564,14 @@ def run_transformations(trans_list, filename, keep, standalone,
                                  error_callback=_error_raise).get()
     _display_elapse(start, len(result_list))
 
+    print_results(result_list, True if verbose > 0 else False)
+    print('=' * 20, 'Stage2 Completed', '=' * 20)
+
     return sorted(result_list, key=lambda r: r[1], reverse=True)
 
 
 # TODO
 # Call on save to disk here? or Make locke.py call write to disk?
-
-
 def write_to_disk(results, filename):
     """
     Write a list of results to disk
@@ -562,7 +584,7 @@ def write_to_disk(results, filename):
         # B/C we multiprocessed, we have to re-transform the data
         # It shouldn't take that long as we don't have to process the
         # pattern matching
-        trans, score = results[i]
+        trans, score, _ = results[i]
         trans_data = trans._transform(data)
         if score > 0:
             base, ext = os.path.splitext(filename)

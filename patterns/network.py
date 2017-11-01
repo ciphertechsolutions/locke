@@ -1,3 +1,5 @@
+from ipaddress import ip_address
+
 from apm.pattern_plugin import BytesListPatternPlugin, REPatternPlugin
 
 
@@ -13,19 +15,23 @@ class IPv4Address(REPatternPlugin):
     def filter(self, match):
         """
         Filter through IPv4 address candidates for interesting matches.
-
-        XXX: Use the ipaddress library?
         """
         ip = match.data.decode()
-
+        try:
+            ip_address(ip)
+        except:
+            return False
         # this falsely catches 8.8.8.8 etc.
         # if len(ip) < 8:
         #     return False
 
+        '''
+        #COMMENTED OUT BECAUSE MALWARE COULD USE THESE
         ip_bytes = ip.split('.')
         byte1 = int(ip_bytes[0])
         byte2 = int(ip_bytes[1])
 
+        
         # 0.0.0.0 255.0.0.0
         if ip.startswith('0.'):
             return False
@@ -75,6 +81,7 @@ class IPv4Address(REPatternPlugin):
         # also reject IPs ending with .0 or .255
         if ip.endswith('.0') or ip.endswith('.255'):
             return False
+        '''
         # otherwise it's a valid IP adress
         return True
 

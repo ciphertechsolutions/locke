@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 from sqlite3 import Error
 
 DBFILE = os.path.join(os.path.dirname(__file__), 'data', 'transforms.db')
@@ -23,6 +23,7 @@ def insert_translations(conn, cursor, trans_list):
 def get_translations(trans_list):
     alphabets = {}
     for trans in trans_list:
+        print('Getting alphabets for',trans.__name__)
         for key in trans.all_iteration():
             obj = trans(key)
             alpha = obj.generate_trans_table()
@@ -39,7 +40,7 @@ def select_translations(cursor):
     cursor.execute("""
             SELECT translation,algsstr FROM translations""")
     return cursor.fetchall()
-    #TODO: rework to do an iterator for fetching the data
+    # TODO: rework to do an iterator for fetching the data
     '''
     while True:
         results = cursor.fetchmany(1000)

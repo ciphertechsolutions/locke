@@ -191,7 +191,7 @@ class TransformAddLRoll(TransformChar):
 
     def transform_byte(self, byte, encode=False):
         if encode:
-            return (rol_left(byte, 8-self.value[1]) - self.value[0]) & 0xFF
+            return (rol_left(byte, 8 - self.value[1]) - self.value[0]) & 0xFF
         else:
             return rol_left((byte + self.value[0]) & 0xFF, self.value[1])
 
@@ -254,7 +254,7 @@ class TransformAllStage12(TransformString):
         self.value = value
 
     def transform_string(self, data, encode=False):
-        #TODO: encode
+        # TODO: encode
         return data.translate(self.value[0])
 
     @staticmethod

@@ -52,20 +52,23 @@ class TestingTransformer(unittest.TestCase):
         transList = select_transformers(
             tList,
             nList,
-            yes=1)
+            yes=1,
+            listing=True)
         self.assertTrue(len(transList) == 2)
         # If we add an invalid transformer, it should just be ignored
         nList += ", TransformNoAvailable"
         transList = select_transformers(
             self.tList,
             nList,
-            yes=1)
+            yes=1,
+            listing=True)
         self.assertTrue(len(transList) == 2)
         # name > only > level
         transList = select_transformers(
             tList,
             nList, select=2, level=1,
-            yes=1)
+            yes=1,
+            listing=True)
         self.assertTrue(len(transList) == 2)
         # only > level (also check if we get the right amount of
         # trans on the requested level)
@@ -73,17 +76,18 @@ class TestingTransformer(unittest.TestCase):
             with self.subTest(i=i):
                 transList = select_transformers(
                     tList,
-                    select=(i + 1), level=1)
+                    select=(i + 1), level=1, listing=True)
                 self.assertTrue(len(transList) == len(tList[i]))
         # test if level will get us all transformers from the requested
         # level and below
         transList = select_transformers(
             tList,
-            level=2)
+            level=2,
+            listing=True)
         self.assertTrue(len(transList) == len(tList[0] + tList[1]))
 
         # test default action (uses level = 3)
-        transList = select_transformers(tList)
+        transList = select_transformers(tList, listing=True)
         self.assertTrue(len(transList) == len(tList[0] + tList[1] + tList[2]))
 
     def test_to_bytes(self):
@@ -141,7 +145,7 @@ class TestingBasicTransforms(unittest.TestCase):
         tdata = t._transform(self.data)
         adata = b'\x4f\x4e\x4d\x4c\x4b\x4a\x49\x48\x47\x46\x45'
         self.assertEqual(adata, tdata)
-        self.assertEqual(self.data, t._transform(tdata,True))
+        self.assertEqual(self.data, t._transform(tdata, True))
 
     def test_add(self):
         # we need to test the limiter
@@ -169,7 +173,7 @@ class TestingBasicTransforms(unittest.TestCase):
         # 0000 0011 > 0000 0000
         adata = b'\xfa\xfc\xfe\x00\x02\x04\x06\x08\x0a\x0c\x0e'
         self.assertEqual(adata, tdata)
-        self.assertEqual(self.data,t._transform(tdata, True))
+        self.assertEqual(self.data, t._transform(tdata, True))
 
     def test_add_lrol(self):
         t = TransformAddLRoll((250, 1))
@@ -179,7 +183,7 @@ class TestingBasicTransforms(unittest.TestCase):
         # 0000 0011 > 0000 0000
         adata = b'\xf5\xf7\xf9\xfb\xfd\xff\x00\x02\x04\x06\x08'
         self.assertEqual(adata, tdata)
-        self.assertEqual(self.data,t._transform(tdata, True))
+        self.assertEqual(self.data, t._transform(tdata, True))
 
 
 if __name__ == '__main__':

@@ -3,14 +3,13 @@ import csv as csvlib
 import sys
 from os import path
 
-
 import click
 
-SCRIPT_DIR = path.dirname(path.abspath(__file__)) # shouldnt need this
-sys.path.append(path.join(SCRIPT_DIR, 'apm')) #shouldnt need this
+SCRIPT_DIR = path.dirname(path.abspath(__file__))  # shouldnt need this
+sys.path.append(path.join(SCRIPT_DIR, 'apm'))  # shouldnt need this
 
 import apm
-import patterns #n noqa - needed for module loading
+import patterns # noqa - needed for module loading
 import transformers # noqa - needed for module loading
 import liblocke.utils as utils
 from liblocke.transformer import select_transformers, run_transformations, \
@@ -33,9 +32,9 @@ def load_all_transformers():
                       % trans.__name__)
 
 
-def search_standalone(f):
+def search_standalone(data):
     score = 0
-    mgr = apm.Manager(raw=f.read())
+    mgr = apm.Manager(raw=data)
     msgs = []
     for pat, matches in mgr.run_standalone():
         if not matches:
@@ -63,7 +62,6 @@ def cli(ctx, verbose):
 @click.option('--csv', default=None, help='output results as CSV')
 @click.option('-st', '--standalone', is_flag=True, help='standalone mode')
 @click.argument('files', type=click.File('rb'), nargs=-1)
-
 @click.pass_context
 def search(ctx, csv, standalone, files):
     """
@@ -82,12 +80,13 @@ def search(ctx, csv, standalone, files):
         csv_writer.writerow(['Filename', 'Index', 'Pattern name', 'Match',
                              'Length'])
 
-    #TODO: Could Pool the searches
+    # TODO: Could Pool the searches
     for f in files:
         click.echo("=" * 79)
         click.echo("File: %s\n" % f.name)
 
-        for description, weight, hsh in search_standalone(f) if standalone \
+        for description, weight, hsh in search_standalone(
+                f.read()) if standalone \
                 else client.send_data(f.read()):
             desc = description.decode()
             for offset, data in hsh.items():
@@ -154,14 +153,7 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
 
     trans_list = select_transformers(TRANSFORMERS, name, only, level)
     results = run_transformations(trans_list, filename, keep, standalone,
-                                  zip_file, password)[:save]
-
-    result_log = ("Transform: %s \t\t| Score %i" % (t.name(), s)
-                  for t, s in results)
-    print("\n--------------")
-    print("Results:")
-    [print(log) for log in result_log]
-    print("--------------\n")
+                                  zip_file, password, verbose)[:save]
 
     # TODO
     # Call on save to disk here? or Make run_transformation call write to disk?
@@ -197,10 +189,11 @@ def transforms(ctx, level, only, name, test, generate):
     List all transformations known by Locke.
     """
     load_all_transformers()
-    trans_list = select_transformers(TRANSFORMERS, name, only, level)
+    trans_list = select_transformers(TRANSFORMERS, name, only, level, listing=True)
     if test:
         test_transforms(trans_list)
     elif generate:
+        print('Generating new transforms.db file')
         charonly = []
         for trans in trans_list:
             if issubclass(trans, TransformChar):
