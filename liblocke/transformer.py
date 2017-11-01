@@ -400,12 +400,11 @@ def _read_file(filename):
     return data
 
 
-def _transform_standalone(transform_stage):
+def _transform(transform_stage):
     """
         Process the data using the transformer provided
-        Creates an instance of the search client and passes
-        the transformed data over. Upon receiving the results
-        store it in a list of tuple(transform_instance, score)
+        Upon receiving the results store it in a
+        list of tuple(transform_instance, score)
 
         Args:
             transform_stage: A tuple(transformer, stage_number)
@@ -418,7 +417,7 @@ def _transform_standalone(transform_stage):
     score = 0
     mgr = apm.Manager(raw=trans_data, stage=stage)
     msgs = []
-    for pat, matches in mgr.run_standalone():
+    for pat, matches in mgr.run():
         if not matches:
             continue
 
@@ -433,36 +432,6 @@ def _transform_standalone(transform_stage):
     for desc, weight, matches in msgs:
         score += len(matches) * weight
     results = (transformer, score, msgs)
-
-    return results
-
-
-def _transform(transform_stage):
-    """
-    Process the data using the transformer provided
-    Creates an instance of the search client and passes
-    the transformed data over. Upon receiving the results
-    store it in a list of tuple(transform_instance, score)
-
-    Args:
-        transform_stage: A tuple(transformer, stage_number)
-    Return:
-        A list of tuple(transform_instance, score)
-    """
-    transformer, stage = transform_stage
-
-    trans_data = transformer._transform(data)
-    score = 0
-
-    # make instance of client here
-    client = apm.client.TCPClient(stage=stage)
-    client.connect()
-
-    for desc, weight, matches in client.send_data(trans_data):
-        score += len(matches) * weight
-    results = (transformer, score)
-
-    client.disconnect()
 
     return results
 
@@ -497,7 +466,7 @@ def _display_elapse(start_time, iter_count):
     print("%i iterations in %iD:%02iH:%02iM:%02iS" % (iter_count, d, h, m, s))
 
 
-def run_transformations(trans_list, filename, keep, standalone,
+def run_transformations(trans_list, filename, keep,
                         zip_file=False, password=None, verbose=0):
     """
     Using a process pool, run all transformation on the file and return
@@ -529,23 +498,19 @@ def run_transformations(trans_list, filename, keep, standalone,
     # on smaller files... but what about the more complex transformers and
     # bigger files? Pool of instances should be faster?
     pool = Pool()
-    if standalone:
-        '''
-        result_list = [] 
-        for trans in _iteration_transformer(stage1):
-            result_list.append(_transform_standalone(trans))
-        '''
-        # TODO: Make sure there is safe execution.
-        # If this throws an error it hangs
-        result_list = pool.map_async(_transform_standalone,
-                                     _iteration_transformer(stage1),
-                                     error_callback=_error_raise).get()
-        '''
-        '''
-    else:
+    '''
+    result_list = [] 
+    for trans in _iteration_transformer(stage1):
+        result_list.append(_transform_standalone(trans))
+    '''
+    # TODO: Make sure there is safe execution.
+    # If this throws an error it hangs
+    result_list = pool.map_async(_transform,
+                                 _iteration_transformer(stage1),
+                                 error_callback=_error_raise).get()
+    '''
+    '''
 
-        result_list = pool.map_async(_transform, _iteration_transformer(stage1),
-                                     error_callback=_error_raise).get()
     _display_elapse(start, len(result_list))
 
     # sort the data and keep only the top few
@@ -558,8 +523,7 @@ def run_transformations(trans_list, filename, keep, standalone,
 
     # extract the wanted transformer and group it with 2 (mark as stage 2)
     stage2 = [(trans[0], 2) for trans in result_list]
-    result_list = pool.map_async(_transform_standalone if standalone
-                                 else _transform,
+    result_list = pool.map_async(_transform,
                                  stage2,
                                  error_callback=_error_raise).get()
     _display_elapse(start, len(result_list))

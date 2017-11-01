@@ -2,26 +2,66 @@ Locke
 =====
 
 Locke is a refactoring and remodeling of [Balbuzard](https://github.com/decalage2/balbuzard).
-
+Locke was a refactoring of Balbuzard to port the code to Python3 as well as 
+increase its overall performance.
 ### Installation
 
-Requires Python3.5 + 
+Requires Python3.5 +
 
-Requires Time. A lot of time. Or a Super Computer (prefer a Quantum Computer)
+##### From source
+``` bash
+python3 setup.py install
+```
+##### pip install
+``` bash
+pip3 install --index-url https://test.pypi.org/simple/ locke
+```
 
-Requires apm server to be running. Just cd to apm and run PYTHONPATH=. apm/server/tcp_server.py
+Locke will be installed into your path and should be able to be run like any
+other executable in your path. 
 
 ### Usage
 
-Locke is simple to use. Just run
+Locke is simple to use. Just run:
 ``` bash
-python3 locke.py --help
+locke --help
 ```
+
+#### Quickstart
+With a given ``<filename>`` run the following commands:
+
+```bash
+$locke search <filename>
+```
+This should show you some patterns found within the provided file without doing
+any transformations to find encoded data.
+
+```bash
+$locke crack <filename>
+```
+This should take under a minute to process (depends on the filesize). This will 
+go through all the stage 1 and stage 2 transformations and stage 1 of the 
+patterns to find any matches. This will also save the transformed file for 
+the top 10 results.
+
+To get more information about the matches either run:
+
+```bash
+locke crack -v 1 <filename>
+``` 
+(this will rerun everything and give you detailed output on the top 10 matches)
+or run:
+```bash
+locke search <transformed_filename>
+``` 
+(this will search the provided transformed file for patterns and output 
+detailed information)
+#### Commands
 After each command, you can run ``--help`` to get more information about the command.
 
 Some basic commands are:
 ```
-Usage: locke.py [OPTIONS] COMMAND [ARGS]...
+Usage: locke [OPTIONS] COMMAND [ARGS]...
 
 Options:
   -v, --verbose  be verbose
@@ -33,18 +73,65 @@ Commands:
   search      Search for patterns of interest in the...
   transforms  List all transformations known by Locke.
 ```
+##### patterns
+Usage statement:
+```bash
+$locke patterns --help
+Usage: locke patterns [OPTIONS]
 
+  List all patterns known by Locke.
+
+Options:
+  --help  Show this message and exit.
+```
+##### search
+Usage statement:
+```bash
+$locke search --help
+Usage: locke search [OPTIONS] [FILES]...
+
+  Search for patterns of interest in the supplied files.
+
+Options:
+  --csv TEXT  output results as CSV
+  --help      Show this message and exit.
+```
 For a basic search just run 
 ```
-python3 locke.py search <filename>
+locke search <filename>
 ```
 You can add in `` --csv <outputName>`` to save the result as a csv
 
-Decoding a file have some parameters that may be of interest:
-```
-Usage: locke.py crack [OPTIONS] FILENAME
+##### transforms
+Usage statement:
+```bash
+$locke transforms --help
+Usage: locke transforms [OPTIONS]
 
-  Use patterns of interest to crack the supplied files.
+  List all transformations known by Locke. Also generate a new transforms.db
+  and test algorithm duplications.
+
+Options:
+  -l, --level INTEGER  Select transformers with level 1, 2, or 3 and below
+  -o, --only INTEGER   Only use transformers on that specific level
+  -n, --name TEXT      A list of transformer classes to use in quotes and is
+                       commas separated
+  -t, --test           test transformations for simplification
+  -g, --generate       generate transformations database
+  --help               Show this message and exit.
+```
+
+For the stage 1 and 2 transforms Locke uses a generated database to increase the
+performance of the overall system. When adding new stage 1 and 2 algorithms you
+must run the ``-g`` option to regenerate the database.
+
+##### crack
+Usage statement:
+```
+$locke crack --help
+Usage: locke crack [OPTIONS] FILENAME
+
+  Use patterns and transformations of interest to crack the supplied files.
 
 Options:
   -l, --level INTEGER    Select transformers with level 1, 2, or 3 and below
@@ -65,11 +152,11 @@ Options:
 
 ```
 
-To start a basic start with all the transformers (from level 1 - 3), run ``python3 locke.py crack <filename>``
+To start a basic start with all the transformers (from level 1 - 3), run ``locke crack <filename>``
 This will decode the files, search each decoded instance and save the top 10 scoring instance to disk
 
 To adjust how many files to keep/save, enter a number after ``-k`` or ``-s``. The lower the number,
-the fast the program will run, but you will be limiting your results.
+the faster the program will run, but you will be limiting your results.
 
 To select what transformation to run, use either ``-l``, ``-o``, or ``-n`` command. There is an order of
 precedence. Only one of the value will be used to filter the transformers list. The order is as follow:
@@ -87,31 +174,3 @@ This program also support decoding files inside a zip. Run with ``-z`` to mark t
 password encrypted, you can supply the password by using the ``--password <password>`` option. The script
 will attempt to read the zip and list the files available and ask which files do you want to decode (if there are
 more than one files).
-
-
-For a list of all available Transformers, run ``python3 locke.py transforms``.
-
-For a list of all available Patterns, run ``python3 locke.py patterns``.
-
-apm
-=====
-
-APM is a simple but scalable pattern matcher, providing the ability to scan files
-for patterns of interest (POIs) declared as Python classes.
-
-APM patterns can also contain weights, which can be used to describe the importance
-of matches.
-
-### Command-line usage
-
-```bash
-$ pip3 install click # click is needed for the CLI
-$ pip3 install msgpack-python # msgpack is needed for client/server communication
-
-$ PYTHONPATH=. python3 apm/server/tcp_server.py
-$ PYTHONPATH=. python3 apm/client/tcp_client.py big_file.exe
-```
-
-### TODO
-
-Rewrite plugins to use metaclasses?

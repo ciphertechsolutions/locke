@@ -32,11 +32,11 @@ def load_all_transformers():
                       % trans.__name__)
 
 
-def search_standalone(data):
+def search_data(data):
     score = 0
-    mgr = apm.Manager(raw=data)
+    mgr = apm.Manager(stage=2, raw=data)
     msgs = []
-    for pat, matches in mgr.run_standalone():
+    for pat, matches in mgr.run():
         if not matches:
             continue
 
@@ -60,18 +60,12 @@ def cli(ctx, verbose):
 
 @cli.command()
 @click.option('--csv', default=None, help='output results as CSV')
-@click.option('-st', '--standalone', is_flag=True, help='standalone mode')
 @click.argument('files', type=click.File('rb'), nargs=-1)
 @click.pass_context
-def search(ctx, csv, standalone, files):
+def search(ctx, csv, files):
     """
     Search for patterns of interest in the supplied files.
     """
-    if not standalone:
-        client = apm.client.TCPClient()
-        print(client.host, client.port)
-        client.connect()
-        print('Made connection')
 
     if csv:
         click.echo('Writing CSV results to %s' % csv)
@@ -85,9 +79,7 @@ def search(ctx, csv, standalone, files):
         click.echo("=" * 79)
         click.echo("File: %s\n" % f.name)
 
-        for description, weight, hsh in search_standalone(
-                f.read()) if standalone \
-                else client.send_data(f.read()):
+        for description, weight, hsh in search_data(f.read()):
             desc = description.decode()
             for offset, data in hsh.items():
                 mstr = utils.prettyhex(data)
@@ -99,8 +91,6 @@ def search(ctx, csv, standalone, files):
                 if csv:
                     csv_writer.writerow([f.name, '0x%08X' % offset,
                                          desc, mstr, len(data)])
-
-                    client.disconnect()
 
     if csv:
         csvfile.close()
@@ -136,13 +126,12 @@ def search(ctx, csv, standalone, files):
               help='Set the verbose level '
                    'Valid inputs are 0 - 2 (lowest output to highest). '
                    'Note that -v 2 is not human friendly')
-@click.option('-st', '--standalone', is_flag=True, help='standalone mode')
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
 def crack(ctx, level, only, name, keep, save, zip_file, password,
-          no_save, verbose, standalone, filename):
+          no_save, verbose, filename):
     """
-    Use patterns of interest to crack the supplied files.
+    Use patterns and transformations of interest to crack the supplied files.
     """
     if not path.exists(transformers.utils.DBFILE):
         print('Run generate to create a new transforms.db')
@@ -152,7 +141,7 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
         raise ValueError("Password field is set without zip enable")
 
     trans_list = select_transformers(TRANSFORMERS, name, only, level)
-    results = run_transformations(trans_list, filename, keep, standalone,
+    results = run_transformations(trans_list, filename, keep,
                                   zip_file, password, verbose)[:save]
 
     # TODO
@@ -186,7 +175,8 @@ def patterns(ctx):
 @click.pass_context
 def transforms(ctx, level, only, name, test, generate):
     """
-    List all transformations known by Locke.
+    List all transformations known by Locke. Also generate a new transforms.db
+    and test algorithm duplications.
     """
     load_all_transformers()
     trans_list = select_transformers(TRANSFORMERS, name, only, level, listing=True)
