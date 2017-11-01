@@ -68,7 +68,7 @@ class TransformXORDec(TransformString):
         self.value = value
 
     def transform_string(self, data, encode=False):
-        #TODO: encode
+        # TODO: encode
         result = bytearray()
         append = result.append
         for i in range(0, len(data)):
@@ -101,7 +101,7 @@ class TransformSubInc(TransformString):
         self.value = value
 
     def transform_string(self, data):
-        #TODO: encode
+        # TODO: encode
         result = bytearray()
         append = result.append
         for i in range(0, len(data)):
@@ -134,7 +134,7 @@ class TransformXORLChained(TransformString):
         self.value = value
 
     def transform_string(self, data, encode=False):
-        #TODO: encode
+        # TODO: encode
         result = bytearray()
         append = result.append
         append(data[0] ^ self.value)
@@ -167,7 +167,7 @@ class TransformXORRChained(TransformString):
         self.value = value
 
     def transform_string(self, data, encode=False):
-        #TODO: encode
+        # TODO: encode
         result = bytearray()
         append = result.append
         for i in range(0, len(data) - 1):

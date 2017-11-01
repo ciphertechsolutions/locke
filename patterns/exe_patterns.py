@@ -42,7 +42,7 @@ class MZFollowedByPE(REPatternPlugin):
     """
     Stage = 2
     Description = 'MZ header followed by PE header'
-    #TODO: Look into how this could link with the PE and MZ lookups.
+    # TODO: Look into how this could link with the PE and MZ lookups.
     Pattern = r'(?s)MZ.{32,1024}PE\x00\x00'
     Weight = 100
 

@@ -9,6 +9,7 @@ class TCPServer(SocketServer):
     within those requests, and sends the results as msgpack-formatted
     lists and dictionaries.
     """
+
     def __init__(self, host: str = 'localhost', port: int = 1337):
         super().__init__()
         self.host = host
