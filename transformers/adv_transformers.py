@@ -16,6 +16,7 @@ class TransformXORIncLRol(TransformString):
     ID: xor_inc_lrol
     """
 
+    @staticmethod
     def class_level():
         return 3
 
@@ -24,9 +25,6 @@ class TransformXORIncLRol(TransformString):
 
     def shortname(self):
         return "xor%02X_inc_lrol%i" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data, encode=False):
         # TODO: encode
@@ -52,6 +50,7 @@ class TransformXORRChainedAll(TransformString):
     ID: xor_rchain_all
     """
 
+    @staticmethod
     def class_level():
         return 3
 
@@ -60,9 +59,6 @@ class TransformXORRChainedAll(TransformString):
 
     def shortname(self):
         return "xor%02X_rchained_all" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data, encode=False):
         # TODO: encode

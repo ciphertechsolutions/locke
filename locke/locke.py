@@ -9,8 +9,8 @@ SCRIPT_DIR = path.dirname(path.abspath(__file__))  # shouldnt need this
 sys.path.append(path.join(SCRIPT_DIR, 'apm'))  # shouldnt need this
 
 import apm
-import patterns # noqa - needed for module loading
-import transformers # noqa - needed for module loading
+import patterns  # noqa - needed for module loading
+import transformers  # noqa - needed for module loading
 import liblocke.utils as utils
 from liblocke.transformer import select_transformers, run_transformations, \
     write_to_disk, TransformChar, TransformString, test_transforms
@@ -179,7 +179,8 @@ def transforms(ctx, level, only, name, test, generate):
     and test algorithm duplications.
     """
     load_all_transformers()
-    trans_list = select_transformers(TRANSFORMERS, name, only, level, listing=True)
+    trans_list = select_transformers(TRANSFORMERS, name, only, level,
+                                     listing=True)
     if test:
         test_transforms(trans_list)
     elif generate:

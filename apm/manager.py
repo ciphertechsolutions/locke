@@ -1,6 +1,6 @@
 import os
 from typing import List, Tuple, Generator
-import patterns # needed for dynamic load
+import patterns  # needed for dynamic load
 from apm.match import Match
 from apm.pattern_plugin import PatternPlugin
 

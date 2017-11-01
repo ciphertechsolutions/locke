@@ -23,7 +23,7 @@ def insert_translations(conn, cursor, trans_list):
 def get_translations(trans_list):
     alphabets = {}
     for trans in trans_list:
-        print('Getting alphabets for',trans.__name__)
+        print('Getting alphabets for', trans.__name__)
         for key in trans.all_iteration():
             obj = trans(key)
             alpha = obj.generate_trans_table()
@@ -71,4 +71,3 @@ def get_alphabets(db_file=DBFILE):
     except Error as e:
         print(e)
         conn.close()
-

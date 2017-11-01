@@ -22,6 +22,7 @@ class TransformXORInc(TransformString):
     ID: xor_inc
     """
 
+    @staticmethod
     def class_level():
         return 2
 
@@ -30,9 +31,6 @@ class TransformXORInc(TransformString):
 
     def shortname(self):
         return "xor%02X_inc" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data, encode=False):
         # TODO: encode
@@ -55,6 +53,7 @@ class TransformXORDec(TransformString):
     ID: xor_dec
     """
 
+    @staticmethod
     def class_level():
         return 2
 
@@ -63,9 +62,6 @@ class TransformXORDec(TransformString):
 
     def shortname(self):
         return "xor%02X_dec" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data, encode=False):
         # TODO: encode
@@ -88,6 +84,7 @@ class TransformSubInc(TransformString):
     ID: sub_inc
     """
 
+    @staticmethod
     def class_level():
         return 2
 
@@ -96,9 +93,6 @@ class TransformSubInc(TransformString):
 
     def shortname(self):
         return "sub%02X_inc" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data):
         # TODO: encode
@@ -121,6 +115,7 @@ class TransformXORLChained(TransformString):
     ID: xor_chained
     """
 
+    @staticmethod
     def class_level():
         return 2
 
@@ -129,9 +124,6 @@ class TransformXORLChained(TransformString):
 
     def shortname(self):
         return "xor%02X_lchained" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data, encode=False):
         # TODO: encode
@@ -154,6 +146,7 @@ class TransformXORRChained(TransformString):
     ID: xor_Rchained
     """
 
+    @staticmethod
     def class_level():
         return 2
 
@@ -162,9 +155,6 @@ class TransformXORRChained(TransformString):
 
     def shortname(self):
         return "xor%02X_rchained" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data, encode=False):
         # TODO: encode
@@ -192,6 +182,7 @@ class TransformXORAdd(TransformChar):
     ID: xor_add
     """
 
+    @staticmethod
     def class_level():
         return 2
 
@@ -200,9 +191,6 @@ class TransformXORAdd(TransformChar):
 
     def shortname(self):
         return "xor%02X_add%i" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         if encode:
@@ -224,6 +212,7 @@ class TransformAddXOR(TransformChar):
     ID: add_xor
     """
 
+    @staticmethod
     def class_level():
         return 2
 
@@ -232,9 +221,6 @@ class TransformAddXOR(TransformChar):
 
     def shortname(self):
         return "add%i_xor%02X" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         if encode:
