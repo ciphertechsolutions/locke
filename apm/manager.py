@@ -1,5 +1,4 @@
 import os
-from multiprocessing import Pool
 from typing import List, Tuple, Generator
 import patterns # needed for dynamic load
 from apm.match import Match
@@ -57,20 +56,7 @@ class Manager(object):
 
     def run(self) -> Generator[PatternMatches, None, None]:
         """
-        This method runs all patterns against the data, utilizing
-        a process pool to distribute the work.
-
-        It returns a list of (PatternPlugin, List(Match)) tuples.
-        """
-
-        with Pool(self.nproc) as pool:
-            for ms in pool.map(self.run_pattern, self.pats):
-                yield ms
-
-    def run_standalone(self) -> Generator[PatternMatches, None, None]:
-        """
-        This method runs all patterns against the data, utilizing
-        a process pool to distribute the work.
+        This method runs all patterns against the data
 
         It returns a list of (PatternPlugin, List(Match)) tuples.
         """

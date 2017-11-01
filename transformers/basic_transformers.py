@@ -236,9 +236,9 @@ class TransformLRolAdd(TransformChar):
 
 class TransformAllStage12(TransformString):
     """
-    Name: Transform XOR R Chained with All Bytes
-    Description: XOR byte with all the bytes from the right of it
-    ID: xor_rchain_all
+    Name: Transform all Stage 1 & 2 transforms
+    Description: use pre-processed translation alphabets
+    ID: all_stage_12
     """
 
     def class_level():
