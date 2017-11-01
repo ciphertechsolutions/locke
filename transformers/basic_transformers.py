@@ -26,6 +26,7 @@ class TransformIdentity(TransformString):
     ID: no_trans
     """
 
+    @staticmethod
     def class_level():
         return 1
 
@@ -34,9 +35,6 @@ class TransformIdentity(TransformString):
 
     def shortname(self):
         return "no_trans"
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data, encode=False):
         return data
@@ -58,6 +56,7 @@ class TransformRotateLeft(TransformChar):
     ID: rLeft
     """
 
+    @staticmethod
     def class_level():
         return 1
 
@@ -66,9 +65,6 @@ class TransformRotateLeft(TransformChar):
 
     def shortname(self):
         return "rLeft_%i" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         if encode:
@@ -88,6 +84,7 @@ class TransformXOR(TransformChar):
     ID: xor_char
     """
 
+    @staticmethod
     def class_level():
         return 1
 
@@ -96,9 +93,6 @@ class TransformXOR(TransformChar):
 
     def shortname(self):
         return "xor_%02X" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         return byte ^ self.value
@@ -115,6 +109,7 @@ class TransformAdd(TransformChar):
     ID: add_char
     """
 
+    @staticmethod
     def class_level():
         return 1
 
@@ -123,9 +118,6 @@ class TransformAdd(TransformChar):
 
     def shortname(self):
         return "add_%i" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         if encode:
@@ -145,6 +137,7 @@ class TransformXORLRoll(TransformChar):
     ID: xor_lrol
     """
 
+    @staticmethod
     def class_level():
         return 1
 
@@ -153,9 +146,6 @@ class TransformXORLRoll(TransformChar):
 
     def shortname(self):
         return "xor%02X_lrol%i" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         if encode:
@@ -177,6 +167,7 @@ class TransformAddLRoll(TransformChar):
     ID: add_lrol
     """
 
+    @staticmethod
     def class_level():
         return 1
 
@@ -185,9 +176,6 @@ class TransformAddLRoll(TransformChar):
 
     def shortname(self):
         return "add%i_lrol%i" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         if encode:
@@ -209,6 +197,7 @@ class TransformLRolAdd(TransformChar):
     ID: lrol_add
     """
 
+    @staticmethod
     def class_level():
         return 1
 
@@ -217,9 +206,6 @@ class TransformLRolAdd(TransformChar):
 
     def shortname(self):
         return "lrol%i_add%i" % self.value
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         if encode:
@@ -237,10 +223,11 @@ class TransformLRolAdd(TransformChar):
 class TransformAllStage12(TransformString):
     """
     Name: Transform all Stage 1 & 2 transforms
-    Description: use pre-processed translation alphabets
+    Description: Use pre-processed translation alphabets
     ID: all_stage_12
     """
 
+    @staticmethod
     def class_level():
         return 1
 
@@ -249,9 +236,6 @@ class TransformAllStage12(TransformString):
 
     def shortname(self):
         return self.value[1]
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_string(self, data, encode=False):
         # TODO: encode

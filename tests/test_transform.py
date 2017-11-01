@@ -136,54 +136,54 @@ class TestingBasicTransforms(unittest.TestCase):
 
     def test_identity(self):
         t = TransformIdentity(self.genKey)
-        tdata = t._transform(self.data)
+        tdata = t.transform(self.data)
         self.assertEqual(self.data, tdata)
-        self.assertEqual(self.data, t._transform(tdata, True))
+        self.assertEqual(self.data, t.transform(tdata, True))
 
     def test_xor(self):
         t = TransformXOR(self.genKey)
-        tdata = t._transform(self.data)
+        tdata = t.transform(self.data)
         adata = b'\x4f\x4e\x4d\x4c\x4b\x4a\x49\x48\x47\x46\x45'
         self.assertEqual(adata, tdata)
-        self.assertEqual(self.data, t._transform(tdata, True))
+        self.assertEqual(self.data, t.transform(tdata, True))
 
     def test_add(self):
         # we need to test the limiter
         t = TransformAdd(250)
-        tdata = t._transform(self.data)
+        tdata = t.transform(self.data)
         adata = b'\xfa\xfb\xfc\xfd\xfe\xff\x00\x01\x02\x03\x04'
         self.assertEqual(adata, tdata)
-        self.assertEqual(self.data, t._transform(tdata, True))
+        self.assertEqual(self.data, t.transform(tdata, True))
 
     def test_xor_lrol(self):
         t = TransformXORLRoll((self.genKey, 1))
-        tdata = t._transform(self.data)
+        tdata = t.transform(self.data)
         # 0100 1111 > 1001 1110
         # 0100 1110 > 1001 1100
         # 0100 1101 > 1001 1010
         adata = b'\x9e\x9c\x9a\x98\x96\x94\x92\x90\x8e\x8c\x8a'
         self.assertEqual(adata, tdata)
-        self.assertEqual(self.data, t._transform(tdata, True))
+        self.assertEqual(self.data, t.transform(tdata, True))
 
     def test_lrol_add(self):
         t = TransformLRolAdd((1, 250))
-        tdata = t._transform(self.data)
+        tdata = t.transform(self.data)
         # 0000 0001 > 1111 1100
         # 0000 0010 > 1111 1110
         # 0000 0011 > 0000 0000
         adata = b'\xfa\xfc\xfe\x00\x02\x04\x06\x08\x0a\x0c\x0e'
         self.assertEqual(adata, tdata)
-        self.assertEqual(self.data, t._transform(tdata, True))
+        self.assertEqual(self.data, t.transform(tdata, True))
 
     def test_add_lrol(self):
         t = TransformAddLRoll((250, 1))
-        tdata = t._transform(self.data)
+        tdata = t.transform(self.data)
         # 0000 0001 > 1111 1100
         # 0000 0010 > 1111 1110
         # 0000 0011 > 0000 0000
         adata = b'\xf5\xf7\xf9\xfb\xfd\xff\x00\x02\x04\x06\x08'
         self.assertEqual(adata, tdata)
-        self.assertEqual(self.data, t._transform(tdata, True))
+        self.assertEqual(self.data, t.transform(tdata, True))
 
 
 if __name__ == '__main__':

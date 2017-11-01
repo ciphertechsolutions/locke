@@ -2,15 +2,25 @@ import os
 import sys
 import time
 import zipfile
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from multiprocessing import Pool
 
 import apm
 from liblocke.utils import prettyhex
 
 
-class _Transform(ABC):
-    @abstractproperty
+class BaseTransform(ABC):
+    def __init__(self, value):
+        """
+        A generic init function. self.value = value is required unless
+        this transformation takes no iterations. This can be used
+        to initialize necessary values as this will be called every
+        time a there is a new iteration for this class
+        """
+        self.value = value
+
+    @staticmethod
+    @abstractmethod
     def class_level():
         """
         The level of the transformation. Only 1 - 3 (or 0 - 2 if
@@ -24,7 +34,8 @@ class _Transform(ABC):
         """
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def name(self):
         """
         This is the Full Name of the class a long with the current
@@ -35,7 +46,8 @@ class _Transform(ABC):
         """
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def shortname(self):
         """
         A shorter version of the name property without space. This
@@ -45,17 +57,7 @@ class _Transform(ABC):
         pass
 
     @abstractmethod
-    def __init__(self, value):
-        """
-        A generic init function. self.value = value is required unless
-        this transformation takes no iterations. This can be used
-        to initialize necessary values as this will be called every
-        time a there is a new iteration for this class
-        """
-        self.value = value
-
-    @abstractmethod
-    def _transform(self, data, encode=False):
+    def transform(self, data, encode=False):
         """
         Called by the workers to pass the data package to the transform
         classes
@@ -82,21 +84,21 @@ class _Transform(ABC):
         yield None
 
 
-class TransformString(_Transform):
+class TransformString(BaseTransform):
     """
     Name: Transform String
     Description: Transform the whole data string
     ID: str_trans
     """
 
-    def _transform(self, data, encode=False):
+    def transform(self, data, encode=False):
         """
         This method contains all the requires steps/calls needed
         to transform the string. This method should NOT be overridden.
 
         Args:
             data: The string that will be decoded by this method
-
+            encode: boolean on whether to encode instead of decode the data
         Returns:
             A bytestring
         """
@@ -123,14 +125,14 @@ class TransformString(_Transform):
         pass
 
 
-class TransformChar(_Transform):
+class TransformChar(BaseTransform):
     """
     Name: Transform Char
     Description: Transform individual char in the data (two bytes)
     ID: chr_trans
     """
 
-    def _transform(self, data, encode=False):
+    def transform(self, data, encode=False):
         """
         This method contains all the requires steps/calls needed
         to transform the string's individual char. This method
@@ -142,7 +144,7 @@ class TransformChar(_Transform):
 
         Args:
             data: The string that will be decoded by this method
-
+            encode: boolean on whether to encode instead of decode the data
         Returns:
             A bytestring
         """
@@ -413,7 +415,7 @@ def _transform(transform_stage):
         """
     transformer, stage = transform_stage
 
-    trans_data = transformer._transform(data)
+    trans_data = transformer.transform(data)
     score = 0
     mgr = apm.Manager(raw=trans_data, stage=stage)
     msgs = []
@@ -501,22 +503,20 @@ def run_transformations(trans_list, filename, keep,
     '''
     result_list = [] 
     for trans in _iteration_transformer(stage1):
-        result_list.append(_transform_standalone(trans))
+        result_list.append(_transform(trans))
     '''
     # TODO: Make sure there is safe execution.
     # If this throws an error it hangs
     result_list = pool.map_async(_transform,
                                  _iteration_transformer(stage1),
                                  error_callback=_error_raise).get()
-    '''
-    '''
-
-    _display_elapse(start, len(result_list))
 
     # sort the data and keep only the top few
+    stage1iters = len(result_list)
     result_list = sorted(result_list, key=lambda r: r[1], reverse=True)[:keep]
     if verbose > 0:
         print_results(result_list, True if verbose > 1 else False)
+    _display_elapse(start, stage1iters)
     print('=' * 20, 'Stage1 Completed', '=' * 20)
     print('=' * 20, 'Starting Stage 2', '=' * 20)
     start = time.time()
@@ -526,9 +526,9 @@ def run_transformations(trans_list, filename, keep,
     result_list = pool.map_async(_transform,
                                  stage2,
                                  error_callback=_error_raise).get()
-    _display_elapse(start, len(result_list))
 
     print_results(result_list, True if verbose > 0 else False)
+    _display_elapse(start, len(result_list))
     print('=' * 20, 'Stage2 Completed', '=' * 20)
 
     return sorted(result_list, key=lambda r: r[1], reverse=True)
@@ -549,7 +549,7 @@ def write_to_disk(results, filename):
         # It shouldn't take that long as we don't have to process the
         # pattern matching
         trans, score, _ = results[i]
-        trans_data = trans._transform(data)
+        trans_data = trans.transform(data)
         if score > 0:
             base, ext = os.path.splitext(filename)
             t_name = base + "_%i_%s%s" % (i, trans.shortname(), ext)

@@ -108,6 +108,7 @@ class TransformOutlookPST(TransformChar):
         212, 225, 17, 208, 8, 139, 42, 242,
         237, 154, 100, 63, 193, 108, 249, 236]
 
+    @staticmethod
     def class_level():
         return -1
 
@@ -116,9 +117,6 @@ class TransformOutlookPST(TransformChar):
 
     def shortname(self):
         return "outlook_pst"
-
-    def __init__(self, value):
-        self.value = value
 
     def transform_byte(self, byte, encode=False):
         # TODO: encode

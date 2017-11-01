@@ -23,7 +23,7 @@ def insert_translations(conn, cursor, trans_list):
 def get_translations(trans_list):
     alphabets = {}
     for trans in trans_list:
-        print('Getting alphabets for',trans.__name__)
+        print('Getting alphabets for', trans.__name__)
         for key in trans.all_iteration():
             obj = trans(key)
             alpha = obj.generate_trans_table()
@@ -36,19 +36,16 @@ def get_translations(trans_list):
     return alphabets
 
 
-def select_translations(cursor):
+def select_translations(conn, cursor):
     cursor.execute("""
             SELECT translation,algsstr FROM translations""")
-    return cursor.fetchall()
-    # TODO: rework to do an iterator for fetching the data
-    '''
     while True:
         results = cursor.fetchmany(1000)
         if not results:
             break
         for result in results:
             yield result
-    '''
+    conn.close()  # yield allows this to work
 
 
 def generate_database(trans_list,
@@ -70,8 +67,7 @@ def get_alphabets(db_file=DBFILE):
     try:
         conn = sqlite3.connect(db_file)
         cursor = conn.cursor()
-        return select_translations(cursor)
+        return select_translations(conn, cursor)
     except Error as e:
         print(e)
-    finally:
         conn.close()
