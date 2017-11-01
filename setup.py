@@ -15,7 +15,6 @@ setup(name='locke',
       package_data={'transformers': ['data/transforms.db']},
       python_requires='>=3',
       install_requires=[
-          'msgpack-python',
           'click',
       ],
       entry_points={

@@ -31,13 +31,13 @@ locke --help
 With a given ``<filename>`` run the following commands:
 
 ```bash
-$locke search <filename>
+locke search <filename>
 ```
 This should show you some patterns found within the provided file without doing
 any transformations to find encoded data.
 
 ```bash
-$locke crack <filename>
+locke crack <filename>
 ```
 This should take under a minute to process (depends on the filesize). This will 
 go through all the stage 1 and stage 2 transformations and stage 1 of the 
@@ -76,7 +76,7 @@ Commands:
 ##### patterns
 Usage statement:
 ```bash
-$locke patterns --help
+locke patterns --help
 Usage: locke patterns [OPTIONS]
 
   List all patterns known by Locke.
@@ -87,7 +87,7 @@ Options:
 ##### search
 Usage statement:
 ```bash
-$locke search --help
+locke search --help
 Usage: locke search [OPTIONS] [FILES]...
 
   Search for patterns of interest in the supplied files.
@@ -105,7 +105,7 @@ You can add in `` --csv <outputName>`` to save the result as a csv
 ##### transforms
 Usage statement:
 ```bash
-$locke transforms --help
+locke transforms --help
 Usage: locke transforms [OPTIONS]
 
   List all transformations known by Locke. Also generate a new transforms.db
@@ -128,7 +128,7 @@ must run the ``-g`` option to regenerate the database.
 ##### crack
 Usage statement:
 ```
-$locke crack --help
+locke crack --help
 Usage: locke crack [OPTIONS] FILENAME
 
   Use patterns and transformations of interest to crack the supplied files.

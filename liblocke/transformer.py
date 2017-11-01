@@ -501,7 +501,7 @@ def run_transformations(trans_list, filename, keep,
     '''
     result_list = [] 
     for trans in _iteration_transformer(stage1):
-        result_list.append(_transform_standalone(trans))
+        result_list.append(_transform(trans))
     '''
     # TODO: Make sure there is safe execution.
     # If this throws an error it hangs
