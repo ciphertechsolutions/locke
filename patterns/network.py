@@ -31,7 +31,7 @@ class IPv4Address(REPatternPlugin):
         byte1 = int(ip_bytes[0])
         byte2 = int(ip_bytes[1])
 
-        
+
         # 0.0.0.0 255.0.0.0
         if ip.startswith('0.'):
             return False

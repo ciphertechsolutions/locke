@@ -1,8 +1,8 @@
 import unittest
+import sys
 
 import liblocke.transformer as libt
-from liblocke.transformer import *
-from transformers.adv_transformers import *
+from liblocke.transformer import TransformChar, TransformString
 
 # Nest array. One for each level
 TRANSFORMERS = [[], [], []]
@@ -16,9 +16,9 @@ def load_all_transformers():
             elif trans.class_level() == -1:
                 print("!! %s is disable" % trans.__name__)
             else:
-                print("%s has an invalid class level (1 - 3 | -1 --> disable\n)"
+                print('%s has an invalid class level (1-3 | -1 --> disable\n)'
                       % trans.__name__)
-    print("Loaded: %i lvl 1, %i lvl 2, %i lvl 3\n\n" % (
+    print('Loaded: %i lvl 1, %i lvl 2, %i lvl 3\n\n' % (
         len(TRANSFORMERS[0]),
         len(TRANSFORMERS[1]),
         len(TRANSFORMERS[2])))

@@ -117,7 +117,7 @@ Options:
   -n, --name TEXT      A list of transformer classes to use in quotes and is
                        commas separated
   -t, --test           test transformations for simplification
-  -g, --generate       generate transformations database
+  -g, --generate       generate transforms database
   --help               Show this message and exit.
 ```
 

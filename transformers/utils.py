@@ -17,7 +17,7 @@ def insert_translations(conn, cursor, trans_list):
     for trans in trans_list:
         cursor.execute("""
         INSERT INTO translations (translation, algsstr) VALUES(?, ?)""",
-                       [sqlite3.Binary(trans), ' '.join(trans_list[trans])])
+                       [sqlite3.Binary(trans), '_-_'.join(trans_list[trans])])
 
 
 def get_translations(trans_list):

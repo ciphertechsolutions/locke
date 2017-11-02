@@ -226,9 +226,6 @@ def test_transforms(trans_list):
                         finaltranslations[uniq].append(val)
                 else:
                     finaltranslations[uniq] = unique[uniq]
-    sorted_dict = sorted(finaltranslations,
-                         key=lambda k: len(finaltranslations[k]),
-                         reverse=True)
 
     print('total: %d uniques: %d' % (total, len(uniques)))
 
@@ -240,7 +237,7 @@ def test_transformer(trans):
     if issubclass(trans, TransformChar):
         for key in trans.all_iteration():
             alpha = trans(key).generate_trans_table()
-            trans_str = trans(key).shortname();
+            trans_str = trans(key).shortname()
             if alpha in translation:
                 found = True
                 translation[alpha].append(trans_str)
@@ -501,7 +498,7 @@ def run_transformations(trans_list, filename, keep,
     # bigger files? Pool of instances should be faster?
     pool = Pool()
     '''
-    result_list = [] 
+    result_list = []
     for trans in _iteration_transformer(stage1):
         result_list.append(_transform(trans))
     '''
