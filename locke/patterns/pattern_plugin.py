@@ -2,35 +2,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import List
 
-from .match import Match
-
-
-class _Utils(object):
-    """
-    Utility functions for pattern plugins.
-    """
-
-    @staticmethod
-    def find_all(pat: bytes, data: bytes) -> List[Match]:
-        """
-        This method finds all instances of pat (a bytes object)
-        inside data (a larger bytes object), returning them
-        as a list of Match objects.
-
-        If no matches are found, an empty list is returned.
-        """
-        matches = []
-
-        try:
-            i = data.index(pat)
-
-            while i != -1:
-                matches.append(Match(i, data[i:i + len(pat)]))
-                i = data.index(pat, i + len(pat))
-        except ValueError:
-            return matches
-
-        return matches
+from .utils import Match, find_matches
 
 
 class PatternPlugin(ABC):
@@ -132,7 +104,7 @@ class BytesPatternPlugin(PatternPlugin):
         See PatternPlugin.find_all.
         """
         pat = self.Pattern.lower() if self.NoCase else self.Pattern
-        return _Utils.find_all(pat, data)
+        return find_matches(pat, data)
 
 
 class BytesListPatternPlugin(PatternPlugin):
@@ -168,7 +140,7 @@ class BytesListPatternPlugin(PatternPlugin):
         matches = []
 
         for pat in self.Patterns:
-            matches.extend(_Utils.find_all(pat, data))
+            matches.extend(find_matches(pat, data))
 
         return matches
 

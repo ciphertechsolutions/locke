@@ -5,7 +5,7 @@ import locke.transforms.plugins  # noqa - needed for module loading
 import locke.transforms.utils as utils
 from locke.transforms.transformer import select_transformers, run_transformations, \
     write_to_disk, TransformChar, TransformString, test_transforms
-from locke.transforms.plugins.utils import generate_database
+from locke.transforms.utils import generate_database
 
 import csv as csvlib
 from os import path
@@ -128,7 +128,7 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
     """
     Use patterns and transformations of interest to crack the supplied files.
     """
-    if not path.exists(locke.transforms.plugins.utils.DBFILE):
+    if not path.exists(locke.transforms.utils.DBFILE):
         print('Run generate to create a new transforms.db')
         return 1
     load_all_transformers()

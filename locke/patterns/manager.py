@@ -1,5 +1,5 @@
 from typing import List, Tuple, Generator
-from .match import Match
+from .utils import Match
 from .pattern_plugin import PatternPlugin
 
 """

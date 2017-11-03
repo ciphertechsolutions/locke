@@ -1,6 +1,6 @@
 from ..transformer import rol_left, TransformString, \
     TransformChar
-from .utils import get_alphabets
+from ..utils import get_alphabets
 
 """
 These are all Level 1 Transformers
