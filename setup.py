@@ -4,7 +4,7 @@ with open('README.md', 'r') as f:
     readme = f.read()
 
 setup(name='locke',
-      version='0.1.5a6',
+      version='0.1.5a8',
       description='A fork of BalBuzard',
       long_description=readme,
       url='https://www.ciphertechsolutions.com/',
