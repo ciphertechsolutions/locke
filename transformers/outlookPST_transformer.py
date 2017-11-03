@@ -7,7 +7,7 @@ class TransformOutlookPST(TransformChar):
         Note that 0 - 255 are the values used to decrypt
         The rest of the table are there to encrypt. The whole table
         is there for reference
-        Based on 
+        Based on
         https://msdn.microsoft.com/en-us/library/ff386229(v=office.12).aspx
     """
     encode_table = [

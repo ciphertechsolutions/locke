@@ -1,9 +1,10 @@
+import ctypes
 import os
 import sys
 import time
 import zipfile
 from abc import ABC, abstractmethod
-from multiprocessing import Pool
+from multiprocessing import Pool, Array
 
 import apm
 from liblocke.utils import prettyhex
@@ -226,9 +227,6 @@ def test_transforms(trans_list):
                         finaltranslations[uniq].append(val)
                 else:
                     finaltranslations[uniq] = unique[uniq]
-    sorted_dict = sorted(finaltranslations,
-                         key=lambda k: len(finaltranslations[k]),
-                         reverse=True)
 
     print('total: %d uniques: %d' % (total, len(uniques)))
 
@@ -240,7 +238,7 @@ def test_transformer(trans):
     if issubclass(trans, TransformChar):
         for key in trans.all_iteration():
             alpha = trans(key).generate_trans_table()
-            trans_str = trans(key).shortname();
+            trans_str = trans(key).shortname()
             if alpha in translation:
                 found = True
                 translation[alpha].append(trans_str)
@@ -468,6 +466,16 @@ def _display_elapse(start_time, iter_count):
     print("%i iterations in %iD:%02iH:%02iM:%02iS" % (iter_count, d, h, m, s))
 
 
+def init_pool(init_data):
+    """
+    Need initializer for Windows since it doesn't fork
+    :param init_data: raw data
+    :return: None
+    """
+    global data
+    data = bytes(init_data)
+
+
 def run_transformations(trans_list, filename, keep,
                         zip_file=False, password=None, verbose=0):
     """
@@ -477,7 +485,6 @@ def run_transformations(trans_list, filename, keep,
         trans_list: A list of tuples(trans_name, trans_class)
         filename: The file to read and evaluate
         keep: How many results to keep
-        standalone: boolean for whether to run without a socket
         zip_file: Mark the file as a zip (default = False)
         password: Set the password for the zip (default = None)
         verbose: Specify whether you want verbose output
@@ -499,9 +506,10 @@ def run_transformations(trans_list, filename, keep,
     # transformer to create instances of? Both have roughly the same speed
     # on smaller files... but what about the more complex transformers and
     # bigger files? Pool of instances should be faster?
-    pool = Pool()
+    pool = Pool(initializer=init_pool,
+                initargs=(Array(ctypes.c_char, data, lock=False),))
     '''
-    result_list = [] 
+    result_list = []
     for trans in _iteration_transformer(stage1):
         result_list.append(_transform(trans))
     '''

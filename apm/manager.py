@@ -28,13 +28,11 @@ class Manager(object):
     of patterns in parallel.
     """
 
-    def __init__(self, file: str = None, raw: bytes = None,
-                 nproc=os.cpu_count(), stage: int = 1):
+    def __init__(self, file: str = None, raw: bytes = None, stage: int = 1):
         global data
         global data_lower
         self.file = file
         self.pats = [pat() for pat in PatternPlugin.plugins(stage=stage)]
-        self.nproc = nproc
         if file:
             with open(file, 'rb') as f:
                 data = f.read()

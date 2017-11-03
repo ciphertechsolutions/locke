@@ -1,13 +1,4 @@
-#!/usr/bin/python3.5
-import csv as csvlib
-import sys
-from os import path
-
-import click
-
-SCRIPT_DIR = path.dirname(path.abspath(__file__))  # shouldnt need this
-sys.path.append(path.join(SCRIPT_DIR, 'apm'))  # shouldnt need this
-
+#!/usr/bin/python3
 import apm
 import patterns  # noqa - needed for module loading
 import transformers  # noqa - needed for module loading
@@ -15,6 +6,14 @@ import liblocke.utils as utils
 from liblocke.transformer import select_transformers, run_transformations, \
     write_to_disk, TransformChar, TransformString, test_transforms
 from transformers.utils import generate_database
+
+import csv as csvlib
+import sys
+from os import path
+import click
+
+SCRIPT_DIR = path.dirname(path.abspath(__file__))  # shouldnt need this
+sys.path.append(path.join(SCRIPT_DIR, 'apm'))  # shouldnt need this
 
 # Nest array. One for each level
 TRANSFORMERS = ([], [], [])
@@ -28,12 +27,11 @@ def load_all_transformers():
             elif trans.class_level() == -1:
                 print("!! %s is disabled" % trans.__name__)
             else:
-                print("%s has an invalid class level (1 - 3 | -1 --> disable\n)"
+                print('%s has an invalid class level (1-3 | -1 --> disable\n)'
                       % trans.__name__)
 
 
 def search_data(data):
-    score = 0
     mgr = apm.Manager(stage=2, raw=data)
     msgs = []
     for pat, matches in mgr.run():
@@ -170,8 +168,8 @@ def patterns(ctx):
                    'is commas separated')
 @click.option('-t', '--test', is_flag=True, help='test transformations '
                                                  'for simplification')
-@click.option('-g', '--generate', is_flag=True, help='generate transformations '
-                                                     'database')
+@click.option('-g', '--generate', is_flag=True, help='generate '
+                                                     'transforms database')
 @click.pass_context
 def transforms(ctx, level, only, name, test, generate):
     """
@@ -193,8 +191,8 @@ def transforms(ctx, level, only, name, test, generate):
         generate_database(charonly)
     else:
         for trans in trans_list:
-            click.echo(
-                'Class: %s | Level: %i' % (trans.__name__, trans.class_level()))
+            click.echo('Class: %s | Level: %i' % (trans.__name__,
+                                                  trans.class_level()))
             click.echo(trans.__doc__)
 
 

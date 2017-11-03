@@ -26,7 +26,7 @@ class _Utils(object):
 
             while i != -1:
                 matches.append(Match(i, data[i:i + len(pat)]))
-                i = data.index(pat, i + 1)
+                i = data.index(pat, i + len(pat))
         except ValueError:
             return matches
 

@@ -1,7 +1,10 @@
 import unittest
 
-from liblocke.transformer import *
-from transformers.basic_transformers import *
+from liblocke.transformer import TransformChar, TransformString, \
+    select_transformers, to_bytes, rol_left
+from transformers.basic_transformers import TransformIdentity, TransformXOR, \
+    TransformRotateLeft, TransformAdd, TransformXORLRoll, TransformLRolAdd, \
+    TransformAddLRoll
 
 # Nest array. One for each level
 TRANSFORMERS = [[], [], []]
@@ -13,11 +16,11 @@ def load_all_transformers():
             if 0 < trans.class_level() < 4:
                 TRANSFORMERS[trans.class_level() - 1].append(trans)
             elif trans.class_level() == -1:
-                print("!! %s is disable" % trans.__name__)
+                print('!! %s is disable' % trans.__name__)
             else:
-                print("%s has an invalid class level (1 - 3 | -1 --> disable\n)"
+                print('%s has an invalid class level (1-3 | -1 --> disable\n)'
                       % trans.__name__)
-    print("Loaded: %i lvl 1, %i lvl 2, %i lvl 3\n\n" % (
+    print('Loaded: %i lvl 1, %i lvl 2, %i lvl 3\n\n' % (
         len(TRANSFORMERS[0]),
         len(TRANSFORMERS[1]),
         len(TRANSFORMERS[2])))
@@ -109,10 +112,10 @@ class TestingTransformer(unittest.TestCase):
     def test_abstract_init(self):
         # We should not be allowed to create instances of TransformString
         # nor TransformChar, unless we inherit them
-        with self.assertRaises(Exception) as excpt:
-            tString = TransformString(self.genKey)
-        with self.assertRaises(Exception) as excpt:
-            tChar = TransformChar(self.genKey)
+        with self.assertRaises(Exception):
+            TransformString(self.genKey)
+        with self.assertRaises(Exception):
+            TransformChar(self.genKey)
 
     def test_iteration_transformer(self):
         import liblocke.transformer
