@@ -1,4 +1,4 @@
-from liblocke.transformer import TransformChar
+from ..transformer import TransformChar
 
 
 class TransformOutlookPST(TransformChar):

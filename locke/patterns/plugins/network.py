@@ -1,6 +1,6 @@
 from ipaddress import ip_address
 
-from apm.pattern_plugin import BytesListPatternPlugin, REPatternPlugin
+from ..pattern_plugin import BytesListPatternPlugin, REPatternPlugin
 
 
 class IPv4Address(REPatternPlugin):

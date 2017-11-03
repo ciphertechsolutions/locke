@@ -1,8 +1,8 @@
 import unittest
 import sys
 
-import liblocke.transformer as libt
-from liblocke.transformer import TransformChar, TransformString
+from locke.transforms.transformer import _read_file
+from locke.transforms.transformer import TransformChar, TransformString
 
 # Nest array. One for each level
 TRANSFORMERS = [[], [], []]
@@ -29,7 +29,7 @@ class TestingIO(unittest.TestCase):
     FILE = None
 
     def test_read_file(self):
-        binStr = libt._read_file(self.FILE)
+        binStr = _read_file(self.FILE)
         self.assertEqual(self.BINARY, binStr)
 
 

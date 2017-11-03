@@ -6,8 +6,8 @@ import zipfile
 from abc import ABC, abstractmethod
 from multiprocessing import Pool, Array
 
-import apm
-from liblocke.utils import prettyhex
+from locke.patterns import Manager
+from locke.transforms.utils import prettyhex
 
 
 class BaseTransform(ABC):
@@ -338,7 +338,9 @@ def select_transformers(trans_list, name_list=None, select=None,
 
 
 def print_results(results, verbose=False):
-    for trans, score, msgs in results:
+    for trans, score, msgs in sorted(results,
+                                     key=lambda k: k[1],
+                                     reverse=True):
         print('-' * 50)
         print('Transform: %s (Score %i)' % (trans.name(), score))
         for desc, weight, hsh in sorted(msgs,
@@ -415,7 +417,7 @@ def _transform(transform_stage):
 
     trans_data = transformer.transform(data)
     score = 0
-    mgr = apm.Manager(raw=trans_data, stage=stage)
+    mgr = Manager(raw=trans_data, stage=stage)
     msgs = []
     for pat, matches in mgr.run():
         if not matches:
@@ -518,7 +520,7 @@ def run_transformations(trans_list, filename, keep,
     result_list = pool.map_async(_transform,
                                  _iteration_transformer(stage1),
                                  error_callback=_error_raise).get()
-
+    ''''''
     # sort the data and keep only the top few
     stage1iters = len(result_list)
     result_list = sorted(result_list, key=lambda r: r[1], reverse=True)[:keep]

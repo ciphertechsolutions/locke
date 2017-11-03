@@ -1,4 +1,4 @@
-from apm.pattern_plugin import REPatternPlugin
+from ..pattern_plugin import REPatternPlugin
 
 
 class HexBlob(REPatternPlugin):

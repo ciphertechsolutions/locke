@@ -1,8 +1,6 @@
-import os
 from typing import List, Tuple, Generator
-import patterns  # needed for dynamic load
-from apm.match import Match
-from apm.pattern_plugin import PatternPlugin
+from .match import Match
+from .pattern_plugin import PatternPlugin
 
 """
 These global variables contain the normal and lowercased data currently

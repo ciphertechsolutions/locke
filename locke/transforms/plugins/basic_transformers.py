@@ -1,6 +1,6 @@
-from liblocke.transformer import rol_left, TransformString, \
+from ..transformer import rol_left, TransformString, \
     TransformChar
-from transformers.utils import get_alphabets
+from .utils import get_alphabets
 
 """
 These are all Level 1 Transformers

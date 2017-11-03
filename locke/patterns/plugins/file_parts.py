@@ -1,4 +1,4 @@
-from apm.pattern_plugin import BytesPatternPlugin, BytesListPatternPlugin
+from ..pattern_plugin import BytesPatternPlugin, BytesListPatternPlugin
 
 
 class OLE2Header(BytesPatternPlugin):

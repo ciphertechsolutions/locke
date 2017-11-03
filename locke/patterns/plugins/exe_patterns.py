@@ -1,4 +1,4 @@
-from apm.pattern_plugin import BytesPatternPlugin, BytesListPatternPlugin, \
+from ..pattern_plugin import BytesPatternPlugin, BytesListPatternPlugin, \
     REPatternPlugin
 
 

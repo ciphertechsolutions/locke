@@ -1,4 +1,4 @@
-from liblocke.transformer import TransformString, TransformChar
+from ..transformer import TransformString, TransformChar
 
 """
 These are all Level 2 Transformers

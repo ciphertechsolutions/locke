@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.md', 'r') as f:
     readme = f.read()
@@ -11,8 +11,8 @@ setup(name='locke',
       author='Cipher Tech Solutions',
       author_email='ahavens@ciphertechsolutions.com',
       license='BSD',
-      packages=['apm', 'liblocke', 'locke', 'patterns', 'transformers'],
-      package_data={'transformers': ['data/transforms.db']},
+      packages=find_packages(),
+      package_data={'locke.transforms': ['data/transforms.db']},
       python_requires='>=3',
       install_requires=[
           'click',

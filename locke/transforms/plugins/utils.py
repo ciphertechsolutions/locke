@@ -2,7 +2,7 @@ import os
 import sqlite3
 from sqlite3 import Error
 
-DBFILE = os.path.join(os.path.dirname(__file__), 'data', 'transforms.db')
+DBFILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'transforms.db')
 
 
 def createDB(cursor):

@@ -1,10 +1,10 @@
 import unittest
 
-from liblocke.transformer import TransformChar, TransformString, \
-    select_transformers, to_bytes, rol_left
-from transformers.basic_transformers import TransformIdentity, TransformXOR, \
-    TransformRotateLeft, TransformAdd, TransformXORLRoll, TransformLRolAdd, \
-    TransformAddLRoll
+from locke.transforms.transformer import TransformChar, TransformString, \
+    select_transformers, to_bytes, rol_left, _iteration_transformer
+from locke.transforms.plugins.basic_transformers import TransformIdentity, \
+    TransformXOR, TransformRotateLeft, TransformAdd, TransformXORLRoll, \
+    TransformLRolAdd, TransformAddLRoll
 
 # Nest array. One for each level
 TRANSFORMERS = [[], [], []]
@@ -118,13 +118,12 @@ class TestingTransformer(unittest.TestCase):
             TransformChar(self.genKey)
 
     def test_iteration_transformer(self):
-        import liblocke.transformer
         # Throw in a list of three transformer and see if we get
         # the correct number of transform instance back
         trans_list = [TransformIdentity, TransformXOR, TransformRotateLeft]
         send_list = list(zip(trans_list, (1,) * len(trans_list)))
 
-        result = liblocke.transformer._iteration_transformer(send_list)
+        result = _iteration_transformer(send_list)
         # 1 (tID) + 255 (tXOR) + 7 (tRR) = 263
         self.assertEqual(263, sum(1 for x in result))
 

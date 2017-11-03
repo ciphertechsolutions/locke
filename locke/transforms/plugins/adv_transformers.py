@@ -1,4 +1,4 @@
-from liblocke.transformer import rol_left, TransformString
+from ..transformer import rol_left, TransformString
 
 """
 These are all Level 3 Transformers

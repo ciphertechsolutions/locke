@@ -2,7 +2,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import List
 
-from apm.match import Match
+from .match import Match
 
 
 class _Utils(object):
@@ -79,8 +79,8 @@ class PatternPlugin(ABC):
         This method finds all matches for the pattern, then filters
         them down based on the filter method.
         """
-        import apm.manager
-        data = apm.manager.data_lower if self.NoCase else apm.manager.data
+        from locke.patterns import manager
+        data = manager.data_lower if self.NoCase else manager.data
         return [m for m in self.find_all(data) if self.filter(m)]
 
     def validate(self) -> None:

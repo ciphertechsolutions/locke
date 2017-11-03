@@ -1,19 +1,16 @@
 #!/usr/bin/python3
-import apm
-import patterns  # noqa - needed for module loading
-import transformers  # noqa - needed for module loading
-import liblocke.utils as utils
-from liblocke.transformer import select_transformers, run_transformations, \
+from locke.patterns import PatternPlugin, Manager
+import locke.patterns.plugins  # noqa - needed for module loading
+import locke.transforms.plugins  # noqa - needed for module loading
+import locke.transforms.utils as utils
+from locke.transforms.transformer import select_transformers, run_transformations, \
     write_to_disk, TransformChar, TransformString, test_transforms
-from transformers.utils import generate_database
+from locke.transforms.plugins.utils import generate_database
 
 import csv as csvlib
-import sys
 from os import path
 import click
 
-SCRIPT_DIR = path.dirname(path.abspath(__file__))  # shouldnt need this
-sys.path.append(path.join(SCRIPT_DIR, 'apm'))  # shouldnt need this
 
 # Nest array. One for each level
 TRANSFORMERS = ([], [], [])
@@ -32,7 +29,7 @@ def load_all_transformers():
 
 
 def search_data(data):
-    mgr = apm.Manager(stage=2, raw=data)
+    mgr = Manager(stage=2, raw=data)
     msgs = []
     for pat, matches in mgr.run():
         if not matches:
@@ -131,7 +128,7 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
     """
     Use patterns and transformations of interest to crack the supplied files.
     """
-    if not path.exists(transformers.utils.DBFILE):
+    if not path.exists(locke.transforms.plugins.utils.DBFILE):
         print('Run generate to create a new transforms.db')
         return 1
     load_all_transformers()
@@ -154,7 +151,7 @@ def patterns(ctx):
     """
     List all patterns known by Locke.
     """
-    for pat in apm.PatternPlugin.plugins():
+    for pat in PatternPlugin.plugins():
         click.echo('%s (%s)' % (pat.Description, pat.Weight))
 
 
