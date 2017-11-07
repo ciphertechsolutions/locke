@@ -75,3 +75,19 @@ def get_alphabets(db_file=DBFILE):
 
 def prettyhex(string):
     return repr(string)[1:]
+
+
+def print_table(headers, values):
+    # Makes sure everything is a string
+    values = [[str(val) for val in row] for row in values]
+    maxes = [len(val) for val in headers]
+    for row in values:
+        for i in range(len(row)):
+            maxes[i] = max(maxes[i], len(str(row[i])))
+    tmp_str = '{:<%ds}'*len(values[0])
+    maxes = [max+2 for max in maxes]
+    frmt_str = tmp_str % tuple(maxes)
+    print(frmt_str.format(*headers))
+    [print(frmt_str.format(*row))for row in values]
+
+

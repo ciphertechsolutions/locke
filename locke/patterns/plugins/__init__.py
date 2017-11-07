@@ -1,1 +1,1 @@
-from locke.patterns.plugins import exe_patterns, file_parts, network, blobs
+from locke.patterns.plugins import stage1_patterns, stage2_patterns

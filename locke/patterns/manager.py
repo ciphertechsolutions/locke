@@ -1,6 +1,7 @@
 from typing import List, Tuple, Generator
-from .utils import Match
-from .pattern_plugin import PatternPlugin
+import locke.patterns  # needed for dynamic load
+from locke.patterns.utils import Match
+from locke.patterns.pattern_plugin import PatternPlugin
 
 """
 These global variables contain the normal and lowercased data currently

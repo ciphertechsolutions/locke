@@ -7,10 +7,13 @@ from abc import ABC, abstractmethod
 from multiprocessing import Pool, Array
 
 from locke.patterns import Manager
-from locke.transforms.utils import prettyhex
+from locke.transforms.utils import prettyhex, get_alphabets
 
 
 class BaseTransform(ABC):
+    description = 'This is the base class for a Transform'
+    params = 'None'
+
     def __init__(self, value):
         """
         A generic init function. self.value = value is required unless
@@ -175,6 +178,33 @@ class TransformChar(BaseTransform):
         pass
 
 
+class TransformAllStage1(TransformString):
+    """
+    Name: TransformAllStage1
+    Description: Use pre-processed translation alphabets
+    """
+    name = 'TransformAllStage1'
+    description = 'Use pre-processed translation alphabets'
+
+    @staticmethod
+    def class_level():
+        return 0
+
+    def name(self):
+        return self.value[1]
+
+    def shortname(self):
+        return self.value[1]
+
+    def transform_string(self, data, encode=False):
+        # TODO: encode
+        return data.translate(self.value[0])
+
+    @staticmethod
+    def all_iteration():
+        return get_alphabets()
+
+
 def to_bytes(value):
     """
     Convert int to a byte
@@ -191,7 +221,7 @@ def to_bytes(value):
     return bytes([value])
 
 
-def rol_left(byte, count):
+def rol(byte, count):
     """
     This method will left shift the byte left by count
     Args:
@@ -270,6 +300,7 @@ def select_transformers(trans_list, name_list=None, select=None,
         level: The highest level allow for transformer
         yes: Always allow the user to continue regard the user request an
             unknown transformer
+        listing: whether the transforms are being listed.
     Return:
         A list of transformer to use
     """
@@ -310,30 +341,17 @@ def select_transformers(trans_list, name_list=None, select=None,
         if 0 < select < 4:
             trans_class = trans_list[select - 1]
         else:
-            sys.exit("There are no such level as %i" % select)
+            sys.exit("There is no such level %i" % select)
     # Select all transformers on the specified level and below
-    elif listing:
-        if level == 1:
-            trans_class = trans_list[0]
-        elif level == 2:
-            trans_class = trans_list[0] + trans_list[1]
-        elif level == 3 or level is None:
-            trans_class = trans_list[0] + trans_list[1] + trans_list[2]
-        else:
-            sys.exit("There are no such level as %i" % level)
+    elif level > 3:
+        sys.exit("There is no such level as %i" % level)
     else:
-        # TODO: cleaner way to do this
-        newstage1 = []
-        for trans in trans_list[0]:
-            if trans.__name__ in ['TransformAllStage12', 'TransformIdentity']:
-                newstage1.append(trans)
-        # TransformAllStage12 takes care of stage 1 and 2 transformers
-        if level == 1 or level == 2:
-            trans_class = newstage1
-        elif level == 3 or level is None:
-            trans_class = newstage1 + trans_list[2]
+        if listing:
+            [trans_class.extend(x) for x in trans_list[:level]]
         else:
-            sys.exit("There are no such level as %i" % level)
+            trans_class.append(TransformAllStage1)
+            [trans_class.extend(x) for x in trans_list[1:level]]
+
     return trans_class
 
 
@@ -428,11 +446,9 @@ def _transform(transform_stage):
             match_hash[match.offset] = match.data
 
         msgs.append([pat.Description, pat.Weight, match_hash])
-
+        score += pat.Weight * len(matches)
     del mgr
 
-    for desc, weight, matches in msgs:
-        score += len(matches) * weight
     results = (transformer, score, msgs)
 
     return results

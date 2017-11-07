@@ -1,10 +1,10 @@
 import unittest
 
 from locke.transforms.transformer import TransformChar, TransformString, \
-    select_transformers, to_bytes, rol_left, _iteration_transformer
-from locke.transforms.plugins.basic_transformers import TransformIdentity, \
-    TransformXOR, TransformRotateLeft, TransformAdd, TransformXORLRoll, \
-    TransformLRolAdd, TransformAddLRoll
+    select_transformers, to_bytes, rol, _iteration_transformer
+from locke.transforms.plugins.level1_transformers import TransformIdentity, \
+    TransformXOR, TransformROL, TransformAdd, TransformXOR_ROL, \
+    TransformROL_Add, TransformAdd_ROL
 
 # Nest array. One for each level
 TRANSFORMERS = [[], [], []]
@@ -17,6 +17,8 @@ def load_all_transformers():
                 TRANSFORMERS[trans.class_level() - 1].append(trans)
             elif trans.class_level() == -1:
                 print('!! %s is disable' % trans.__name__)
+            elif trans.class_level() == 0:
+                pass
             else:
                 print('%s has an invalid class level (1-3 | -1 --> disable\n)'
                       % trans.__name__)
@@ -101,13 +103,13 @@ class TestingTransformer(unittest.TestCase):
 
     def test_rol_left(self):
         # Basic rolling (on the floor laughing)
-        self.assertEqual(158, rol_left(self.genKey, 1))
-        self.assertEqual(244, rol_left(self.genKey, 4))
-        self.assertEqual(self.genKey, rol_left(self.genKey, 8))
+        self.assertEqual(158, rol(self.genKey, 1))
+        self.assertEqual(244, rol(self.genKey, 4))
+        self.assertEqual(self.genKey, rol(self.genKey, 8))
         # Should be able to use mod to find the actual roll value
-        self.assertEqual(158, rol_left(self.genKey, 9))
-        self.assertEqual(244, rol_left(self.genKey, 12))
-        self.assertEqual(self.genKey, rol_left(self.genKey, 16))
+        self.assertEqual(158, rol(self.genKey, 9))
+        self.assertEqual(244, rol(self.genKey, 12))
+        self.assertEqual(self.genKey, rol(self.genKey, 16))
 
     def test_abstract_init(self):
         # We should not be allowed to create instances of TransformString
@@ -120,7 +122,7 @@ class TestingTransformer(unittest.TestCase):
     def test_iteration_transformer(self):
         # Throw in a list of three transformer and see if we get
         # the correct number of transform instance back
-        trans_list = [TransformIdentity, TransformXOR, TransformRotateLeft]
+        trans_list = [TransformIdentity, TransformXOR, TransformROL]
         send_list = list(zip(trans_list, (1,) * len(trans_list)))
 
         result = _iteration_transformer(send_list)
@@ -158,7 +160,7 @@ class TestingBasicTransforms(unittest.TestCase):
         self.assertEqual(self.data, t.transform(tdata, True))
 
     def test_xor_lrol(self):
-        t = TransformXORLRoll((self.genKey, 1))
+        t = TransformXOR_ROL((self.genKey, 1))
         tdata = t.transform(self.data)
         # 0100 1111 > 1001 1110
         # 0100 1110 > 1001 1100
@@ -168,7 +170,7 @@ class TestingBasicTransforms(unittest.TestCase):
         self.assertEqual(self.data, t.transform(tdata, True))
 
     def test_lrol_add(self):
-        t = TransformLRolAdd((1, 250))
+        t = TransformROL_Add((1, 250))
         tdata = t.transform(self.data)
         # 0000 0001 > 1111 1100
         # 0000 0010 > 1111 1110
@@ -178,7 +180,7 @@ class TestingBasicTransforms(unittest.TestCase):
         self.assertEqual(self.data, t.transform(tdata, True))
 
     def test_add_lrol(self):
-        t = TransformAddLRoll((250, 1))
+        t = TransformAdd_ROL((250, 1))
         tdata = t.transform(self.data)
         # 0000 0001 > 1111 1100
         # 0000 0010 > 1111 1110

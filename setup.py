@@ -19,7 +19,7 @@ setup(name='locke',
       ],
       entry_points={
           'console_scripts': [
-              'locke=locke.locke:main',
+              'locke=locke.locke_main:main',
           ],
       },
       zip_safe=False)

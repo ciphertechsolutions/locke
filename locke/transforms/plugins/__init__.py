@@ -1,2 +1,2 @@
-from locke.transforms.plugins import basic_transformers, mid_transformers, \
-    adv_transformers, outlookPST_transformer
+from locke.transforms.plugins import level1_transformers, \
+    level2_transformers, level3_transformers

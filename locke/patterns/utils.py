@@ -27,7 +27,7 @@ def find_matches(pat: bytes, data: bytes) -> List[Match]:
     try:
         i = data.index(pat)
 
-        while i != -1:
+        while True:
             matches.append(Match(i, data[i:i + len(pat)]))
             i = data.index(pat, i + len(pat))
     except ValueError:

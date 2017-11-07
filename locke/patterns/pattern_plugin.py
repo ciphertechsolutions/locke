@@ -71,13 +71,6 @@ class PatternPlugin(ABC):
         pass
 
 
-class CustomPatternPlugin(PatternPlugin):
-    """
-    A CustomPatternPlugin is one of the basic pattern plugins, representing
-    a blank slate for a user to implement their own find_all() method.
-    """
-
-
 class BytesPatternPlugin(PatternPlugin):
     """
     A BytesPatternPlugin is one of the basic pattern plugins, representing

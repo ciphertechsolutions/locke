@@ -15,6 +15,8 @@ def load_all_transformers():
                 TRANSFORMERS[trans.class_level() - 1].append(trans)
             elif trans.class_level() == -1:
                 print("!! %s is disable" % trans.__name__)
+            elif trans.class_level() == 0:
+                pass
             else:
                 print('%s has an invalid class level (1-3 | -1 --> disable\n)'
                       % trans.__name__)
