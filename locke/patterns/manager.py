@@ -1,5 +1,5 @@
 from typing import List, Tuple, Generator
-import locke.patterns  # needed for dynamic load
+import locke.patterns.plugins  # needed for dynamic load
 from locke.patterns.utils import Match
 from locke.patterns.pattern_plugin import PatternPlugin
 
