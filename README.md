@@ -174,3 +174,11 @@ This program also support decoding files inside a zip. Run with ``-z`` to mark t
 password encrypted, you can supply the password by using the ``--password <password>`` option. The script
 will attempt to read the zip and list the files available and ask which files do you want to decode (if there are
 more than one files).
+
+### Differences made to Locke from Balbuzard
+- Uses Python 3 instead of 2
+- Multiprocessed for faster execution
+- Dedups translation alphabets
+- With the dedupped translations you won't get the same results for two separate algorithms that are functionally equivalent
+- Preprocesses the generation of the translation alphabets into a database for stage1
+
