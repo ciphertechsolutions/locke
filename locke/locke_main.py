@@ -9,7 +9,7 @@ from locke.transforms.transformer import select_transformers, run_transformation
 from locke.transforms.utils import generate_database, print_table
 
 import csv as csvlib
-from os import path
+from os import path, makedirs
 import click
 
 # Nest array. One for each level
@@ -96,8 +96,8 @@ def search(ctx, csv, files):
 @cli.command()
 @click.option('-l', '--level', type=int, default=1,
               help='Select transformers with level 1, 2, or 3 and below')
-@click.option('-o', '--only', type=int, default=None,
-              help='Only use transformers on that specific level')
+@click.option('-o', '--output', type=str, default='output',
+              help='Output directory for transformed files')
 @click.option('-n', '--name', nargs=1, default=None,
               help='A list of transformer classes to use in quotes and '
                    'is commas separated')
@@ -125,7 +125,7 @@ def search(ctx, csv, files):
                    'Note that -v 2 is not human friendly')
 @click.argument('filename', nargs=1, type=click.Path(exists=True))
 @click.pass_context
-def crack(ctx, level, only, name, keep, save, zip_file, password,
+def crack(ctx, level, output, name, keep, save, zip_file, password,
           no_save, verbose, filename):
     """
     Use patterns and transformations of interest to crack the supplied files.
@@ -133,18 +133,21 @@ def crack(ctx, level, only, name, keep, save, zip_file, password,
     if not path.exists(locke.transforms.utils.DBFILE):
         print('Run generate to create a new transforms.db')
         return 1
+    if path.exists(output) and path.isfile(output):
+        return 1
+    makedirs(output, exist_ok=True)
     load_all_transformers()
     if not zip_file and password is not None:
         raise ValueError("Password field is set without zip enable")
 
-    trans_list = select_transformers(TRANSFORMERS, name, only, level)
+    trans_list = select_transformers(TRANSFORMERS, name, level=level)
     results = run_transformations(trans_list, filename, keep,
                                   zip_file, password, verbose)[:save]
 
     # TODO
     # Call on save to disk here? or Make run_transformation call write to disk?
     if not no_save:
-        write_to_disk(results, filename)
+        write_to_disk(results, output, filename)
 
 
 @cli.command()

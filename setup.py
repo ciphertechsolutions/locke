@@ -4,12 +4,12 @@ with open('README.md', 'r') as f:
     readme = f.read()
 
 setup(name='locke',
-      version='0.1.5a10',
+      version='1.0.0',
       description='A fork of BalBuzard',
       long_description=readme,
       url='https://www.ciphertechsolutions.com/',
       author='Cipher Tech Solutions',
-      author_email='ahavens@ciphertechsolutions.com',
+      author_email='OpenSource@ciphertechsolutions.com',
       license='BSD',
       packages=find_packages(),
       package_data={'locke.transforms': ['data/transforms.db']},
