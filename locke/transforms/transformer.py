@@ -562,11 +562,12 @@ def run_transformations(trans_list, filename, keep,
 
 # TODO
 # Call on save to disk here? or Make locke.py call write to disk?
-def write_to_disk(results, filename):
+def write_to_disk(results, output, filename):
     """
     Write a list of results to disk
     Args:
         results: A list of tuple(trans_instance, score)
+        output: Output directory to write the transformed files
         filename: The file name of the original file
     """
     print("Writing results to disk")
@@ -577,12 +578,10 @@ def write_to_disk(results, filename):
         trans, score, _ = results[i]
         trans_data = trans.transform(data)
         if score > 0:
-            base, ext = os.path.splitext(filename)
-            t_name = base + "_%i_%s%s" % (i, trans.shortname(), ext)
-            with open(t_name, "wb") as out:
+            base, ext = os.path.splitext(os.path.basename(filename))
+            t_name = "%s_%i_%s%s" % (base, i, trans.shortname(), ext)
+            with open(os.path.join(output, t_name), "wb") as out:
                 out.write(trans_data)
             print("Wrote %s to file %s" % (trans.name(), t_name))
         else:
             print("Skipping write as score == 0")
-
-# This was coded while listening to Random Songs

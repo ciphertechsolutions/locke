@@ -6,14 +6,14 @@ Locke was a refactoring of Balbuzard to port the code to Python3 as well as
 increase its overall performance.
 ### Installation
 
-Requires Python3.5 +
+Requires Python3
 
 ##### From source
-``` bash
+```
 python3 setup.py install
 ```
 ##### pip install
-``` bash
+```
 pip3 install --index-url https://test.pypi.org/simple/ locke
 ```
 
@@ -23,20 +23,20 @@ other executable in your path.
 ### Usage
 
 Locke is simple to use. Just run:
-``` bash
+```
 locke --help
 ```
 
 #### Quickstart
 With a given ``<filename>`` run the following commands:
 
-```bash
+```
 locke search <filename>
 ```
 This should show you some patterns found within the provided file without doing
 any transformations to find encoded data.
 
-```bash
+```
 locke crack <filename>
 ```
 This should take under a minute to process (depends on the filesize). This will 
@@ -46,12 +46,12 @@ the top 10 results.
 
 To get more information about the matches either run:
 
-```bash
+```
 locke crack -v 1 <filename>
 ``` 
 (this will rerun everything and give you detailed output on the top 10 matches)
 or run:
-```bash
+```
 locke search <transformed_filename>
 ``` 
 (this will search the provided transformed file for patterns and output 
@@ -75,7 +75,7 @@ Commands:
 ```
 ##### patterns
 Usage statement:
-```bash
+```
 locke patterns --help
 Usage: locke patterns [OPTIONS]
 
@@ -86,7 +86,7 @@ Options:
 ```
 ##### search
 Usage statement:
-```bash
+```
 locke search --help
 Usage: locke search [OPTIONS] [FILES]...
 
@@ -104,7 +104,7 @@ You can add in `` --csv <outputName>`` to save the result as a csv
 
 ##### transforms
 Usage statement:
-```bash
+```
 locke transforms --help
 Usage: locke transforms [OPTIONS]
 
@@ -135,7 +135,7 @@ Usage: locke crack [OPTIONS] FILENAME
 
 Options:
   -l, --level INTEGER    Select transformers with level 1, 2, or 3 and below
-  -o, --only INTEGER     Only use transformers on that specific level
+  -o, --output TEXT      Output directory for transformed files
   -n, --name TEXT        A list of transformer classes to use in quotes and is
                          commas separated
   -k, --keep INTEGER     How many transforms to saveafter stage 1
@@ -174,3 +174,15 @@ This program also support decoding files inside a zip. Run with ``-z`` to mark t
 password encrypted, you can supply the password by using the ``--password <password>`` option. The script
 will attempt to read the zip and list the files available and ask which files do you want to decode (if there are
 more than one files).
+
+### Differences made to Locke from Balbuzard
+- Uses Python 3 instead of 2
+- Multiprocessed for faster execution
+- Dedups translation alphabets
+- With the dedupped translations you won't get the same results for two separate algorithms that are functionally equivalent
+- Preprocesses the generation of the translation alphabets into a database for stage1
+
+### TODO
+- Want to configure the weights for the patterns to make the tool even more accurate.
+- If needed, make locke truly an expandable distributed process.
+- Testing on multiple samples of different sizes to see where performance and accuracy enhancement can be made.
